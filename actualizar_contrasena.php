@@ -42,6 +42,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+  
+
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -60,6 +63,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <?php elseif ($mensaje_exito): ?>
         <script>
             Swal.fire('Éxito', '<?php echo $mensaje_exito; ?>', 'success')
+//esto es una prueba de un cambio
+//de contraseña
             .then(() => window.location.href = 'index.php');
         </script>
     <?php endif; ?>
