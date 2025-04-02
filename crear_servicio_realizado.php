@@ -75,17 +75,25 @@ $conn->close();
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     
     <style>
-        /* Mismos estilos base con ajustes para el formulario */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-image: url('Imagenes/CrearServicioRealizado.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            margin: 0;
             padding: 0;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
+            flex-direction: column;
         }
 
         .sidebar {
@@ -93,51 +101,143 @@ $conn->close();
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #333;
-            padding: 20px 0;
+            background-color: rgba(100, 67, 67, 0.7);
+            padding: 15px 0;
             z-index: 1000;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .sidebar a {
-            padding: 10px 20px;
+            padding: 12px 25px;
             text-decoration: none;
             font-size: 18px;
-            color: white;
-            background-color: #007bff;
-            margin-right: 10px;
-            border-radius: 5px;
-            transition: 0.3s;
+            color: #fff;
+            background-color: #2d0f2a;
+            margin-right: 15px;
+            border-radius: 50px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
         }
 
         .sidebar a:hover {
-            background-color: #0056b3;
+            background-color: #440f33;
+            transform: translateY(-2px);
         }
 
         .logo-container {
-            margin-left: 50px;
-            border-radius: 10px;
-            width: 100px;
-            height: 100px;
+            margin-left: 30px;
+            border-radius: 50%;
+            width: 90px;
+            height: 90px;
+            overflow: hidden;
         }
 
         .logo {
             width: 100%;
             height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(2px 4px 6px white);
-            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
         }
 
         .container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            width: 90%;
             max-width: 600px;
-            margin: 180px auto;
+            text-align: center;
+            margin-top: 100px;
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            color: #680c39;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 8px;
+            color: black;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        input[type="text"], 
+        input[type="date"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-sizing: border-box;
+            background-color: #f9f9f9;
+            font-size: 16px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, 
+        input[type="date"]:focus,
+        input[type="password"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #2d0f2a;
+            background-color: #fff;
+        }
+
+        .form-check {
+            text-align: left;
+            margin: 15px 0;
+        }
+
+        .form-check-label {
+            margin-left: 10px;
+            color: #333;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #2d0f2a;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #440f33;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            background-color: #680c39;
+            transform: translateY(0);
+        }
+
+        .form-message {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #c70a3c;
         }
     </style>
 </head>
@@ -149,11 +249,11 @@ $conn->close();
         <img src="Imagenes/Logo.jpg" alt="Logo" class="logo">
     </div>
     <div>
-         <a href="dashboard.php" data-no-warning>Dashboard</a>
-         <a href="consulta_general.php" data-no-warning>Consulta General</a>
-         <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
-         <a href="logout.php" data-no-warning>Cerrar Sesión</a>
-     </div>
+        <a href="dashboard.php" data-no-warning>Dashboard</a>
+        <a href="consulta_general.php" data-no-warning>Consulta General</a>
+        <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
+        <a href="logout.php" data-no-warning>Cerrar Sesión</a>
+    </div>
 </div>
 
 <!-- Contenido principal -->
@@ -200,7 +300,7 @@ $conn->close();
             <input type="checkbox" name="Facturacion_Separada" class="form-check-input" value="1">
             <label for="Facturacion_Separada" class="form-check-label">¿Facturación Separada?</label>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Agregar Registro</button>
+        <button type="submit" class="btn btn-primary">Agregar Registro</button>
     </form>
 </div>
 

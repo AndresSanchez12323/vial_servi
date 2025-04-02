@@ -3,80 +3,35 @@ session_start();
 require_once 'config.php';
 
 $mensajeError = "";
-$intentosPermitidos = 3;
-$bloqueoHoras = 24;
+$mensajeExito = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $cedula = $_POST['cedula'];
-    $password = $_POST['password'];
+    $nombre = $_POST['nombre'];
+    $email = $_POST['email'];
+    $mensaje = $_POST['mensaje'];
 
-    // Verificar si el usuario está bloqueado
-    $sqlCheckBloqueo = "SELECT intentos_fallidos, fecha_hora_bloqueo, Rol_id, Contraseña FROM empleados WHERE Cedula_Empleado_id = ?";
-    $stmt = $conn->prepare($sqlCheckBloqueo);
-    if (!$stmt) {
-        die("Error en la consulta SQL: " . $conn->error);
-    }
-    $stmt->bind_param("i", $cedula);
-    $stmt->execute();
-    $resultado = $stmt->get_result()->fetch_assoc();
-
-    if ($resultado) {
-        $intentosFallidos = $resultado['intentos_fallidos'];
-        $fechaHoraBloqueo = $resultado['fecha_hora_bloqueo'];
-        $rol = $resultado['Rol_id'];
-        $hashedPassword = $resultado['Contraseña'];
-
-        // Verificar si el usuario está bloqueado
-        if ($intentosFallidos >= $intentosPermitidos && strtotime($fechaHoraBloqueo) + ($bloqueoHoras * 3600) > time()) {
-            $mensajeError = "Usuario bloqueado. Inténtelo nuevamente en $bloqueoHoras horas o contacte al administrador.";
+    // Verificar que los campos no estén vacíos
+    if (!empty($nombre) && !empty($email) && !empty($mensaje)) {
+        
+        // Insertar mensaje en la tabla 'mensajes' sin validar el correo
+        $sql = "INSERT INTO mensajes (nombre, email, mensaje) VALUES (?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        
+        if ($stmt === false) {
+            // Si la preparación de la consulta falla, muestra el error
+            $mensajeError = "Error en la preparación de la consulta SQL: " . $conn->error;
         } else {
-            // Si estaba bloqueado, pero el tiempo ya pasó, restablecer intentos
-            if ($intentosFallidos >= $intentosPermitidos) {
-                $sqlReiniciarIntentos = "UPDATE empleados SET intentos_fallidos = 0, fecha_hora_bloqueo = NULL WHERE Cedula_Empleado_id = ?";
-                $stmtReiniciar = $conn->prepare($sqlReiniciarIntentos);
-                $stmtReiniciar->bind_param("i", $cedula);
-                $stmtReiniciar->execute();
-            }
-
-            // Verificar contraseña encriptada
-            if (password_verify($password, $hashedPassword)) {
-                $_SESSION['loggedin'] = true;
-                $_SESSION['cedula'] = $cedula;
-                $_SESSION['rol'] = $rol;
-
-                // Resetear intentos fallidos
-                $sqlResetIntentos = "UPDATE empleados SET intentos_fallidos = 0, fecha_hora_bloqueo = NULL WHERE Cedula_Empleado_id = ?";
-                $stmtReset = $conn->prepare($sqlResetIntentos);
-                $stmtReset->bind_param("i", $cedula);
-                $stmtReset->execute();
-
-                // Redirigir según el rol
-                if ($rol == 0) {
-                    header("Location: administrador.php");
-                } else {
-                    header("Location: dashboard.php");
-                }
-                exit();
+            // Si la consulta se preparó correctamente, procedemos a vincular los parámetros
+            $stmt->bind_param("sss", $nombre, $email, $mensaje);
+            
+            if ($stmt->execute()) {
+                $mensajeExito = "Mensaje enviado correctamente.";
             } else {
-                // Si la contraseña es incorrecta, aumentar el contador de intentos fallidos
-                $intentosFallidos++;
-                $mensajeError = "Usuario o contraseña incorrectos";
-
-                if ($intentosFallidos >= $intentosPermitidos) {
-                    $sqlBloquearUsuario = "UPDATE empleados SET intentos_fallidos = ?, fecha_hora_bloqueo = NOW() WHERE Cedula_Empleado_id = ?";
-                    $stmtBloquear = $conn->prepare($sqlBloquearUsuario);
-                    $stmtBloquear->bind_param("ii", $intentosFallidos, $cedula);
-                    $stmtBloquear->execute();
-                } else {
-                    $sqlActualizarIntentos = "UPDATE empleados SET intentos_fallidos = ? WHERE Cedula_Empleado_id = ?";
-                    $stmtActualizar = $conn->prepare($sqlActualizarIntentos);
-                    $stmtActualizar->bind_param("ii", $intentosFallidos, $cedula);
-                    $stmtActualizar->execute();
-                }
+                $mensajeError = "Error al enviar el mensaje. " . $stmt->error;
             }
         }
     } else {
-        $mensajeError = "Usuario o contraseña incorrectos";
+        $mensajeError = "Todos los campos son obligatorios.";
     }
 }
 ?>
@@ -86,8 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <!-- SweetAlert2 CSS y JavaScript -->
+    <title>Contáctenos</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
@@ -98,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: url('Imagenes/Login.jpg');
+            background-image: url('Imagenes/Contactenos.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -163,9 +117,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 15px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             text-align: center;
-            margin-top: 100px;
+            margin-top: 150px; /* Separación entre la barra superior y el contenedor */
             transition: all 0.3s ease;
         }
 
@@ -187,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-size: 16px;
         }
 
-        input[type="text"], input[type="password"] {
+        input[type="text"], input[type="email"], textarea {
             width: 100%;
             padding: 12px;
             margin-bottom: 20px;
@@ -200,7 +154,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus, input[type="password"]:focus {
+        input[type="text"]:focus, input[type="email"]:focus, textarea:focus {
             outline: none;
             border-color: #2d0f2a; /* Usando .color1 */
             background-color: #fff;
@@ -249,18 +203,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
 
-<div id="mySidebar" class="sidebar">
+<div class="sidebar">
     <div class="logo-container">
         <img src="Imagenes/Logo.jpg" alt="Logo" class="logo">
     </div>
     <div>
-        <a href="index.php" data-no-warning>Inicio</a>
-        <a href="login_cliente.php" >Área Clientes</a>
+        <a href="login_cliente.php" >Inicio</a>
+        <a href="contactenos.php" >Contáctenos</a>
+        <a href="quienes_somos.html" >Quiénes Somos</a>
     </div>
 </div>
 
 <div class="container">
-    <h2>Iniciar Sesión</h2>
+    <h2>Contáctenos</h2>
+
     <?php if ($mensajeError): ?>
         <script>
             Swal.fire({
@@ -271,24 +227,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             });
         </script>
     <?php endif; ?>
-    <form method="POST">
-        <label for="cedula">Cédula:</label>
-        <input type="text" id="cedula" name="cedula" required>
-        
-        <label for="password">Contraseña:</label>
-        <input type="password" id="password" name="password" required>
-        
-        <button type="submit">Iniciar sesión</button>
-        <label for="">
-            <a href="registro.php"></a>
+    
+    <?php if ($mensajeExito): ?>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Éxito',
+                text: '<?= $mensajeExito ?>',
+                confirmButtonColor: '#007bff'
+            });
+        </script>
+    <?php endif; ?>
 
-            <button type="button" onclick="window.location.href='registro.php'">Registrarse</button>
-        <label for="">
-            <a href="recuperar_contraseña.php">¿Olvidaste tu contraseña?</a>
-        </label>
+    <form method="POST">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required>
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+        
+        <label for="mensaje">Mensaje:</label>
+        <textarea id="mensaje" name="mensaje" rows="4" required></textarea>
+        
+        <button type="submit">Enviar</button>
     </form>
 </div>
 
 </body>
 </html>
-            

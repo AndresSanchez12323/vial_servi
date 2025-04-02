@@ -2,63 +2,53 @@
 session_start();
 require_once 'config.php';
 
+if (isset($_SESSION['registration_success']) && $_SESSION['registration_success']) {
+    unset($_SESSION['registration_success']);
+    echo '<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>';
+    echo '<script>
+            document.addEventListener("DOMContentLoaded", function() {
+                Swal.fire({
+                    icon: "success",
+                    title: "¡Registro exitoso!",
+                    text: "Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.",
+                    confirmButtonColor: "#680c39",
+                    confirmButtonText: "Entendido"
+                });
+            });
+          </script>';
+}
 $error_message = '';
-$success_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $cedula_empleado_id = $_POST['cedula_empleado_id'];
-    $nombre = $_POST['nombre'];
-    $apellido = $_POST['apellido'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $rol_id = 5; // Rol predeterminado: Técnico
-
-    // Validar formato de correo electrónico
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $error_message = "Por favor, ingresa un correo electrónico válido.";
-    } else {
-        // Verificar si la cédula ya está registrada
-        $sql_check_cedula = "SELECT * FROM empleados WHERE Cedula_Empleado_id = ?";
-        $stmt_cedula = $conn->prepare($sql_check_cedula);
-        $stmt_cedula->bind_param("i", $cedula_empleado_id);
-        $stmt_cedula->execute();
-        $result_cedula = $stmt_cedula->get_result();
-
-        if ($result_cedula->num_rows > 0) {
-            $error_message = "La cédula del empleado ya está registrada. Por favor, inicia sesión.";
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+    
+    $sql = "SELECT Cedula_Id, Nombre, Apellido, Email, password FROM clientes WHERE Email = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows == 1) {
+        $cliente = $result->fetch_assoc();
+        
+        if (password_verify($password, $cliente['password'])) {
+            $_SESSION['cliente_id'] = $cliente['Cedula_Id'];
+            $_SESSION['cliente_nombre'] = $cliente['Nombre'] . ' ' . $cliente['Apellido'];
+            $_SESSION['cliente_email'] = $cliente['Email'];
+            $_SESSION['loggedin'] = true;
+            
+            header("Location: cliente_dashboard.php");
+            exit();
         } else {
-            // Verificar si el email ya está registrado
-            $sql_check_email = "SELECT * FROM empleados WHERE Email = ?";
-            $stmt_email = $conn->prepare($sql_check_email);
-            $stmt_email->bind_param("s", $email);
-            $stmt_email->execute();
-            $result_email = $stmt_email->get_result();
-
-            if ($result_email->num_rows > 0) {
-                $error_message = "Este correo electrónico ya está registrado.";
-            } else {
-                // Cifrar la contraseña
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-                // Insertar nuevo empleado con rol de Técnico en la base de datos
-                $sql_insert = "INSERT INTO empleados (Cedula_Empleado_id, Nombre, Apellido, Email, Contraseña, Rol_id) 
-                               VALUES (?, ?, ?, ?, ?, ?)";
-                $stmt_insert = $conn->prepare($sql_insert);
-
-                if ($stmt_insert === false) {
-                    $error_message = "Error al preparar la consulta de inserción: " . $conn->error;
-                } else {
-                    $stmt_insert->bind_param("issssi", $cedula_empleado_id, $nombre, $apellido, $email, $hashed_password, $rol_id);
-
-                    if ($stmt_insert->execute()) {
-                        $success_message = "¡Registro exitoso! Ahora puedes iniciar sesión.";
-                    } else {
-                        $error_message = "Error al registrar el usuario: " . $conn->error;
-                    }
-                }
-            }
+            $error_message = "Correo o contraseña incorrectos";
         }
+    } else {
+        $error_message = "Correo o contraseña incorrectos"; // Mismo mensaje por seguridad
     }
+    
+    $stmt->close();
+    $conn->close();
 }
 ?>
 
@@ -67,11 +57,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro</title>
-
-    <!-- SweetAlert2 CSS y JavaScript -->
+    <title>Login Cliente - VialServi</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <style>
         * {
             margin: 0;
@@ -81,10 +68,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: url('Imagenes/Registro.jpg');
+            background-image: url('Imagenes/LoginCliente.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -168,7 +157,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 16px;
         }
 
-        input[type="text"], input[type="email"], input[type="password"] {
+        input[type="email"], input[type="password"] {
             width: 100%;
             padding: 12px;
             margin-bottom: 20px;
@@ -181,7 +170,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+        input[type="email"]:focus, input[type="password"]:focus {
             outline: none;
             border-color: #2d0f2a;
             background-color: #fff;
@@ -226,56 +215,62 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             color: #440f33;
             text-decoration: underline;
         }
+
+        .error-message {
+            color: #c70a3c;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-
-<!-- Barra de navegación -->
-<div id="mySidebar" class="sidebar">
-    <div class="logo-container">
-        <img src="Imagenes/Logo.jpg" alt="Logo" class="logo">
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="Imagenes/Logo.jpg" alt="Logo VialServi" class="logo">
+        </div>
+        <div>
+            <a href="index.php">Área Empleados</a>
+            <a href="contactenos.php" >Contáctenos</a>
+            <a href="quienes_somos.html" >Quiénes Somos</a>
+        </div>
     </div>
-    <div>
-    
+
+    <div class="container">
+        <h2>Acceso Clientes</h2>
+        
+        <?php if (!empty($error_message)): ?>
+            <div class="error-message"><?php echo $error_message; ?></div>
+        <?php endif; ?>
+        
+        <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+            <div>
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Ingresar</button>
+        </form>
+        
+        <div class="form-message">
+            ¿Primera vez aquí? <a href="registro_cliente.php">Regístrese</a>
+        </div>
+        <div class="form-message">
+            <a href="recuperar_contraseña_cliente.php">¿Olvidó su contraseña?</a>
+        </div>
     </div>
-</div>
 
-<!-- Contenedor de Registro -->
-<div class="container">
-    <h2>Formulario de Registro</h2>
-    <form action="registro.php" method="POST">
-        <input type="text" name="cedula_empleado_id" placeholder="Cédula del Empleado" required>
-        <input type="text" name="nombre" placeholder="Nombre" required>
-        <input type="text" name="apellido" placeholder="Apellido" required>
-        <input type="email" name="email" placeholder="Correo Electrónico" required>
-        <input type="password" name="password" placeholder="Contraseña" required>
-        <button type="submit">Registrarse</button>
-    </form>
-    <br>
-    <a href="index.php">¿Ya tienes cuenta?</a>
-</div>
-
-<!-- SweetAlert2 para mensajes de error o éxito -->
-<?php if (isset($error_message) && !empty($error_message)): ?>
     <script>
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: '<?php echo $error_message; ?>'
-        });
+        <?php if (!empty($error_message)): ?>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de autenticación',
+                text: '<?php echo $error_message; ?>',
+                confirmButtonColor: '#2d0f2a'
+            });
+        <?php endif; ?>
     </script>
-<?php endif; ?>
-
-<?php if (isset($success_message) && !empty($success_message)): ?>
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: '<?php echo $success_message; ?>'
-        }).then(() => {
-            window.location.href = 'index.php';
-        });
-    </script>
-<?php endif; ?>
-
 </body>
 </html>
