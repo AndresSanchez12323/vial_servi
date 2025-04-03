@@ -21,7 +21,6 @@ if (isset($_GET['id'])) {
         exit;
     }
 }
-
 // Procesar el formulario al enviarlo
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cedulaEmpleado = $_POST['Cedula_Empleado_id_Servicios_Realizados'];

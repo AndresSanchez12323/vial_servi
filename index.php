@@ -254,7 +254,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <img src="Imagenes/Logo.jpg" alt="Logo" class="logo">
     </div>
     <div>
-        <a href="index.php" data-no-warning>Inicio</a>
         <a href="login_cliente.php" >Área Clientes</a>
     </div>
 </div>

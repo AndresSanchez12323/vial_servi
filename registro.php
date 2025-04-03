@@ -10,6 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = $_POST['nombre'];
     $apellido = $_POST['apellido'];
     $email = $_POST['email'];
+    $telefono = $_POST['telefono'];  // Added this line
     $password = $_POST['password'];
     $rol_id = 5; // Rol predeterminado: Técnico
 
@@ -41,14 +42,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
                 // Insertar nuevo empleado con rol de Técnico en la base de datos
-                $sql_insert = "INSERT INTO empleados (Cedula_Empleado_id, Nombre, Apellido, Email, Contraseña, Rol_id) 
-                               VALUES (?, ?, ?, ?, ?, ?)";
+                $sql_insert = "INSERT INTO empleados (Cedula_Empleado_id, Nombre, Apellido, Email, Telefono, Contraseña, Rol_id) 
+                               VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $stmt_insert = $conn->prepare($sql_insert);
 
                 if ($stmt_insert === false) {
                     $error_message = "Error al preparar la consulta de inserción: " . $conn->error;
                 } else {
-                    $stmt_insert->bind_param("issssi", $cedula_empleado_id, $nombre, $apellido, $email, $hashed_password, $rol_id);
+                    $stmt_insert->bind_param("isssssi", $cedula_empleado_id, $nombre, $apellido, $email, $telefono, $hashed_password, $rol_id);
 
                     if ($stmt_insert->execute()) {
                         $success_message = "¡Registro exitoso! Ahora puedes iniciar sesión.";
@@ -168,7 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             font-size: 16px;
         }
 
-        input[type="text"], input[type="email"], input[type="password"] {
+        input[type="text"], input[type="email"], input[type="password"], input[type="tel"] {
             width: 100%;
             padding: 12px;
             margin-bottom: 20px;
@@ -181,7 +182,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="tel"]:focus {
             outline: none;
             border-color: #2d0f2a;
             background-color: #fff;
@@ -248,6 +249,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="text" name="nombre" placeholder="Nombre" required>
         <input type="text" name="apellido" placeholder="Apellido" required>
         <input type="email" name="email" placeholder="Correo Electrónico" required>
+        <input type="tel" name="telefono" placeholder="Teléfono" required>
         <input type="password" name="password" placeholder="Contraseña" required>
         <button type="submit">Registrarse</button>
     </form>
