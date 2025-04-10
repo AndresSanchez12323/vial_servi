@@ -235,7 +235,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
      <div>
          <a href="dashboard.php" data-no-warning>Dashboard</a>
          <a href="consulta_general.php" data-no-warning>Consulta General</a>
-         <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
+         <a href="consulta_identificacion.php" data-no-warning>Consulta por Placa</a>
          <a href="logout.php" data-no-warning>Cerrar Sesión</a>
      </div>
 </div>
@@ -256,7 +256,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <tr>
                     <th>ID</th>
                     <th>Placa Vehículo</th>
-                    <th>Servicio</th>
                     <th>Fecha</th>
                     <th>Ubicación</th>
                 </tr>
@@ -266,7 +265,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         echo "<tr>";
                         echo "<td>" . $row['Servicio_Realizado_id'] . "</td>";
                         echo "<td>" . $row['Vehiculo_id_Servicios_Realizados'] . "</td>";
-                        echo "<td>" . $row['Servicio_id_Servicios_Realizados'] . "</td>";
                         echo "<td>" . $row['Fecha'] . "</td>";
                         echo "<td>" . $row['Ubicación'] . "</td>";
                         echo "</tr>";

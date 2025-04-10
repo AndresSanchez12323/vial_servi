@@ -202,7 +202,7 @@ $result = $conn->query($sql);
             <?php 
         }?>
          <a href="consulta_general.php" data-no-warning>Consulta General</a>
-         <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
+         <a href="consulta_identificacion.php" data-no-warning>Consulta por Placa</a>
          <a href="logout.php" data-no-warning>Cerrar Sesión</a>
      </div>
 </div>
@@ -291,7 +291,11 @@ $result = $conn->query($sql);
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
             confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            didOpen: () => {
+            document.querySelector('.swal2-confirm').setAttribute('data-no-warning', '');
+            document.querySelector('.swal2-cancel').setAttribute('data-no-warning', '');
+        }
         }).then((result) => {
             if (result.isConfirmed) {
                 fetch(`delete.php?id=${id}`, {
@@ -304,9 +308,7 @@ $result = $conn->query($sql);
                             'Eliminado',
                             'El registro ha sido eliminado exitosamente.',
                             'success'
-                        ).then(() => {
-                            location.reload();
-                        });
+                        ) 
                     } else {
                         Swal.fire(
                             'Error',

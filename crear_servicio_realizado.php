@@ -269,10 +269,6 @@ $conn->close();
             <input type="text" name="Vehiculo_id_Servicios_Realizados" class="form-control" required>
         </div>
         <div class="form-group">
-            <label for="Servicio_id_Servicios_Realizados">ID del Servicio</label>
-            <input type="text" name="Servicio_id_Servicios_Realizados" class="form-control" required>
-        </div>
-        <div class="form-group">
             <label for="Fecha">Fecha</label>
             <input type="date" name="Fecha" class="form-control" required>
         </div>
