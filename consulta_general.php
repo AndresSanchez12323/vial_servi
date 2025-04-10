@@ -194,6 +194,13 @@ $result = $conn->query($sql);
     </div>
     <div>
          <a href="dashboard.php" data-no-warning>Dashboard</a>
+         <?php 
+            if (usuarioTienePermiso($_SESSION['cedula'], 'crear_servicio', $conn)) { 
+            ?>
+                  <a href="gestionar_servicios.php" data-no-warning>Servicios</a>
+
+            <?php 
+        }?>
          <a href="consulta_general.php" data-no-warning>Consulta General</a>
          <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
          <a href="logout.php" data-no-warning>Cerrar Sesión</a>

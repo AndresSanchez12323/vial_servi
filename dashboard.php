@@ -111,7 +111,6 @@ if (!usuarioTienePermiso($usuarioId, $permisoRequerido, $conn)) {
         <p>Aquí podrás acceder a las diferentes funciones del sistema.</p>
         <a href="consulta_general.php" data-no-warning>Ir a Consulta General</a>
         <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
-        <a href="gestionar_servicios.php" data-no-warning>Crud servicios</a>
     </div>
 
 
