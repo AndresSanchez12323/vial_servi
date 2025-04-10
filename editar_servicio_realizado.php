@@ -48,25 +48,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             Facturación_Separada = '$facturacionSeparada' 
             WHERE Servicio_Realizado_id = '$id'";
 
-    if ($conn->query($sql) === TRUE) {
-        echo "<script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    Swal.fire({
-                        title: 'Éxito',
-                        text: 'Registro actualizado exitosamente',
-                        icon: 'success',
-                        confirmButtonText: 'Aceptar',
-                        confirmButtonColor: '#ff6b6b'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = 'consulta_general.php';
+if ($conn->query($sql) === TRUE) {
+    echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    title: 'Éxito',
+                    text: 'Registro actualizado exitosamente',
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar',
+                    confirmButtonColor: '#ff6b6b',
+                    didOpen: () => {
+                        // Agregar atributo solo al botón de confirmación
+                        const confirmButton = document.querySelector('.swal2-confirm');
+                        if (confirmButton) {
+                            confirmButton.setAttribute('data-no-warning', '');
                         }
-                    });
-                });
-              </script>";
-    } else {
-        echo "Error al actualizar el registro: " . $conn->error;
-    }
+                            
+                    }
+                })
+            });
+          </script>";
+} else {
+    echo "Error al actualizar el registro: " . $conn->error;
+}
 }
 
 $conn->close();
@@ -264,7 +268,7 @@ $conn->close();
             <input type="checkbox" name="Facturacion_Separada" class="form-check-input" value="1" <?php echo $row['Facturación_Separada'] ? 'checked' : ''; ?>>
             <label for="Facturacion_Separada" class="form-check-label">¿Facturación Separada?</label>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Actualizar Registro</button>
+        <button type="submit" class="btn btn-primary mt-3" data-no-warning>Actualizar Registro</button>
     </form>
 </div>
 <script>
