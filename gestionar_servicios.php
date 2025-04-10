@@ -230,7 +230,7 @@ $result = $conn->query($sql);
                         if ($mostrarAcciones) {
                             echo "<td class='action-buttons'>";
                             if ($usuarioPuedeEditar) {
-                                echo "<a href='editar_servicio.php?id=" . $row['Servicio_id'] . "' class='btn btn-warning' data-no-warning><i class='fas fa-edit'></i> Editar</a> ";
+                                echo "<a href='edit_service.php?id=" . $row['Servicio_id'] . "' class='btn btn-warning' data-no-warning><i class='fas fa-edit'></i> Editar</a> ";
                             }
                             if ($usuarioPuedeEliminar) {
                                 echo "<button onclick='confirmDelete(" . $row['Servicio_id'] . ")' class='btn btn-danger' data-no-warning><i class='fas fa-trash-alt'></i> Eliminar</button>";
