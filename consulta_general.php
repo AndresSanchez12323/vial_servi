@@ -177,7 +177,7 @@ $result = $conn->query($sql);
         }
 
         .btn-warning:hover {
-            background-color: #e0a800;
+            background-color:#e0a800;
         }
 
         .btn-danger:hover {

@@ -69,6 +69,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute();
     }
     
+    // Actualizar datos de usuario (para la función de edición)
+    if (isset($_POST['editar_usuario'])) {
+        $usuario_id = $_POST['editar_usuario'];
+        $nombre = $_POST['editar_nombre'];
+        $apellido = $_POST['editar_apellido'];
+        $rol = $_POST['editar_rol'];
+        
+        $sqlEditar = "UPDATE empleados SET Nombre = ?, Apellido = ?, Rol_id = ? WHERE Cedula_Empleado_id = ?";
+        $stmt = $conn->prepare($sqlEditar);
+        
+        if ($stmt) {
+            $stmt->bind_param("ssis", $nombre, $apellido, $rol, $usuario_id);
+            $stmt->execute();
+            
+            // No hay tabla de actividad en la base de datos, así que omitimos el registro
+            // Si decides añadir esta funcionalidad, primero debes crear la tabla 'actividad'
+            /*
+            $sqlRegistro = "INSERT INTO actividad (usuario_id, accion) VALUES (?, 'Edición de usuario')";
+            $stmt = $conn->prepare($sqlRegistro);
+            if ($stmt) {
+                $stmt->bind_param("i", $_SESSION['cedula']);
+                $stmt->execute();
+            }
+            */
+        } else {
+            echo "<script>alert('Error al actualizar: " . $conn->error . "');</script>";
+        }
+    }
+    
     if (isset($_POST['nuevo_nombre']) && isset($_POST['nuevo_apellido']) && isset($_POST['nuevo_cedula']) && isset($_POST['nuevo_rol'])) {
         $nombre = $_POST['nuevo_nombre'];
         $apellido = $_POST['nuevo_apellido'];
@@ -220,11 +249,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         button.delete {
-            background-color: #dc3545;
+            background-color: #c82333;
         }
 
         button.delete:hover {
             background-color: #b02a37;
+        }
+
+        button.edit {
+            background-color: #e0a800;
+            margin-bottom: 5px;
+        }
+
+        button.edit:hover {
+            background-color: #0b5ed7;
         }
 
         #buscarUsuario {
@@ -260,6 +298,43 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             background-color: #440f33;
             transform: translateY(-2px);
         }
+
+        /* Estilos para el modal de edición */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+        }
     </style>
 
     <script>
@@ -274,6 +349,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 row.style.display = text.includes(filter) ? "" : "none";
             });
         }
+
+        function abrirModalEditar(cedula, nombre, apellido, rol_id) {
+            document.getElementById('editar_usuario').value = cedula;
+            document.getElementById('editar_nombre').value = nombre;
+            document.getElementById('editar_apellido').value = apellido;
+            document.getElementById('editar_rol').value = rol_id;
+            document.getElementById('modalEditar').style.display = 'block';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalEditar').style.display = 'none';
+        }
+
+        // Cerrar el modal si se hace clic fuera de él
+        window.onclick = function(event) {
+            let modal = document.getElementById('modalEditar');
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
     </script>
 </head>
 <body>
@@ -284,6 +379,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <i class="fas fa-users-cog"></i> Gestionar Roles
         </button>
     
+        <!-- Sección de agregar usuario comentada como solicitado -->
+        <!--
         <h3>Agregar Nuevo Usuario</h3>
         <form method="POST">
             <div class="form">
@@ -298,6 +395,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <button type="submit">Agregar Usuario</button>
         </form>
+        -->
 
         <br>                
         <h2>Administración de Usuarios</h2>
@@ -320,6 +418,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <td><?php echo $usuario['Rol_id'] == 0 ? 'Control de usuarios y roles' : ($usuario['permisos'] ? $usuario['permisos'] : 'No asignados'); ?></td>
                     <td>
                         <?php if ($usuario['Rol_id'] != 0) { ?>
+                            <!-- Botón Editar -->
+                            <button type="button" class="edit" onclick="abrirModalEditar('<?php echo $usuario['Cedula_Empleado_id']; ?>', '<?php echo $usuario['Nombre']; ?>', '<?php echo $usuario['Apellido']; ?>', '<?php echo $usuario['Rol_id']; ?>')">Editar</button>
+                            
+                            <!-- Botón Eliminar -->
                             <form method="POST">
                                 <input type="hidden" name="eliminar_usuario" value="<?php echo $usuario['Cedula_Empleado_id']; ?>">
                                 <button type="submit" class="delete">Eliminar</button>
@@ -337,6 +439,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </main>
 </div>
 
+<!-- Modal para editar usuario -->
+<div id="modalEditar" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal()">&times;</span>
+        <h3>Editar Usuario</h3>
+        <form method="POST">
+            <div class="form">
+                <input type="hidden" id="editar_usuario" name="editar_usuario">
+                <input type="text" id="editar_nombre" name="editar_nombre" placeholder="Nombre" required>
+                <input type="text" id="editar_apellido" name="editar_apellido" placeholder="Apellido" required>
+                <select id="editar_rol" name="editar_rol">
+                    <?php foreach ($rolesDisponibles as $id => $nombre) { ?>
+                        <option value="<?php echo $id; ?>"><?php echo $nombre; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <button type="submit">Guardar Cambios</button>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>
-
