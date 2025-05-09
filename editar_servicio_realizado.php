@@ -6,50 +6,48 @@ if (!isset($_SESSION['loggedin'])) {
     exit;
 }
 
+
 // Verificar si se ha enviado un ID válido para editar
 if (isset($_GET['id'])) {
+    // Obtener datos del servicio
     $id = $_GET['id'];
-
-    // Consultar el registro actual para obtener los datos
     $sql = "SELECT * FROM servicios_realizados WHERE Servicio_Realizado_id = '$id'";
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
+        $servicio = $result->fetch_assoc();  // ← usamos $servicio en lugar de $row
     } else {
         echo "Registro no encontrado.";
         exit;
     }
+
+    // Obtener empleados
+    $empleados = [];
+    $query = "SELECT Cedula_Empleado_id, Nombre, Apellido FROM empleados WHERE Rol_id = 2";
+    $result = $conn->query($query);
+
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $empleados[] = $row;
+        }
+    }
+
 }
 // Procesar el formulario al enviarlo
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cedulaEmpleado = $_POST['Cedula_Empleado_id_Servicios_Realizados'];
-    $vehiculoId = $_POST['Vehiculo_id_Servicios_Realizados'];
-    $servicioId = $_POST['Servicio_id_Servicios_Realizados'];
     $fecha = $_POST['Fecha'];
     $ubicacion = $_POST['Ubicacion'];
     $novedades = $_POST['Novedades'];
-    $fotos = $_POST['Fotos'];
     $detalleServicio = $_POST['Detalle_Servicio'];
     $custodiaServicio = $_POST['Custodia_Servicio'];
-    $facturacionSeparada = isset($_POST['Facturacion_Separada']) ? 1 : 0;
 
     // Actualizar el registro en la base de datos
-    $sql = "UPDATE servicios_realizados SET 
-            Cedula_Empleado_id_Servicios_Realizados = '$cedulaEmpleado', 
-            Vehiculo_id_Servicios_Realizados = '$vehiculoId', 
-            Servicio_id_Servicios_Realizados = '$servicioId', 
-            Fecha = '$fecha', 
-            Ubicación = '$ubicacion', 
-            Novedades = '$novedades', 
-            Fotos = '$fotos', 
-            Detalle_Servicio = '$detalleServicio', 
-            Custodia_Servicio = '$custodiaServicio', 
-            Facturación_Separada = '$facturacionSeparada' 
-            WHERE Servicio_Realizado_id = '$id'";
-
-if ($conn->query($sql) === TRUE) {
-    echo "<script>
+    $stmt = $conn->prepare("UPDATE servicios_realizados SET Cedula_Empleado_id_Servicios_Realizados=?, Fecha=?, Ubicación=?, Novedades=?, Detalle_Servicio=?, Custodia_Servicio=? WHERE Servicio_Realizado_id=?");
+    $stmt->bind_param("ssssssi", $cedulaEmpleado, $fecha, $ubicacion, $novedades, $detalleServicio, $custodiaServicio, $id);
+    
+    if ($stmt->execute()) {
+        echo "<script>
             document.addEventListener('DOMContentLoaded', function() {
                 Swal.fire({
                     title: 'Éxito',
@@ -58,19 +56,15 @@ if ($conn->query($sql) === TRUE) {
                     confirmButtonText: 'Aceptar',
                     confirmButtonColor: '#ff6b6b',
                     didOpen: () => {
-                        // Agregar atributo solo al botón de confirmación
-                        const confirmButton = document.querySelector('.swal2-confirm');
-                        if (confirmButton) {
-                            confirmButton.setAttribute('data-no-warning', '');
-                        }
-                            
+                        document.querySelector('.swal2-confirm').setAttribute('data-no-warning', '');
+                        window.location.href = 'consulta_general.php';
                     }
                 })
             });
-          </script>";
-} else {
-    echo "Error al actualizar el registro: " . $conn->error;
-}
+        </script>";
+    } else {
+        echo "Error al actualizar el registro: " . $stmt->error;
+    }
 }
 
 $conn->close();
@@ -229,45 +223,38 @@ $conn->close();
     <h2>Editar Servicio Realizado</h2>
     <form method="post" action="">
         <div class="form-group">
-            <label for="Cedula_Empleado_id_Servicios_Realizados">Cédula del Empleado</label>
-            <input type="text" name="Cedula_Empleado_id_Servicios_Realizados" class="form-control" value="<?php echo $row['Cedula_Empleado_id_Servicios_Realizados']; ?>" required>
-        </div>
-        <div class="form-group">
-            <label for="Vehiculo_id_Servicios_Realizados">ID del Vehículo</label>
-            <input type="text" name="Vehiculo_id_Servicios_Realizados" class="form-control" value="<?php echo $row['Vehiculo_id_Servicios_Realizados']; ?>" required>
-        </div>
-        <div class="form-group">
-            <label for="Servicio_id_Servicios_Realizados">ID del Servicio</label>
-            <input type="text" name="Servicio_id_Servicios_Realizados" class="form-control" value="<?php echo $row['Servicio_id_Servicios_Realizados']; ?>" required>
+            <label for="Cedula_Empleado_id_Servicios_Realizados">Técnico asignado</label>
+            <select name="Cedula_Empleado_id_Servicios_Realizados" class="form-control" required>
+                <option value="">Seleccione un empleado</option>
+                <?php foreach ($empleados as $empleado): ?>
+                    <option value="<?= $empleado['Cedula_Empleado_id'] ?>"
+                        <?= ($empleado['Cedula_Empleado_id'] == $servicio['Cedula_Empleado_id_Servicios_Realizados']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($empleado['Cedula_Empleado_id']) ?> - <?= htmlspecialchars($empleado['Nombre']) ?> <?= htmlspecialchars($empleado['Apellido']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="form-group">
             <label for="Fecha">Fecha</label>
-            <input type="date" name="Fecha" class="form-control" value="<?php echo $row['Fecha']; ?>" required>
+            <input type="date" name="Fecha" class="form-control" value="<?php echo $servicio['Fecha']; ?>" required>
         </div>
         <div class="form-group">
             <label for="Ubicacion">Ubicación</label>
-            <input type="text" name="Ubicacion" class="form-control" value="<?php echo $row['Ubicación']; ?>" required>
+            <input type="text" name="Ubicacion" class="form-control" value="<?php echo $servicio['Ubicación']; ?>" required>
         </div>
         <div class="form-group">
             <label for="Novedades">Novedades</label>
-            <input type="text" name="Novedades" class="form-control" value="<?php echo $row['Novedades']; ?>">
-        </div>
-        <div class="form-group">
-            <label for="Fotos">Fotos (nombre de archivo)</label>
-            <input type="text" name="Fotos" class="form-control" value="<?php echo $row['Fotos']; ?>">
+            <input type="text" name="Novedades" class="form-control" value="<?php echo $servicio['Novedades']; ?>">
         </div>
         <div class="form-group">
             <label for="Detalle_Servicio">Detalle del Servicio</label>
-            <input type="text" name="Detalle_Servicio" class="form-control" value="<?php echo $row['Detalle_Servicio']; ?>">
+            <input type="text" name="Detalle_Servicio" class="form-control" value="<?php echo $servicio['Detalle_Servicio']; ?>">
         </div>
         <div class="form-group">
             <label for="Custodia_Servicio">Custodia del Servicio</label>
-            <input type="text" name="Custodia_Servicio" class="form-control" value="<?php echo $row['Custodia_Servicio']; ?>">
+            <input type="text" name="Custodia_Servicio" class="form-control" value="<?php echo $servicio['Custodia_Servicio']; ?>">
         </div>
-        <div class="form-check">
-            <input type="checkbox" name="Facturacion_Separada" class="form-check-input" value="1" <?php echo $row['Facturación_Separada'] ? 'checked' : ''; ?>>
-            <label for="Facturacion_Separada" class="form-check-label">¿Facturación Separada?</label>
-        </div>
+        <button type="button" onclick="window.location.href='consulta_general.php'" class="btn btn-danger mt-3" data-no-warning>Cancelar</button>
         <button type="submit" class="btn btn-primary mt-3" data-no-warning>Actualizar Registro</button>
     </form>
 </div>
