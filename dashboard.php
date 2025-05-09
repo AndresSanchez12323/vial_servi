@@ -61,7 +61,7 @@ if (!usuarioTienePermiso($usuarioId, $permisoRequerido, $conn)) {
             border-radius: 15px;
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 800px;
+            max-width: 90%;
             text-align: center;
             margin-top: 100px;
             transition: all 0.3s ease;
@@ -101,6 +101,16 @@ if (!usuarioTienePermiso($usuarioId, $permisoRequerido, $conn)) {
             background-color: #680c39;
             transform: translateY(0);
         }
+
+        .reports {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 
@@ -111,8 +121,14 @@ if (!usuarioTienePermiso($usuarioId, $permisoRequerido, $conn)) {
         <p>Aquí podrás acceder a las diferentes funciones del sistema.</p>
         <a href="consulta_general.php" data-no-warning>Ir a Consulta General</a>
         <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
-    </div>
 
+        <div class="reports">
+            <div id="service-container" style="height: 400px;"></div>
+            <div id="municipality-container" style="height: 400px;"></div>
+            <div id="worker-container" style="height: 400px;"></div>
+        </div>
+
+    </div>
 
     <script>
         const checkSession = () => {
@@ -136,7 +152,103 @@ if (!usuarioTienePermiso($usuarioId, $permisoRequerido, $conn)) {
         window.addEventListener('beforeunload', beforeUnloadHandler);
     </script>
 
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartContainer = document.createElement('div');
+            chartContainer.id = 'container';
+            chartContainer.style.width = '100%';
+            chartContainer.style.height = '400px';
+            document.body.appendChild(chartContainer);
+
+            Highcharts.chart('service-container', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Estadísticas de Servicios'
+                },
+                xAxis: {
+                    categories: ['Servicio 1', 'Servicio 2', 'Servicio 3']
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Cantidad'
+                    }
+                },
+                series: [{
+                    name: 'Servicios',
+                    data: [5, 3, 4]
+                }]
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartContainer = document.createElement('div');
+            chartContainer.id = 'container';
+            chartContainer.style.width = '100%';
+            chartContainer.style.height = '400px';
+            document.body.appendChild(chartContainer);
+
+            Highcharts.chart('municipality-container', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Estadísticas de Servicios'
+                },
+                xAxis: {
+                    categories: ['Servicio 1', 'Servicio 2', 'Servicio 3']
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Cantidad'
+                    }
+                },
+                series: [{
+                    name: 'Servicios',
+                    data: [5, 3, 4]
+                }]
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartContainer = document.createElement('div');
+            chartContainer.id = 'container';
+            chartContainer.style.width = '100%';
+            chartContainer.style.height = '400px';
+            document.body.appendChild(chartContainer);
+
+            Highcharts.chart('worker-container', {
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: 'Estadísticas de Servicios'
+                },
+                xAxis: {
+                    categories: ['Servicio 1', 'Servicio 2', 'Servicio 3']
+                },
+                yAxis: {
+                    min: 0,
+                    title: {
+                        text: 'Cantidad'
+                    }
+                },
+                series: [{
+                    name: 'Servicios',
+                    data: [5, 3, 4]
+                }]
+            });
+        });
+    </script>
 </body>
 
 </html>
-
