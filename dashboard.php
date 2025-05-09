@@ -1,8 +1,7 @@
 <?php
-// session.php
 session_start();
 
-// Destruir la sesión si se recibe el logout
+// Validar logout
 if (isset($_POST['logout']) && $_POST['logout'] === 'true') {
     session_destroy();
     session_unset();
@@ -10,23 +9,118 @@ if (isset($_POST['logout']) && $_POST['logout'] === 'true') {
     exit;
 }
 
-// Redirigir si la sesión no está activa
+// Redirigir si no está logueado
 if (!isset($_SESSION['loggedin'])) {
     header("Location: index.php");
     exit;
 }
 
+include('validPermissions.php');
 $usuarioId = $_SESSION['cedula'];
 $permisoRequerido = 'leer_servicio';
-
-// Incluir validación de permisos
-include('validPermissions.php');
 
 if (!usuarioTienePermiso($usuarioId, $permisoRequerido, $conn)) {
     die("❌ Acceso denegado: No tienes permiso para ver esta página.");
 }
-?>
 
+// 👇🏽 SI ES PETICIÓN DE DATOS JSON
+if (isset($_GET['data']) && $_GET['data'] === 'servicios') {
+    $query = "
+        SELECT 
+            s.Nombre_Servicio AS tipo_servicio, 
+            COUNT(sr.Servicio_id_Servicios_Realizados) AS cantidad 
+        FROM 
+            servicios_realizados sr 
+        JOIN 
+            servicios s ON sr.Servicio_id_Servicios_Realizados = s.Servicio_id 
+        GROUP BY 
+            s.Nombre_Servicio 
+        ORDER BY 
+            cantidad DESC
+    ";
+
+    $result = mysqli_query($conn, $query);
+    $data = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = [
+            'name' => $row['tipo_servicio'],
+            'y' => (int) $row['cantidad']
+        ];
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit; // 🚩 Muy importante: SALIR aquí para no seguir con HTML
+}
+
+if (isset($_GET['data']) && $_GET['data'] === 'municipios') {
+    $query = "
+        SELECT 
+            m.nombre AS municipio, 
+            COUNT(sr.Servicio_Realizado_id) AS cantidad
+        FROM 
+            servicios_realizados sr
+        JOIN 
+            municipios m ON sr.municipio = m.id
+        GROUP BY 
+            m.nombre
+        ORDER BY 
+            cantidad DESC
+    ";
+
+    $result = mysqli_query($conn, $query);
+    $data = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $data[] = [
+            'name' => $row['municipio'],
+            'y' => (int) $row['cantidad']
+        ];
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
+}
+
+if (isset($_GET['data']) && $_GET['data'] === 'empleados') {
+    $query = "
+    SELECT 
+        e.Cedula_Empleado_id AS cedula,
+        e.Nombre AS empleado, 
+        COUNT(sr.Servicio_Realizado_id) AS cantidad
+    FROM 
+        servicios_realizados sr
+    JOIN 
+        empleados e 
+        ON sr.Cedula_Empleado_id_Servicios_Realizados = e.Cedula_Empleado_id
+    GROUP BY 
+        e.Cedula_Empleado_id, e.Nombre
+    ORDER BY 
+        cantidad DESC;
+";
+
+
+
+    $result = mysqli_query($conn, $query);
+    $categories = [];
+    $values = [];
+
+    while ($row = mysqli_fetch_assoc($result)) {
+        $categories[] = $row['empleado'];
+        $values[] = (int) $row['cantidad'];
+    }
+
+    header('Content-Type: application/json');
+    echo json_encode([
+        'categories' => $categories,
+        'data' => $values
+    ]);
+    exit;
+}
+
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -158,96 +252,113 @@ if (!usuarioTienePermiso($usuarioId, $permisoRequerido, $conn)) {
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const chartContainer = document.createElement('div');
-            chartContainer.id = 'container';
-            chartContainer.style.width = '100%';
-            chartContainer.style.height = '400px';
-            document.body.appendChild(chartContainer);
+            fetch('dashboard.php?data=servicios')
+                .then(response => response.json())
+                .then(data => {
+                    const categories = data.map(item => item.name);
+                    const values = data.map(item => item.y);
 
-            Highcharts.chart('service-container', {
-                chart: {
-                    type: 'column'
-                },
-                title: {
-                    text: 'Estadísticas de Servicios'
-                },
-                xAxis: {
-                    categories: ['Servicio 1', 'Servicio 2', 'Servicio 3']
-                },
-                yAxis: {
-                    min: 0,
-                    title: {
-                        text: 'Cantidad'
-                    }
-                },
-                series: [{
-                    name: 'Servicios',
-                    data: [5, 3, 4]
-                }]
-            });
+                    Highcharts.chart('service-container', {
+                        chart: {
+                            type: 'column'
+                        },
+                        title: {
+                            text: 'Estadísticas de Servicios Realizados'
+                        },
+                        xAxis: {
+                            categories: categories,
+                            title: {
+                                text: 'Tipo de Servicio'
+                            }
+                        },
+                        yAxis: {
+                            min: 0,
+                            title: {
+                                text: 'Cantidad de Servicios'
+                            }
+                        },
+                        credits: {
+                            enabled: false,
+                        },
+                        series: [{
+                            name: 'Servicios',
+                            data: values
+                        }]
+                    });
+                })
+                .catch(error => console.error('Error al cargar datos:', error));
         });
     </script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const chartContainer = document.createElement('div');
-            chartContainer.id = 'container';
-            chartContainer.style.width = '100%';
-            chartContainer.style.height = '400px';
-            document.body.appendChild(chartContainer);
-
-            Highcharts.chart('municipality-container', {
-                chart: {
-                    type: 'column'
-                },
-                title: {
-                    text: 'Estadísticas de Servicios'
-                },
-                xAxis: {
-                    categories: ['Servicio 1', 'Servicio 2', 'Servicio 3']
-                },
-                yAxis: {
-                    min: 0,
-                    title: {
-                        text: 'Cantidad'
-                    }
-                },
-                series: [{
-                    name: 'Servicios',
-                    data: [5, 3, 4]
-                }]
-            });
+            fetch('dashboard.php?data=municipios')
+                .then(response => response.json())
+                .then(data => {
+                    Highcharts.chart('municipality-container', {
+                        chart: {
+                            type: 'pie'
+                        },
+                        title: {
+                            text: 'Servicios por Ubicación'
+                        },
+                        tooltip: {
+                            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                        },
+                        accessibility: {
+                            point: {
+                                valueSuffix: '%'
+                            }
+                        },
+                        plotOptions: {
+                            pie: {
+                                allowPointSelect: true,
+                                cursor: 'pointer',
+                                dataLabels: {
+                                    enabled: false
+                                },
+                                showInLegend: true
+                            }
+                        },
+                        credits: {
+                            enabled: false
+                        },
+                        series: [{
+                            name: 'Servicios',
+                            colorByPoint: true,
+                            data: data // 🎉 usa directamente los datos desde PHP
+                        }]
+                    });
+                })
+                .catch(error => console.error('Error al cargar datos:', error));
         });
+
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const chartContainer = document.createElement('div');
-            chartContainer.id = 'container';
-            chartContainer.style.width = '100%';
-            chartContainer.style.height = '400px';
-            document.body.appendChild(chartContainer);
 
-            Highcharts.chart('worker-container', {
-                chart: {
-                    type: 'column'
-                },
-                title: {
-                    text: 'Estadísticas de Servicios'
-                },
-                xAxis: {
-                    categories: ['Servicio 1', 'Servicio 2', 'Servicio 3']
-                },
-                yAxis: {
-                    min: 0,
-                    title: {
-                        text: 'Cantidad'
-                    }
-                },
-                series: [{
-                    name: 'Servicios',
-                    data: [5, 3, 4]
-                }]
+    <script>
+        fetch('dashboard.php?data=empleados')
+            .then(res => res.json())
+            .then(response => {
+                Highcharts.chart('worker-container', {
+                    chart: { type: 'bar' },
+                    title: { text: 'Servicios Realizados por Empleado' },
+                    xAxis: {
+                        categories: response.categories,
+                        title: { text: 'Empleados' },
+                        scrollbar: { enabled: response.categories.length > 10 }
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: { text: 'Cantidad de Servicios' }
+                    },
+                    credits: { enabled: false },
+                    series: [{
+                        name: 'Servicios',
+                        data: response.data
+                    }]
+                });
             });
-        });
+
     </script>
 </body>
 
