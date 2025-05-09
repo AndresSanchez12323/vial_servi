@@ -2,7 +2,7 @@
 session_start();
 require_once 'config.php';
 
-// Verificar si el cliente está logueado (solo con cliente_id)
+// Verificar si el cliente está logueado
 if (!isset($_SESSION['cliente_id'])) {
     header("Location: login_cliente.php");
     exit();
@@ -30,13 +30,14 @@ $servicios = array();
 if (!empty($vehiculos)) {
     $placas = array_column($vehiculos, 'Placa');
     $placeholders = implode(',', array_fill(0, count($placas), '?'));
-    
+
     $sql_servicios = "SELECT sr.*, s.Nombre_Servicio, v.Placa 
                      FROM servicios_realizados sr
                      JOIN servicios s ON sr.Servicio_id_Servicios_Realizados = s.Servicio_id
                      JOIN vehiculos v ON sr.Vehiculo_id_Servicios_Realizados = v.Placa
-                     WHERE sr.Vehiculo_id_Servicios_Realizados IN ($placeholders)";
-    
+                     WHERE sr.Vehiculo_id_Servicios_Realizados IN ($placeholders)
+                     ORDER BY (sr.Fecha >= CURDATE()) DESC, sr.Fecha ASC";
+
     $stmt_servicios = $conn->prepare($sql_servicios);
     $types = str_repeat('s', count($placas));
     $stmt_servicios->bind_param($types, ...$placas);
@@ -50,6 +51,7 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,8 +67,6 @@ $conn->close();
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-image: url('Imagenes/ClienteDasboard.jpg');
             background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
         }
 
         .sidebar {
@@ -125,7 +125,9 @@ $conn->close();
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             color: #680c39;
             margin-bottom: 20px;
         }
@@ -138,12 +140,30 @@ $conn->close();
             margin-bottom: 40px;
         }
 
-        .vehicle-card, .service-card {
+        /* NUEVO GRID para las cards */
+        .section-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .vehicle-card,
+        .service-card {
             background-color: white;
             border: 1px solid #ddd;
             border-radius: 5px;
             padding: 15px;
-            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .vehicle-card:hover,
+        .service-card:hover {
+            transform: translateY(-5px);
         }
 
         .service-card h3 {
@@ -153,10 +173,40 @@ $conn->close();
 
         .service-details {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 10px;
             margin-top: 10px;
         }
+
+        .service-card.futuro {
+            border: 2px solid #2ecc71;
+            /* verde */
+            background-color: #eafaf1;
+        }
+
+        .service-card.pasado {
+            border: 2px solid #95a5a6;
+            /* gris */
+            background-color: #f4f6f7;
+        }
+
+        .estado-label {
+            display: inline-block;
+            padding: 3px 8px;
+            font-size: 12px;
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+
+        .service-card.futuro .estado-label {
+            background-color: #2ecc71;
+        }
+
+        .service-card.pasado .estado-label {
+            background-color: #95a5a6;
+        }
+
 
         .detail-item {
             margin-bottom: 5px;
@@ -183,7 +233,9 @@ $conn->close();
         }
     </style>
 </head>
+
 <body>
+
     <div class="sidebar">
         <div class="logo-container">
             <img src="Imagenes/Logo.jpg" alt="Logo VialServi" class="logo">
@@ -201,66 +253,84 @@ $conn->close();
 
         <div class="section">
             <h2>Mis Vehículos</h2>
-            <?php if (!empty($vehiculos)): ?>
-                <?php foreach ($vehiculos as $vehiculo): ?>
-                    <div class="vehicle-card">
-                        <h3><?php echo htmlspecialchars($vehiculo['Marca'] . ' ' . $vehiculo['Modelo']); ?></h3>
-                        <div class="service-details">
-                            <div class="detail-item">
-                                <span class="detail-label">Placa:</span>
-                                <span><?php echo htmlspecialchars($vehiculo['Placa']); ?></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Color:</span>
-                                <span><?php echo htmlspecialchars($vehiculo['Color']); ?></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Objetos valiosos:</span>
-                                <span><?php echo htmlspecialchars($vehiculo['Objetos_Valiosos'] ?? 'Ninguno registrado'); ?></span>
+            <div class="section-cards">
+                <?php if (!empty($vehiculos)): ?>
+                    <?php foreach ($vehiculos as $vehiculo): ?>
+                        <div class="vehicle-card">
+                            <h3><?php echo htmlspecialchars($vehiculo['Marca'] . ' ' . $vehiculo['Modelo']); ?></h3>
+                            <div class="service-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Placa:</span>
+                                    <span><?php echo htmlspecialchars($vehiculo['Placa']); ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Color:</span>
+                                    <span><?php echo htmlspecialchars($vehiculo['Color']); ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Objetos valiosos:</span>
+                                    <span><?php echo htmlspecialchars($vehiculo['Objetos_Valiosos'] ?? 'Ninguno registrado'); ?></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>No tienes vehículos registrados.</p>
-            <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No tienes vehículos registrados.</p>
+                <?php endif; ?>
+            </div>
         </div>
 
         <div class="section">
             <h2>Historial de Servicios</h2>
-            <?php if (!empty($servicios)): ?>
-                <?php foreach ($servicios as $servicio): ?>
-                    <div class="service-card">
-                        <h3><?php echo htmlspecialchars($servicio['Nombre_Servicio']); ?></h3>
-                        <p><strong>Vehículo:</strong> <?php echo htmlspecialchars($servicio['Placa']); ?></p>
-                        <div class="service-details">
-                            <div class="detail-item">
-                                <span class="detail-label">Fecha:</span>
-                                <span><?php echo htmlspecialchars($servicio['Fecha']); ?></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Ubicación:</span>
-                                <span><?php echo htmlspecialchars($servicio['Ubicación']); ?></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Novedades:</span>
-                                <span><?php echo htmlspecialchars($servicio['Novedades'] ?? 'Ninguna'); ?></span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Detalle:</span>
-                                <span><?php echo htmlspecialchars($servicio['Detalle_Servicio']); ?></span>
+            <div class="section-cards">
+                <?php if (!empty($servicios)): ?>
+                    <?php foreach ($servicios as $servicio): ?>
+                        <?php
+                        $fechaServicio = strtotime($servicio['Fecha']);
+                        $hoy = strtotime(date('Y-m-d'));
+                        $esFuturo = $fechaServicio >= $hoy;
+                        ?>
+                        <div class="service-card <?php echo $esFuturo ? 'futuro' : 'pasado'; ?>">
+                            <h3><?php echo htmlspecialchars($servicio['Nombre_Servicio']); ?></h3>
+                            <span class="estado-label"><?php echo $esFuturo ? '📅 Programado' : '✅ Completado'; ?></span>
+
+                            <p><strong>Vehículo:</strong> <?php echo htmlspecialchars($servicio['Placa']); ?></p>
+                            <div class="service-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Fecha:</span>
+                                    <span><?php echo htmlspecialchars($servicio['Fecha']); ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Ubicación:</span>
+                                    <span><?php echo htmlspecialchars($servicio['Ubicación']); ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Novedades:</span>
+                                    <span><?php echo htmlspecialchars($servicio['Novedades'] ?? 'Ninguna'); ?></span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Detalle:</span>
+                                    <span><?php echo htmlspecialchars($servicio['Detalle_Servicio']); ?></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p>No se encontraron servicios realizados.</p>
-            <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p>No se encontraron servicios realizados.</p>
+                <?php endif; ?>
+            </div>
         </div>
+
+        <form action="descargar_reporte_cliente.php" method="post">
+            <button type="submit" class="logout-btn" style="background-color:#3498db;">Descargar Reporte</button>
+        </form>
 
         <form action="logout_cliente.php" method="post">
             <button type="submit" class="logout-btn">Cerrar Sesión</button>
         </form>
+
+
     </div>
 </body>
+
 </html>
