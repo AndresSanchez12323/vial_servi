@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 03-04-2025 a las 04:43:06
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.0.30
+-- Servidor: localhost
+-- Tiempo de generación: 09-05-2025 a las 05:27:45
+-- Versión del servidor: 10.4.28-MariaDB
+-- Versión de PHP: 8.2.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -209,7 +209,8 @@ INSERT INTO `servicios` (`Servicio_id`, `Nombre_Servicio`, `Descripción`) VALUE
 (2, 'Reparación de motor', 'Servicio de reparación de motor averiado'),
 (3, 'Cambio de aceite', 'Cambio de aceite y revisión de filtros'),
 (4, 'Alineación y balanceo', 'Alineación y balanceo de ruedas para mejor estabilidad'),
-(5, 'Revisión de frenos', 'Revisión y ajuste del sistema de frenos');
+(5, 'Revisión de frenos', 'Revisión y ajuste del sistema de frenos'),
+(10, 'Conductor elegido', 'Personal capacitado para llevarte a salvo a cualquier lugar que desees ');
 
 -- --------------------------------------------------------
 
@@ -251,7 +252,9 @@ INSERT INTO `servicios_realizados` (`Servicio_Realizado_id`, `Cedula_Empleado_id
 (46, 1040, 'ABC123', 5, '2025-04-01', 'poli jic', 'camara', 'foto.img', 'revision', 'linterna', 1),
 (47, NULL, 'IEX747', 4, '2025-04-02', 'poli jic', NULL, NULL, 'quiero que vayan', '3102588225', 0),
 (48, NULL, 'MNI982', 3, '2025-04-03', 'poli jic', NULL, NULL, 'Llevar la pinta de aceite', '3102588225', 0),
-(49, NULL, 'MNI982', 1, '2025-04-03', 'poli jic', NULL, NULL, 'cambio aceite', '3102588225', 0);
+(49, NULL, 'MNI982', 1, '2025-04-03', 'poli jic', NULL, NULL, 'cambio aceite', '3102588225', 0),
+(51, NULL, 'ABC123', 5, '2025-05-09', 'Cra17b #1a-c', NULL, NULL, 'cupo completo', '311111111111', 0),
+(53, NULL, 'DEF456', 10, '2025-05-09', 'Cra17b #1a-c', NULL, NULL, '', '311111111111', 0);
 
 -- --------------------------------------------------------
 
@@ -306,7 +309,8 @@ ALTER TABLE `clientes`
 -- Indices de la tabla `empleados`
 --
 ALTER TABLE `empleados`
-  ADD PRIMARY KEY (`Cedula_Empleado_id`);
+  ADD PRIMARY KEY (`Cedula_Empleado_id`),
+  ADD KEY `fk_empleados_roles` (`Rol_id`);
 
 --
 -- Indices de la tabla `mensajes`
@@ -389,13 +393,13 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT de la tabla `servicios`
 --
 ALTER TABLE `servicios`
-  MODIFY `Servicio_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `Servicio_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT de la tabla `servicios_realizados`
 --
 ALTER TABLE `servicios_realizados`
-  MODIFY `Servicio_Realizado_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `Servicio_Realizado_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
 
 --
 -- Restricciones para tablas volcadas
@@ -408,6 +412,12 @@ ALTER TABLE `alertas_recordatorios`
   ADD CONSTRAINT `alertas_recordatorios_ibfk_1` FOREIGN KEY (`Servicio_Realizado_id_alertas_recordatorios`) REFERENCES `servicios_realizados` (`Servicio_Realizado_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Filtros para la tabla `empleados`
+--
+ALTER TABLE `empleados`
+  ADD CONSTRAINT `fk_empleados_roles` FOREIGN KEY (`Rol_id`) REFERENCES `roles` (`id`);
+
+--
 -- Filtros para la tabla `rol_permisos`
 --
 ALTER TABLE `rol_permisos`
@@ -418,6 +428,7 @@ ALTER TABLE `rol_permisos`
 -- Filtros para la tabla `servicios_realizados`
 --
 ALTER TABLE `servicios_realizados`
+  ADD CONSTRAINT `fk_servicio_id` FOREIGN KEY (`Servicio_id_Servicios_Realizados`) REFERENCES `servicios` (`Servicio_id`),
   ADD CONSTRAINT `servicios_realizados_ibfk_1` FOREIGN KEY (`Cedula_Empleado_id_Servicios_Realizados`) REFERENCES `empleados` (`Cedula_Empleado_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `servicios_realizados_ibfk_2` FOREIGN KEY (`Vehiculo_id_Servicios_Realizados`) REFERENCES `vehiculos` (`Placa`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `servicios_realizados_ibfk_3` FOREIGN KEY (`Servicio_id_Servicios_Realizados`) REFERENCES `servicios` (`Servicio_id`) ON DELETE SET NULL ON UPDATE CASCADE;

@@ -300,7 +300,7 @@ $result = $conn->query($sql);
                 } else {
                     Swal.fire({
                         title: 'Error',
-                        text: 'Hubo un problema al eliminar el registro.',
+                        text: 'No se pudo eliminar el registro. Puede haber un error o existen servicios en curso que están utilizando este registro, lo que impide su eliminación.',
                         icon: 'error',
                         didOpen: () => {
                             document.querySelector('.swal2-confirm').setAttribute('data-no-warning', '');
