@@ -7,6 +7,43 @@ if (!isset($_SESSION['loggedin'])) {
 
 require_once 'config.php';
 
+$fotoPath = '';
+if (isset($_FILES['Fotos']) && $_FILES['Fotos']['error'] === UPLOAD_ERR_OK) {
+    $fotoTmpPath = $_FILES['Fotos']['tmp_name'];
+    $fotoName = basename($_FILES['Fotos']['name']);
+    $fotoExtension = strtolower(pathinfo($fotoName, PATHINFO_EXTENSION));
+
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+    $mimeType = mime_content_type($fotoTmpPath);
+
+    if (in_array($fotoExtension, $allowedExtensions) && in_array($mimeType, $allowedMimeTypes)) {
+        $fotoTmpPath = $_FILES['Fotos']['tmp_name'];
+        $fotoName = $_FILES['Fotos']['name'];
+        $fotoExtension = pathinfo($fotoName, PATHINFO_EXTENSION);
+        $fotoNewName = uniqid('img_', true) . '.' . $fotoExtension;
+        $uploadDir = __DIR__ . '/uploads/';
+        $uploadPath = 'uploads/' . $fotoNewName;;
+        
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+        
+        if (move_uploaded_file($fotoTmpPath, $uploadPath)) {
+            $fotoPath = $uploadPath;
+            if (!$fotoPath) {
+                error_log("Error al asignar el path de la imagen.");
+                die("Error al asignar el path de la imagen.");
+            }
+        } else {
+            die("Error al mover la imagen al directorio destino.");
+        }
+    } else {
+        die("Archivo no permitido. Asegúrate de subir una imagen válida (JPG, PNG o GIF).");
+    }
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cedulaEmpleado = $_POST['Cedula_Empleado_id_Servicios_Realizados'];
     $vehiculoId = $_POST['Vehiculo_id_Servicios_Realizados'];
@@ -33,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         Facturación_Separada
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-    $stmt->bind_param("isissssssi", $cedulaEmpleado, $vehiculoId, $servicioId, $fecha, $ubicacion, $novedades, $fotos, $detalleServicio, $custodiaServicio, $facturacionSeparada);
+    $stmt->bind_param("isissssssi", $cedulaEmpleado, $vehiculoId, $servicioId, $fecha, $ubicacion, $novedades, $fotoPath, $detalleServicio, $custodiaServicio, $facturacionSeparada);
 
     if ($stmt->execute()) {
         echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
@@ -259,7 +296,7 @@ $conn->close();
 <!-- Contenido principal -->
 <div class="container">
     <h2>Agregar Servicio Realizado</h2>
-    <form method="post" action="">
+    <form method="post" action=""  enctype="multipart/form-data">
         <div class="form-group">
             <label for="Cedula_Empleado_id_Servicios_Realizados">Cédula del Empleado</label>
             <input type="text" name="Cedula_Empleado_id_Servicios_Realizados" class="form-control" required>
@@ -282,7 +319,7 @@ $conn->close();
         </div>
         <div class="form-group">
             <label for="Fotos">Fotos (nombre de archivo)</label>
-            <input type="text" name="Fotos" class="form-control">
+            <input type="file" name="Fotos" class="form-control" accept="image/*">
         </div>
         <div class="form-group">
             <label for="Detalle_Servicio">Detalle del Servicio</label>
