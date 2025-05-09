@@ -15,7 +15,7 @@ if (isset($_GET['id'])) {
     $result = $conn->query($sql);
 
     if ($result->num_rows > 0) {
-        $servicio = $result->fetch_assoc();  // ← usamos $servicio en lugar de $row
+        $servicio = $result->fetch_assoc();
     } else {
         echo "Registro no encontrado.";
         exit;
@@ -32,19 +32,31 @@ if (isset($_GET['id'])) {
         }
     }
 
+    // Obtener municipios
+    $municipality = [];
+    $query = "SELECT id, nombre FROM municipios";
+    $result = $conn->query($query);
+
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $municipality[] = $row;
+        }
+    }
 }
+
 // Procesar el formulario al enviarlo
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cedulaEmpleado = $_POST['Cedula_Empleado_id_Servicios_Realizados'];
     $fecha = $_POST['Fecha'];
+    $municipality = $_POST['municipality'];
     $ubicacion = $_POST['Ubicacion'];
     $novedades = $_POST['Novedades'];
     $detalleServicio = $_POST['Detalle_Servicio'];
     $custodiaServicio = $_POST['Custodia_Servicio'];
 
     // Actualizar el registro en la base de datos
-    $stmt = $conn->prepare("UPDATE servicios_realizados SET Cedula_Empleado_id_Servicios_Realizados=?, Fecha=?, Ubicación=?, Novedades=?, Detalle_Servicio=?, Custodia_Servicio=? WHERE Servicio_Realizado_id=?");
-    $stmt->bind_param("ssssssi", $cedulaEmpleado, $fecha, $ubicacion, $novedades, $detalleServicio, $custodiaServicio, $id);
+    $stmt = $conn->prepare("UPDATE servicios_realizados SET Cedula_Empleado_id_Servicios_Realizados=?, Fecha=?, municipio=?, Ubicación=?, Novedades=?, Detalle_Servicio=?, Custodia_Servicio=? WHERE Servicio_Realizado_id=?");
+    $stmt->bind_param("sssssssi", $cedulaEmpleado, $fecha, $municipality, $ubicacion, $novedades, $detalleServicio, $custodiaServicio, $id);
     
     if ($stmt->execute()) {
         echo "<script>
@@ -237,6 +249,18 @@ $conn->close();
         <div class="form-group">
             <label for="Fecha">Fecha</label>
             <input type="date" name="Fecha" class="form-control" value="<?php echo $servicio['Fecha']; ?>" required>
+        </div>
+        <div class="form-group">
+            <label for="municipality">Municipio</label>
+            <select name="municipality" class="form-control" required>
+                <option value="">SSeleccione un municipio</option>
+                <?php foreach ($municipality as $municipality): ?>
+                    <option value="<?= $municipality['id'] ?>"
+                        <?= ($municipality['id'] == $servicio['municipio']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($municipality['nombre']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="form-group">
             <label for="Ubicacion">Ubicación</label>
