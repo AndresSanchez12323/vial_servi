@@ -234,7 +234,7 @@ $result = $conn->query($sql);
                 <?php
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
-                        echo "<tr>";
+                        echo "<tr id='row-" . $row['Servicio_Realizado_id'] . "'>";
                         echo "<td>" . $row['Servicio_Realizado_id'] . "</td>";
                         echo "<td>" . $row['Cedula_Empleado_id_Servicios_Realizados'] . "</td>";
                         echo "<td>" . $row['Vehiculo_id_Servicios_Realizados'] . "</td>";
@@ -304,11 +304,19 @@ $result = $conn->query($sql);
                 .then(response => response.text())
                 .then(data => {
                     if (data === 'success') {
-                        Swal.fire(
-                            'Eliminado',
-                            'El registro ha sido eliminado exitosamente.',
-                            'success'
-                        ) 
+                        Swal.fire({
+                            title: 'Eliminado',
+                            text: 'El registro ha sido eliminado exitosamente.',
+                            icon: 'success',
+                            didOpen: () => {
+                                document.querySelector('.swal2-confirm').setAttribute('data-no-warning', '');
+                            }
+                        }).then(() => {
+                            const row = document.getElementById(`row-${id}`);
+                            if (row) {
+                                row.remove();
+                            }
+                        });
                     } else {
                         Swal.fire(
                             'Error',
@@ -316,7 +324,7 @@ $result = $conn->query($sql);
                             'error'
                         );
                     }
-                })
+                    })
                 .catch(error => {
                     console.error('Error:', error);
                     Swal.fire(
