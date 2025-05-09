@@ -99,7 +99,6 @@ if (isset($_GET['data'])) {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-image: url('Imagenes/Dashboard.jpg');
             background-size: cover;
-            background-position: center;
             background-repeat: no-repeat;
             display: flex;
             justify-content: center;

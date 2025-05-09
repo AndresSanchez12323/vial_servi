@@ -1,11 +1,13 @@
 <?php
-require_once 'config.php';
 session_start();
 if (!isset($_SESSION['loggedin'])) {
     header("Location: index.php");
     exit;
 }
 
+require_once 'config.php';
+include('validPermissions.php');
+include('header.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") { 
     $nombreServicio = $_POST['Nombre_Servicio']?? '';
@@ -60,52 +62,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: rgba(100, 67, 67, 0.7);
-            padding: 15px 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar a {
-            padding: 12px 25px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #fff;
-            background-color: #2d0f2a;
-            margin-right: 15px;
-            border-radius: 50px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .sidebar a:hover {
-            background-color: #440f33;
-            transform: translateY(-2px);
-        }
-
-        .logo-container {
-            margin-left: 30px;
-            border-radius: 50%;
-            width: 90px;
-            height: 90px;
-            overflow: hidden;
-        }
-
-        .logo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            border-radius: 50%;
         }
 
         .main-content {
@@ -165,17 +121,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </style>
 </head>
 <body>
-
-<!-- Barra superior -->
-<div id="mySidebar" class="sidebar">
-    <div class="logo-container">
-        <img src="Imagenes/Logo.jpg" alt="Logo" class="logo">
-    </div>
-    <div>
-         <a href="dashboard.php" data-no-warning>Dashboard</a>
-         <a href="consulta_general.php" data-no-warning>Consulta General</a>
-     </div>
-</div>
 
 <div class="container mt-5"> 
     <h2>Crear Servicio</h2>

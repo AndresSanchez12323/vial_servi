@@ -1,5 +1,7 @@
 <?php
 include('validPermissions.php');
+include('header.php');
+
 session_start();
 if (!isset($_SESSION['loggedin'])) {
     header("Location: index.php");
@@ -39,6 +41,7 @@ $result = $conn->query($sql);
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,7 +49,7 @@ $result = $conn->query($sql);
 
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
@@ -69,52 +72,7 @@ $result = $conn->query($sql);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-        }
-
-        .sidebar {
-            width: 100%;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: rgba(100, 67, 67, 0.7);
-            padding: 15px 0;
-            z-index: 1000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
-        .sidebar a {
-            padding: 12px 25px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #fff;
-            background-color: #2d0f2a;
-            margin-right: 15px;
-            border-radius: 50px;
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .sidebar a:hover {
-            background-color: #440f33;
-            transform: translateY(-2px);
-        }
-
-        .logo-container {
-            margin-left: 30px;
-            border-radius: 50%;
-            width: 90px;
-            height: 90px;
-            overflow: hidden;
-        }
-
-        .logo {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            border-radius: 50%;
+            padding-top: 120px;
         }
 
         .main-content {
@@ -156,7 +114,8 @@ $result = $conn->query($sql);
             font-weight: bold;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             text-align: center;
             font-weight: 500;
@@ -180,7 +139,9 @@ $result = $conn->query($sql);
             align-items: center;
         }
 
-        .btn-success, .btn-warning, .btn-danger {
+        .btn-success,
+        .btn-warning,
+        .btn-danger {
             margin: 5px;
             padding: 8px 15px;
             border-radius: 10px;
@@ -193,179 +154,162 @@ $result = $conn->query($sql);
         }
 
         .btn-warning:hover {
-            background-color:#e0a800;
+            background-color: #e0a800;
         }
 
         .btn-danger:hover {
             background-color: #c82333;
         }
+
         .details-row {
             background-color: #f9f9f9;
             font-size: 0.9em;
         }
     </style>
 </head>
+
 <body>
 
-<!-- Barra superior -->
-<div id="mySidebar" class="sidebar">
-    <div class="logo-container">
-        <img src="Imagenes/Logo.jpg" alt="Logo" class="logo">
-    </div>
-    <div>
-         <a href="dashboard.php" data-no-warning>Dashboard</a>
-         <?php 
-            if (usuarioTienePermiso($_SESSION['cedula'], 'crear_servicio', $conn)) { 
-            ?>
-                  <a href="gestionar_servicios.php" data-no-warning>Servicios</a>
-
-            <?php 
-        }?>
-         <a href="consulta_general.php" data-no-warning>Consulta General</a>
-         <a href="consulta_identificacion.php" data-no-warning>Consulta por Placa</a>
-         <a href="logout.php" data-no-warning>Cerrar Sesión</a>
-     </div>
-</div>
-
-<!-- Contenido principal -->
-<div class="main-content">
-    <div class="container">
-        <h2>Servicios Realizados</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Placa</th>
-                    <th>Servicio</th>
-                    <th>Fecha</th>
-                    <th>Municipio</th>
-                    <th>Detalle</th>
-                    <?php if ($mostrarAcciones) { ?>
-                        <th>Acciones</th> <!-- Solo se muestra si el usuario tiene permisos -->
-                    <?php } ?>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr id='row-" . $row['Servicio_Realizado_id'] . "'>";
-                        echo "<td>" . $row['Servicio_Realizado_id'] . "</td>";
-                        echo "<td>" . $row['Vehiculo_id_Servicios_Realizados'] . "</td>";
-                        echo "<td>" . $row['Nombre_Servicio'] . "</td>";
-                        echo "<td>" . $row['Fecha'] . "</td>";
-                        echo "<td>" . $row['nombre_municipio'] . "</td>";
-                        echo "<td>";
-                        echo "<button class='btn btn-info btn-sm' onclick='toggleDetails(" . $row['Servicio_Realizado_id'] . ")'>Ver más</button>";
-                        echo "</td>";
-                    
-                        if ($mostrarAcciones) {
-                            echo "<td class='action-buttons'>";
-                            if ($usuarioPuedeEditar) {
-                                echo "<a href='editar_servicio_realizado.php?id=" . $row['Servicio_Realizado_id'] . "' class='btn btn-warning btn-sm' data-no-warning><i class='fas fa-edit'></i> Editar</a> ";
-                            }
-                            if ($usuarioPuedeEliminar) {
-                                echo "<button onclick='confirmDelete(" . $row['Servicio_Realizado_id'] . ")' class='btn btn-danger btn-sm' data-no-warning><i class='fas fa-trash-alt'></i> Eliminar</button>";
-                            }
+    <!-- Contenido principal -->
+    <div class="main-content">
+        <div class="container">
+            <h2>Servicios Realizados</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Placa</th>
+                        <th>Servicio</th>
+                        <th>Fecha</th>
+                        <th>Municipio</th>
+                        <th>Detalle</th>
+                        <?php if ($mostrarAcciones) { ?>
+                            <th>Acciones</th> <!-- Solo se muestra si el usuario tiene permisos -->
+                        <?php } ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr id='row-" . $row['Servicio_Realizado_id'] . "'>";
+                            echo "<td>" . $row['Servicio_Realizado_id'] . "</td>";
+                            echo "<td>" . $row['Vehiculo_id_Servicios_Realizados'] . "</td>";
+                            echo "<td>" . $row['Nombre_Servicio'] . "</td>";
+                            echo "<td>" . $row['Fecha'] . "</td>";
+                            echo "<td>" . $row['nombre_municipio'] . "</td>";
+                            echo "<td>";
+                            echo "<button class='btn btn-info btn-sm' onclick='toggleDetails(" . $row['Servicio_Realizado_id'] . ")'>Ver más</button>";
                             echo "</td>";
+
+                            if ($mostrarAcciones) {
+                                echo "<td class='action-buttons'>";
+                                if ($usuarioPuedeEditar) {
+                                    echo "<a href='editar_servicio_realizado.php?id=" . $row['Servicio_Realizado_id'] . "' class='btn btn-warning btn-sm' data-no-warning><i class='fas fa-edit'></i> Editar</a> ";
+                                }
+                                if ($usuarioPuedeEliminar) {
+                                    echo "<button onclick='confirmDelete(" . $row['Servicio_Realizado_id'] . ")' class='btn btn-danger btn-sm' data-no-warning><i class='fas fa-trash-alt'></i> Eliminar</button>";
+                                }
+                                echo "</td>";
+                            }
+
+                            echo "</tr>";
+
+                            echo "<tr id='details-" . $row['Servicio_Realizado_id'] . "' class='details-row' style='display:none;'>";
+                            echo "<td colspan='4'>";
+                            echo "<strong>Empleado:</strong> " . $row['Cedula_Empleado_id_Servicios_Realizados'] . "<br>";
+                            echo "<strong>Vehículo:</strong> " . $row['Vehiculo_id_Servicios_Realizados'] . "<br>";
+                            echo "<strong>Ubicación:</strong> " . $row['Ubicación'] . "<br>";
+                            echo "<strong>Novedades:</strong> " . $row['Novedades'] . "<br>";
+                            echo "<strong>Detalle del servicio:</strong> " . $row['Detalle_Servicio'] . "<br>";
+                            echo "<strong>Custodia:</strong> " . $row['Custodia_Servicio'] . "<br>";
+                            echo "</td>";
+                            echo "<td colspan='3'>";
+                            echo "<strong>Foto:</strong><br><img src='" . $row['Fotos'] . "' alt='Foto' style='max-width: 200px; max-height: 200px;'><br>";
+                            echo "</td>";
+                            echo "</tr>";
                         }
-                    
-                        echo "</tr>";
-                    
-                        echo "<tr id='details-" . $row['Servicio_Realizado_id'] . "' class='details-row' style='display:none;'>";
-                        echo "<td colspan='4'>";
-                        echo "<strong>Empleado:</strong> " . $row['Cedula_Empleado_id_Servicios_Realizados'] . "<br>";
-                        echo "<strong>Vehículo:</strong> " . $row['Vehiculo_id_Servicios_Realizados'] . "<br>";
-                        echo "<strong>Ubicación:</strong> " . $row['Ubicación'] . "<br>";
-                        echo "<strong>Novedades:</strong> " . $row['Novedades'] . "<br>";
-                        echo "<strong>Detalle del servicio:</strong> " . $row['Detalle_Servicio'] . "<br>";
-                        echo "<strong>Custodia:</strong> " . $row['Custodia_Servicio'] . "<br>";
-                        echo "</td>";
-                        echo "<td colspan='3'>";
-                        echo "<strong>Foto:</strong><br><img src='" . $row['Fotos'] . "' alt='Foto' style='max-width: 200px; max-height: 200px;'><br>";
-                        echo "</td>";
-                        echo "</tr>";
-                    }                    
                     } else {
                         echo "<tr><td colspan='12'>No se encontraron registros</td></tr>";
                     }
+                    ?>
+                </tbody>
+            </table>
+            <div class="text-center mt-4">
+                <?php
+                if (usuarioTienePermiso($_SESSION['cedula'], 'crear_servicio', $conn)) {
+                    ?>
+                    <button onclick="window.location.href='crear_servicio_realizado.php'" data-no-warning
+                        class="btn btn-success">
+                        <i class="fas fa-plus"></i> Crear Servicio
+                    </button>
+                <?php
+                }
                 ?>
-            </tbody>
-        </table>
-        <div class="text-center mt-4">
-            <?php 
-            if (usuarioTienePermiso($_SESSION['cedula'], 'crear_servicio', $conn)) { 
-            ?>
-                <button onclick="window.location.href='crear_servicio_realizado.php'" data-no-warning class="btn btn-success">
-                    <i class="fas fa-plus"></i> Crear Servicio
-                </button>
-            <?php 
-        } 
-    ?>
-</div>
+            </div>
+        </div>
     </div>
-</div>
 
-<!-- JavaScript para eliminar con confirmación usando SweetAlert2 -->
-<script>
-    
-    function confirmDelete(id) {
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Esta acción no se puede deshacer.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar',
-            didOpen: () => {
-            document.querySelector('.swal2-confirm').setAttribute('data-no-warning', '');
-            document.querySelector('.swal2-cancel').setAttribute('data-no-warning', '');
-        }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                fetch(`delete.php?id=${id}`, {
-                    method: 'GET'
-                })
-                .then(response => response.text())
-                .then(data => {
-                    if (data === 'success') {
-                        Swal.fire({
-                            title: 'Eliminado',
-                            text: 'El registro ha sido eliminado exitosamente.',
-                            icon: 'success',
-                            didOpen: () => {
-                                document.querySelector('.swal2-confirm').setAttribute('data-no-warning', '');
-                            }
-                        }).then(() => {
-                            const row = document.getElementById(`row-${id}`);
-                            if (row) {
-                                row.remove();
-                            }
-                        });
-                    } else {
-                        Swal.fire(
-                            'Error',
-                            'Hubo un problema al eliminar el registro.',
-                            'error'
-                        );
-                    }
+    <!-- JavaScript para eliminar con confirmación usando SweetAlert2 -->
+    <script>
+
+        function confirmDelete(id) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: "Esta acción no se puede deshacer.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar',
+                didOpen: () => {
+                    document.querySelector('.swal2-confirm').setAttribute('data-no-warning', '');
+                    document.querySelector('.swal2-cancel').setAttribute('data-no-warning', '');
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`delete.php?id=${id}`, {
+                        method: 'GET'
                     })
-                .catch(error => {
-                    console.error('Error:', error);
-                    Swal.fire(
-                        'Error',
-                        'Ocurrió un error inesperado.',
-                        'error'
-                    );
-                });
-            }
-        });
-    }
-</script>
+                        .then(response => response.text())
+                        .then(data => {
+                            if (data === 'success') {
+                                Swal.fire({
+                                    title: 'Eliminado',
+                                    text: 'El registro ha sido eliminado exitosamente.',
+                                    icon: 'success',
+                                    didOpen: () => {
+                                        document.querySelector('.swal2-confirm').setAttribute('data-no-warning', '');
+                                    }
+                                }).then(() => {
+                                    const row = document.getElementById(`row-${id}`);
+                                    if (row) {
+                                        row.remove();
+                                    }
+                                });
+                            } else {
+                                Swal.fire(
+                                    'Error',
+                                    'Hubo un problema al eliminar el registro.',
+                                    'error'
+                                );
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire(
+                                'Error',
+                                'Ocurrió un error inesperado.',
+                                'error'
+                            );
+                        });
+                }
+            });
+        }
+    </script>
 
-<script>
+    <script>
         const checkSession = () => {
             fetch('session.php')
                 .then(response => response.text())
@@ -385,34 +329,24 @@ $result = $conn->query($sql);
         };
 
         window.addEventListener('beforeunload', beforeUnloadHandler);
-</script>
+    </script>
 
-<script>
-function toggleDetails(id) {
-    const row = document.getElementById('details-' + id);
-    if (row.style.display === 'none') {
-        row.style.display = '';
-    } else {
-        row.style.display = 'none';
-    }
-}
-</script>
+    <script>
+        function toggleDetails(id) {
+            const row = document.getElementById('details-' + id);
+            if (row.style.display === 'none') {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        }
+    </script>
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
+
 </html>
-
-
-
-
-
-
-
-
-
-
-
