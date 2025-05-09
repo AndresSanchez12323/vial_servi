@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Eliminar Rol</title>
     <style>
         body {
-            background: url('Imagenes/FondoRoles.jpg') no-repeat center center fixed;
+            background: url('Imagenes/RecuperarContraseña.jpg') no-repeat center center fixed;
             background-size: cover;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;

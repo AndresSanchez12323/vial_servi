@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: localhost
--- Tiempo de generación: 09-05-2025 a las 05:27:45
+-- Tiempo de generación: 09-05-2025 a las 11:51:16
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -88,10 +88,9 @@ CREATE TABLE `empleados` (
 INSERT INTO `empleados` (`Cedula_Empleado_id`, `Nombre`, `Apellido`, `Contraseña`, `Rol_id`, `Email`, `Telefono`, `intentos_fallidos`, `fecha_hora_bloqueo`) VALUES
 (1010, 'brian', 'rendon', '$2y$10$JQSVWMvzAwNhiA0JYD0fM.uUxZzylPV2Xx/7fp214BmOwTtSRSs1.', 2, 'brianloquito@gmail.com', '', 0, NULL),
 (1040, 'edwin', 'sanchez', '$2y$10$dGu8U8jqn6E1BAhIqHk3Fe484U83cG7c/PfCpYi5mfxia5R17tTw6', 1, NULL, '', 0, NULL),
-(1234, 'nube', 'sanchez', '$2y$10$LO2tg5C1Vt8fhsJOo2mRqeLjZG0iCkl.Gd80A0L9AZeGA719HaDDu', 5, 'nube9916@gmail.com', '', 0, NULL),
 (2025, 'patricia', 'patiño', '$2y$10$aiUAA6oEMZVf.YpYhBRwUOOBgbpFV0fm8f6o5.zQQiiqkDA/RcMzK', 3, NULL, '', 0, NULL),
 (4040, 'Super', 'Admin', '$2y$10$F22tgMXGlfLCFN2dRocsWOOlfWflEXeIbDcCJtfJXsEwMhnpRLtmS', 0, NULL, '', 0, NULL),
-(8080, 'Andres', 'Sanchez', '$2y$10$IabgsxxSgmKlBPoqBj4lmO8fI6OPGQK.DM70erEk9Bi8PxdJWXXzi', 5, 'vaca@gmail.com', '3104725242', 0, NULL);
+(101112, 'Carlos ', 'marin', '12123', 6, NULL, '', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -115,6 +114,54 @@ INSERT INTO `mensajes` (`id`, `nombre`, `email`, `mensaje`, `fecha`) VALUES
 (1, 'nube', 'usuario1@gmail.com', ',nmklnklklkljkl', '2025-04-01 20:54:22'),
 (2, 'Brian', 'brian@gmail.com', 'hola mi bro', '2025-04-01 21:10:17'),
 (3, 'Juan', 'hola@gmail.com', 'llamame', '2025-04-02 23:14:30');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `municipios`
+--
+
+CREATE TABLE `municipios` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `municipios`
+--
+
+INSERT INTO `municipios` (`id`, `nombre`) VALUES
+(1, 'Medellín'),
+(2, 'Bello'),
+(3, 'Itagüí'),
+(4, 'Envigado'),
+(5, 'Sabaneta'),
+(6, 'La Estrella'),
+(7, 'Copacabana'),
+(8, 'Girardota'),
+(9, 'Caldas'),
+(10, 'Barbosa'),
+(11, 'Rionegro'),
+(12, 'Guarne'),
+(13, 'La Ceja'),
+(14, 'El Retiro'),
+(15, 'El Santuario'),
+(16, 'Marinilla'),
+(17, 'Guatapé'),
+(18, 'Santa Fe de Antioquia'),
+(19, 'Apartadó'),
+(20, 'Turbo'),
+(21, 'Necoclí'),
+(22, 'Carepa'),
+(23, 'Chigorodó'),
+(24, 'Caucasia'),
+(25, 'Yarumal'),
+(26, 'Amalfi'),
+(27, 'Santa Rosa de Osos'),
+(28, 'Sonsón'),
+(29, 'Jericó'),
+(30, 'Jardín'),
+(31, 'Andes');
 
 -- --------------------------------------------------------
 
@@ -159,7 +206,7 @@ INSERT INTO `roles` (`id`, `nombre`, `descripcion`) VALUES
 (1, 'Administrador', 'Acceso total al sistema'),
 (2, 'Técnico', 'Puede gestionar servicios, pero con restricciones'),
 (3, 'Central', 'Acceso intermedio para monitoreo y control'),
-(5, 'usuario', 'usuarios de la web');
+(6, 'prueba', 'Prueba eliminacion');
 
 -- --------------------------------------------------------
 
@@ -185,8 +232,7 @@ INSERT INTO `rol_permisos` (`rol_id`, `permiso_id`) VALUES
 (2, 3),
 (3, 1),
 (3, 2),
-(3, 3),
-(5, 2);
+(3, 3);
 
 -- --------------------------------------------------------
 
@@ -224,6 +270,7 @@ CREATE TABLE `servicios_realizados` (
   `Vehiculo_id_Servicios_Realizados` varchar(20) DEFAULT NULL,
   `Servicio_id_Servicios_Realizados` int(11) DEFAULT NULL,
   `Fecha` date DEFAULT NULL,
+  `municipio` int(11) DEFAULT 11,
   `Ubicación` varchar(255) DEFAULT NULL,
   `Novedades` text DEFAULT NULL,
   `Fotos` text DEFAULT NULL,
@@ -236,25 +283,23 @@ CREATE TABLE `servicios_realizados` (
 -- Volcado de datos para la tabla `servicios_realizados`
 --
 
-INSERT INTO `servicios_realizados` (`Servicio_Realizado_id`, `Cedula_Empleado_id_Servicios_Realizados`, `Vehiculo_id_Servicios_Realizados`, `Servicio_id_Servicios_Realizados`, `Fecha`, `Ubicación`, `Novedades`, `Fotos`, `Detalle_Servicio`, `Custodia_Servicio`, `Facturación_Separada`) VALUES
-(1, 1234, 'ABC123', 1, '2024-10-01', 'Avenida 122, Ciudad F', 'Cambio de llantas necesario', 'llanta_abc123.jpg', 'Cambio de llantas delantero y trasero', 'Custodia en taller', 1),
-(33, NULL, 'ABC123', 1, '2024-11-06', 'Poli JIC', 'Motor con sobrecalentamiento', 'carro.img', 'dsfdsfds', 'Custodia en taller hasta reparación', 0),
-(34, NULL, 'ABC123', 1, '2024-10-01', 'Avenida 122, Ciudad F', 'Cambio de llantas necesario', 'llanta_abc123.jpg', 'Cambio de llantas delantero y trasero', 'Custodia en taller', 1),
-(35, NULL, 'DEF456', 2, '2024-10-05', 'Calle 10, Ciudad G', 'Falla en motor', 'motor_def456.jpg', 'Reparación completa del motor', 'Custodia hasta prueba', 0),
-(36, NULL, 'GHI101', 3, '2024-10-10', 'Calle 15, Ciudad H', 'Cambio de aceite solicitado', 'aceite_ghi101.jpg', 'Cambio de aceite y filtros', 'Sin custodia', 1),
-(37, NULL, 'JKL112', 4, '2024-10-15', 'Avenida 20, Ciudad I', 'Desbalance en ruedas', 'balanceo_jkl112.jpg', 'Alineación y balanceo', 'Custodia temporal', 0),
-(38, NULL, 'XYZ789', 5, '2024-10-20', 'Calle 30, Ciudad J', 'Revisión de frenos urgente', 'frenos_xyz789.jpg', 'Ajuste y revisión del sistema de frenos', 'Custodia en taller', 1),
-(39, NULL, 'MNO345', 2, '2024-10-25', 'Calle 25, Ciudad K', 'Reparación de motor', 'motor_mno345.jpg', 'Servicio de reparación de motor', 'Sin custodia', 0),
-(40, 1010, 'PQR678', 1, '2024-10-30', 'Avenida 40, Ciudad L', 'Cambio de llantas tras desgaste', 'llanta_pqr678.jpg', 'Cambio de llantas y ajuste de presión', 'Custodia hasta prueba', 1),
-(41, NULL, 'STU901', 4, '2024-11-01', 'Calle 50, Ciudad M', 'Desbalance en ruedas', 'balanceo_stu901.jpg', 'Alineación y balanceo', 'Custodia temporal', 0),
-(42, NULL, 'ABC123', 3, '2024-11-03', 'Avenida 60, Ciudad N', 'Cambio de aceite', 'aceite_abc123.jpg', 'Cambio de aceite y revisión de motor', 'Sin custodia', 1),
-(45, NULL, 'ABC123', 2, '2024-11-22', 'Poli JIC', 'Motor con sobrecalentamiento', 'carro.img', 'Reparación del sistema de enfriamiento', 'Custodia en taller hasta reparación', 1),
-(46, 1040, 'ABC123', 5, '2025-04-01', 'poli jic', 'camara', 'foto.img', 'revision', 'linterna', 1),
-(47, NULL, 'IEX747', 4, '2025-04-02', 'poli jic', NULL, NULL, 'quiero que vayan', '3102588225', 0),
-(48, NULL, 'MNI982', 3, '2025-04-03', 'poli jic', NULL, NULL, 'Llevar la pinta de aceite', '3102588225', 0),
-(49, NULL, 'MNI982', 1, '2025-04-03', 'poli jic', NULL, NULL, 'cambio aceite', '3102588225', 0),
-(51, NULL, 'ABC123', 5, '2025-05-09', 'Cra17b #1a-c', NULL, NULL, 'cupo completo', '311111111111', 0),
-(53, NULL, 'DEF456', 10, '2025-05-09', 'Cra17b #1a-c', NULL, NULL, '', '311111111111', 0);
+INSERT INTO `servicios_realizados` (`Servicio_Realizado_id`, `Cedula_Empleado_id_Servicios_Realizados`, `Vehiculo_id_Servicios_Realizados`, `Servicio_id_Servicios_Realizados`, `Fecha`, `municipio`, `Ubicación`, `Novedades`, `Fotos`, `Detalle_Servicio`, `Custodia_Servicio`, `Facturación_Separada`) VALUES
+(1, NULL, 'ABC123', 1, '2024-10-01', 11, 'Avenida 122, Ciudad F', 'Cambio de llantas necesario', 'uploads/img_681d8699c25663.30185867.jpg', 'Cambio de llantas delantero y trasero', 'Custodia en taller', 1),
+(33, NULL, 'ABC123', 1, '2024-11-06', 11, 'Poli JIC', 'Motor con sobrecalentamiento', 'uploads/img_681d8699c25663.30185867.jpg', 'dsfdsfds', 'Custodia en taller hasta reparación', 0),
+(34, NULL, 'ABC123', 1, '2024-10-01', 11, 'Avenida 122, Ciudad F', 'Cambio de llantas necesario', 'uploads/img_681d8699c25663.30185867.jpg', 'Cambio de llantas delantero y trasero', 'Custodia en taller', 1),
+(35, NULL, 'DEF456', 2, '2024-10-05', 11, 'Calle 10, Ciudad G', 'Falla en motor', 'uploads/img_681d8699c25663.30185867.jpg', 'Reparación completa del motor', 'Custodia hasta prueba', 0),
+(36, NULL, 'GHI101', 3, '2024-10-10', 11, 'Calle 15, Ciudad H', 'Cambio de aceite solicitado', 'uploads/img_681d8699c25663.30185867.jpg', 'Cambio de aceite y filtros', 'Sin custodia', 1),
+(37, NULL, 'JKL112', 4, '2024-10-15', 11, 'Avenida 20, Ciudad I', 'Desbalance en ruedas', 'uploads/img_681d8699c25663.30185867.jpg', 'Alineación y balanceo', 'Custodia temporal', 0),
+(38, NULL, 'XYZ789', 5, '2024-10-20', 11, 'Calle 30, Ciudad J', 'Revisión de frenos urgente', 'uploads/img_681d8699c25663.30185867.jpg', 'Ajuste y revisión del sistema de frenos', 'Custodia en taller', 1),
+(39, NULL, 'MNO345', 2, '2024-10-25', 11, 'Calle 25, Ciudad K', 'Reparación de motor', 'uploads/img_681d8699c25663.30185867.jpg', 'Servicio de reparación de motor', 'Sin custodia', 0),
+(40, 1010, 'PQR678', 1, '2024-10-30', 11, 'Avenida 40, Ciudad L', 'Cambio de llantas tras desgaste', 'uploads/img_681d8699c25663.30185867.jpg', 'Cambio de llantas y ajuste de presión', 'Custodia hasta prueba', 1),
+(41, NULL, 'STU901', 4, '2024-11-01', 11, 'Calle 50, Ciudad M', 'Desbalance en ruedas', 'uploads/img_681d8699c25663.30185867.jpg', 'Alineación y balanceo', 'Custodia temporal', 0),
+(42, NULL, 'ABC123', 3, '2024-11-03', 11, 'Avenida 60, Ciudad N', 'Cambio de aceite', 'uploads/img_681d8699c25663.30185867.jpg', 'Cambio de aceite y revisión de motor', 'Sin custodia', 1),
+(45, NULL, 'ABC123', 2, '2024-11-22', 11, 'Poli JIC', 'Motor con sobrecalentamiento', 'uploads/img_681d8699c25663.30185867.jpg', 'Reparación del sistema de enfriamiento', 'Custodia en taller hasta reparación', 1),
+(46, 1040, 'ABC123', 5, '2025-04-01', 11, 'poli jic', 'camara', 'uploads/img_681d8699c25663.30185867.jpg', 'revision', 'linterna', 1),
+(67, 1010, 'ABC123', NULL, '2025-05-08', 11, 'Km3 via llanogrande', 'Sin novedades', 'uploads/img_681d8699c25663.30185867.jpg', 'Solucionado', 'Entrega al cliente', 0),
+(73, 1010, 'XYZ789', 5, '2025-05-09', 14, 'CC Viva', 'El cliente solicita el fin se semana completo en el parqueadero', 'uploads/img_681d9803117623.97392120.png', 'Solucionado', 'Entrega al cliente ', 0),
+(74, 1010, 'MNI982', 10, '2025-05-09', 13, 'CC Viva', 'El cliente solicita el fin se semana completo en el parqueadero', '', 'Solucionado', 'Entrega al cliente', 0);
 
 -- --------------------------------------------------------
 
@@ -319,6 +364,12 @@ ALTER TABLE `mensajes`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indices de la tabla `municipios`
+--
+ALTER TABLE `municipios`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indices de la tabla `permisos`
 --
 ALTER TABLE `permisos`
@@ -352,7 +403,8 @@ ALTER TABLE `servicios_realizados`
   ADD PRIMARY KEY (`Servicio_Realizado_id`),
   ADD KEY `Cedula_Empleado_id_Servicios_Realizados` (`Cedula_Empleado_id_Servicios_Realizados`),
   ADD KEY `Vehiculo_id_Servicios_Realizados` (`Vehiculo_id_Servicios_Realizados`),
-  ADD KEY `Servicio_id_Servicios_Realizados` (`Servicio_id_Servicios_Realizados`);
+  ADD KEY `Servicio_id_Servicios_Realizados` (`Servicio_id_Servicios_Realizados`),
+  ADD KEY `fk_municipio` (`municipio`);
 
 --
 -- Indices de la tabla `vehiculos`
@@ -378,6 +430,12 @@ ALTER TABLE `mensajes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT de la tabla `municipios`
+--
+ALTER TABLE `municipios`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+
+--
 -- AUTO_INCREMENT de la tabla `permisos`
 --
 ALTER TABLE `permisos`
@@ -387,7 +445,7 @@ ALTER TABLE `permisos`
 -- AUTO_INCREMENT de la tabla `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `servicios`
@@ -399,7 +457,7 @@ ALTER TABLE `servicios`
 -- AUTO_INCREMENT de la tabla `servicios_realizados`
 --
 ALTER TABLE `servicios_realizados`
-  MODIFY `Servicio_Realizado_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=54;
+  MODIFY `Servicio_Realizado_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- Restricciones para tablas volcadas
@@ -428,6 +486,7 @@ ALTER TABLE `rol_permisos`
 -- Filtros para la tabla `servicios_realizados`
 --
 ALTER TABLE `servicios_realizados`
+  ADD CONSTRAINT `fk_municipio` FOREIGN KEY (`municipio`) REFERENCES `municipios` (`id`),
   ADD CONSTRAINT `fk_servicio_id` FOREIGN KEY (`Servicio_id_Servicios_Realizados`) REFERENCES `servicios` (`Servicio_id`),
   ADD CONSTRAINT `servicios_realizados_ibfk_1` FOREIGN KEY (`Cedula_Empleado_id_Servicios_Realizados`) REFERENCES `empleados` (`Cedula_Empleado_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `servicios_realizados_ibfk_2` FOREIGN KEY (`Vehiculo_id_Servicios_Realizados`) REFERENCES `vehiculos` (`Placa`) ON DELETE SET NULL ON UPDATE CASCADE,
