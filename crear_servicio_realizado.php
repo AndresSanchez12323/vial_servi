@@ -7,6 +7,50 @@ if (!isset($_SESSION['loggedin'])) {
 
 require_once 'config.php';
 
+$empleados = [];
+$query = "SELECT Cedula_Empleado_id, Nombre, Apellido FROM empleados WHERE Rol_id = 2";
+$result = $conn->query($query);
+
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $empleados[] = $row;
+    }
+}
+
+$cars = [];
+$query = "
+    SELECT vehiculos.Placa, clientes.Nombre AS NombreCliente, clientes.Apellido AS ApellidoCliente
+    FROM vehiculos
+    INNER JOIN clientes ON vehiculos.Clientes_Vehiculos = clientes.Cedula_Id
+";
+$result = $conn->query($query);
+
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $cars[] = $row;
+    }
+}
+
+$service = [];
+$query = "SELECT Servicio_id, Nombre_Servicio FROM servicios";
+$result = $conn->query($query);
+
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $service[] = $row;
+    }
+}
+
+$municipality = [];
+$query = "SELECT id, nombre FROM municipios";
+$result = $conn->query($query);
+
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $municipality[] = $row;
+    }
+}
+
 $fotoPath = '';
 if (isset($_FILES['Fotos']) && $_FILES['Fotos']['error'] === UPLOAD_ERR_OK) {
     $fotoTmpPath = $_FILES['Fotos']['tmp_name'];
@@ -49,6 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $vehiculoId = $_POST['Vehiculo_id_Servicios_Realizados'];
     $servicioId = $_POST['Servicio_id_Servicios_Realizados'];
     $fecha = $_POST['Fecha'];
+    $municipality = $_POST['municipality'];
     $ubicacion = $_POST['Ubicacion'];
     $novedades = $_POST['Novedades'];
     $fotos = $_POST['Fotos'];
@@ -62,15 +107,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         Vehiculo_id_Servicios_Realizados, 
         Servicio_id_Servicios_Realizados, 
         Fecha, 
+        municipio,
         Ubicación, 
         Novedades, 
         Fotos, 
         Detalle_Servicio, 
         Custodia_Servicio, 
         Facturación_Separada
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-    $stmt->bind_param("isissssssi", $cedulaEmpleado, $vehiculoId, $servicioId, $fecha, $ubicacion, $novedades, $fotoPath, $detalleServicio, $custodiaServicio, $facturacionSeparada);
+    $stmt->bind_param("isisssssssi", $cedulaEmpleado, $vehiculoId, $servicioId, $fecha, $municipality, $ubicacion, $novedades, $fotoPath, $detalleServicio, $custodiaServicio, $facturacionSeparada);
 
     if ($stmt->execute()) {
         echo "<script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>";
@@ -298,16 +344,52 @@ $conn->close();
     <h2>Agregar Servicio Realizado</h2>
     <form method="post" action=""  enctype="multipart/form-data">
         <div class="form-group">
-            <label for="Cedula_Empleado_id_Servicios_Realizados">Cédula del Empleado</label>
-            <input type="text" name="Cedula_Empleado_id_Servicios_Realizados" class="form-control" required>
+            <label for="Cedula_Empleado_id_Servicios_Realizados">Técnico asignado</label>
+            <select name="Cedula_Empleado_id_Servicios_Realizados" class="form-control" required>
+                <option value="">Seleccione un empleado</option>
+                <?php foreach ($empleados as $empleado): ?>
+                    <option value="<?= htmlspecialchars($empleado['Cedula_Empleado_id']) ?>">
+                        <?= htmlspecialchars($empleado['Cedula_Empleado_id']) ?> - <?= htmlspecialchars($empleado['Nombre']) ?> <?= htmlspecialchars($empleado['Apellido']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="form-group">
-            <label for="Vehiculo_id_Servicios_Realizados">ID del Vehículo</label>
-            <input type="text" name="Vehiculo_id_Servicios_Realizados" class="form-control" required>
+            <label for="Vehiculo_id_Servicios_Realizados">Placa del Vehículo</label>
+            <select name="Vehiculo_id_Servicios_Realizados" class="form-control" required>
+                <option value="">Seleccione un Vehículo</option>
+                <?php foreach ($cars as $car): ?>
+                    <option value="<?= htmlspecialchars($car['Placa']) ?>">
+                        <?= htmlspecialchars($car['Placa']) ?> - <?= htmlspecialchars($car['NombreCliente']) ?> <?= htmlspecialchars($car['ApellidoCliente']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="Servicio_id_Servicios_Realizados">Servicio a realizar</label>
+            <select name="Servicio_id_Servicios_Realizados" class="form-control" required>
+                <option value="">Seleccione un Servicio</option>
+                <?php foreach ($service as $service): ?>
+                    <option value="<?= htmlspecialchars($service['Servicio_id']) ?>">
+                        <?= htmlspecialchars($service['Nombre_Servicio']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="form-group">
             <label for="Fecha">Fecha</label>
             <input type="date" name="Fecha" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="municipality">Municipio</label>
+            <select name="municipality" class="form-control" required>
+                <option value="">Seleccione un municipio</option>
+                <?php foreach ($municipality as $municipality): ?>
+                    <option value="<?= htmlspecialchars($municipality['id']) ?>">
+                        <?= htmlspecialchars($municipality['nombre']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
         <div class="form-group">
             <label for="Ubicacion">Ubicación</label>
@@ -318,7 +400,7 @@ $conn->close();
             <input type="text" name="Novedades" class="form-control">
         </div>
         <div class="form-group">
-            <label for="Fotos">Fotos (nombre de archivo)</label>
+            <label for="Fotos">Fotos (seleccionar archivo)</label>
             <input type="file" name="Fotos" class="form-control" accept="image/*">
         </div>
         <div class="form-group">
@@ -329,10 +411,10 @@ $conn->close();
             <label for="Custodia_Servicio">Custodia del Servicio</label>
             <input type="text" name="Custodia_Servicio" class="form-control">
         </div>
-        <div class="form-check">
+        <!-- <div class="form-check">
             <input type="checkbox" name="Facturacion_Separada" class="form-check-input" value="1">
             <label for="Facturacion_Separada" class="form-check-label">¿Facturación Separada?</label>
-        </div>
+        </div> -->
         <button type="submit" class="btn btn-primary">Agregar Registro</button>
     </form>
 </div>
