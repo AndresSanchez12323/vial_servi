@@ -17,7 +17,23 @@ $usuarioPuedeEditar = usuarioTienePermiso($_SESSION['cedula'], 'actualizar_servi
 $usuarioPuedeEliminar = usuarioTienePermiso($_SESSION['cedula'], 'eliminar_servicio', $conn);
 
 $mostrarAcciones = $usuarioPuedeEditar || $usuarioPuedeEliminar;
-$sql = "SELECT * FROM servicios_realizados"; 
+$sql = "
+    SELECT 
+        sr.Servicio_Realizado_id,
+        sr.Cedula_Empleado_id_Servicios_Realizados,
+        sr.Vehiculo_id_Servicios_Realizados,
+        s.Nombre_Servicio,
+        sr.Fecha,
+        m.nombre as nombre_municipio,
+        sr.Ubicación,
+        sr.Novedades,
+        sr.Fotos,
+        sr.Detalle_Servicio,
+        sr.Custodia_Servicio
+    FROM servicios_realizados sr
+    JOIN servicios s ON sr.Servicio_id_Servicios_Realizados = s.Servicio_id
+    JOIN municipios m ON sr.municipio = m.id
+";
 $result = $conn->query($sql);
 ?>
 
@@ -151,8 +167,8 @@ $result = $conn->query($sql);
         }
 
         td img {
-            width: 100px;
-            height: 50px;
+            width: 200px;
+            height: 140px;
             object-fit: cover;
             border-radius: 5px;
         }
@@ -182,6 +198,10 @@ $result = $conn->query($sql);
 
         .btn-danger:hover {
             background-color: #c82333;
+        }
+        .details-row {
+            background-color: #f9f9f9;
+            font-size: 0.9em;
         }
     </style>
 </head>
@@ -215,16 +235,11 @@ $result = $conn->query($sql);
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Cédula Empleado</th>
-                    <th>Placa Vehículo</th>
+                    <th>Placa</th>
                     <th>Servicio</th>
                     <th>Fecha</th>
-                    <th>Ubicación</th>
-                    <th>Novedades</th>
-                    <th>Fotos</th>
+                    <th>Municipio</th>
                     <th>Detalle</th>
-                    <th>Custodia</th>
-                    <th>Facturación Separada</th>
                     <?php if ($mostrarAcciones) { ?>
                         <th>Acciones</th> <!-- Solo se muestra si el usuario tiene permisos -->
                     <?php } ?>
@@ -236,29 +251,41 @@ $result = $conn->query($sql);
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr id='row-" . $row['Servicio_Realizado_id'] . "'>";
                         echo "<td>" . $row['Servicio_Realizado_id'] . "</td>";
-                        echo "<td>" . $row['Cedula_Empleado_id_Servicios_Realizados'] . "</td>";
                         echo "<td>" . $row['Vehiculo_id_Servicios_Realizados'] . "</td>";
-                        echo "<td>" . $row['Servicio_id_Servicios_Realizados'] . "</td>";
+                        echo "<td>" . $row['Nombre_Servicio'] . "</td>";
                         echo "<td>" . $row['Fecha'] . "</td>";
-                        echo "<td>" . $row['Ubicación'] . "</td>";
-                        echo "<td>" . $row['Novedades'] . "</td>";                        
-                        echo "<td><img src='" . $row['Fotos'] . "' alt='Foto' style='max-width: 100px; max-height: 100px;'></td>";
-                        echo "<td>" . $row['Detalle_Servicio'] . "</td>";
-                        echo "<td>" . $row['Custodia_Servicio'] . "</td>";
-                        echo "<td>" . ($row['Facturación_Separada'] ? 'Sí' : 'No') . "</td>";
+                        echo "<td>" . $row['nombre_municipio'] . "</td>";
+                        echo "<td>";
+                        echo "<button class='btn btn-info btn-sm' onclick='toggleDetails(" . $row['Servicio_Realizado_id'] . ")'>Ver más</button>";
+                        echo "</td>";
+                    
                         if ($mostrarAcciones) {
                             echo "<td class='action-buttons'>";
                             if ($usuarioPuedeEditar) {
-                                echo "<a href='editar_servicio_realizado.php?id=" . $row['Servicio_Realizado_id'] . "' class='btn btn-warning' data-no-warning><i class='fas fa-edit'></i> Editar</a> ";
+                                echo "<a href='editar_servicio_realizado.php?id=" . $row['Servicio_Realizado_id'] . "' class='btn btn-warning btn-sm' data-no-warning><i class='fas fa-edit'></i> Editar</a> ";
                             }
                             if ($usuarioPuedeEliminar) {
-                                echo "<button onclick='confirmDelete(" . $row['Servicio_Realizado_id'] . ")' class='btn btn-danger' data-no-warning><i class='fas fa-trash-alt'></i> Eliminar</button>";
+                                echo "<button onclick='confirmDelete(" . $row['Servicio_Realizado_id'] . ")' class='btn btn-danger btn-sm' data-no-warning><i class='fas fa-trash-alt'></i> Eliminar</button>";
                             }
                             echo "</td>";
                         }
                     
                         echo "</tr>";
-                    }
+                    
+                        echo "<tr id='details-" . $row['Servicio_Realizado_id'] . "' class='details-row' style='display:none;'>";
+                        echo "<td colspan='4'>";
+                        echo "<strong>Empleado:</strong> " . $row['Cedula_Empleado_id_Servicios_Realizados'] . "<br>";
+                        echo "<strong>Vehículo:</strong> " . $row['Vehiculo_id_Servicios_Realizados'] . "<br>";
+                        echo "<strong>Ubicación:</strong> " . $row['Ubicación'] . "<br>";
+                        echo "<strong>Novedades:</strong> " . $row['Novedades'] . "<br>";
+                        echo "<strong>Detalle del servicio:</strong> " . $row['Detalle_Servicio'] . "<br>";
+                        echo "<strong>Custodia:</strong> " . $row['Custodia_Servicio'] . "<br>";
+                        echo "</td>";
+                        echo "<td colspan='3'>";
+                        echo "<strong>Foto:</strong><br><img src='" . $row['Fotos'] . "' alt='Foto' style='max-width: 200px; max-height: 200px;'><br>";
+                        echo "</td>";
+                        echo "</tr>";
+                    }                    
                     } else {
                         echo "<tr><td colspan='12'>No se encontraron registros</td></tr>";
                     }
@@ -358,6 +385,17 @@ $result = $conn->query($sql);
         };
 
         window.addEventListener('beforeunload', beforeUnloadHandler);
+</script>
+
+<script>
+function toggleDetails(id) {
+    const row = document.getElementById('details-' + id);
+    if (row.style.display === 'none') {
+        row.style.display = '';
+    } else {
+        row.style.display = 'none';
+    }
+}
 </script>
 
 <!-- Bootstrap JS and dependencies -->
