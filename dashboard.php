@@ -41,7 +41,7 @@ if (isset($_GET['data'])) {
         echo json_encode(['error' => 'El parámetro "mes" es obligatorio y debe tener formato YYYY-MM']);
         exit;
     }
-    
+
     switch ($dataType) {
         case 'servicios':
             $query = "
@@ -267,7 +267,21 @@ if (isset($_GET['data'])) {
     <div class="container">
         <h2>Bienvenido al Dashboard</h2>
         <p>Aquí podrás acceder a las diferentes funciones del sistema.</p>
-        <a href="consulta_general.php" data-no-warning>Ir a Consulta General</a>
+
+        <?php
+        if ($verReportesAdministrador) {
+            ?>
+            <a href="consulta_general.php" data-no-warning>Ir a Consulta General</a>
+            <?php
+        }
+        ?>
+        <?php
+        if ($verReportesTecnico) {
+            ?>
+            <a href="consulta_general_tecnico.php" data-no-warning>Ir a Consulta técnico</a>
+            <?php
+        }
+        ?>
         <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
 
         <!-- Selector de mes -->
@@ -277,7 +291,7 @@ if (isset($_GET['data'])) {
         </div>
 
         <?php
-        if (usuarioTienePermiso($_SESSION['cedula'], 'ver_reporte_administrador', $conn)) {
+        if ($verReportesAdministrador) {
             ?>
             <div class="reports">
                 <div id="service-container" class="chart-placeholder">Cargando servicios...</div>
@@ -288,7 +302,7 @@ if (isset($_GET['data'])) {
         }
         ?>
         <?php
-        if (usuarioTienePermiso($_SESSION['cedula'], 'ver_reporte_tecnico', $conn)) {
+        if ($verReportesTecnico) {
             ?>
             <div id="serviciosEmpleados-container" class="chart-placeholder">Cargando empleados...</div>
             <?php
@@ -338,7 +352,7 @@ if (isset($_GET['data'])) {
                 .then(res => res.json())
                 .then(data => {
                     console.log(data);
-                    
+
                     const categories = data.map(item => item.fecha);
                     const values = data.map(item => item.cantidad_reservas);
                     Highcharts.chart('serviciosEmpleados-container', {
