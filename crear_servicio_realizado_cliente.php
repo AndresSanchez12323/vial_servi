@@ -198,7 +198,7 @@ $conn->close();
     </div>
     <div>
         <a href="cliente_dashboard.php" data-no-warning>Dashboard</a>
-        <a href="cliente_registrar_vehiculo.php" data-no-warning>Registrar Vehículo</a>
+        <a href="cliente_vehiculo.php" data-no-warning>Gestionar Mis Vehículos</a>
         <a href="logout_cliente.php" data-no-warning>Cerrar Sesión</a>
     </div>
 </div>

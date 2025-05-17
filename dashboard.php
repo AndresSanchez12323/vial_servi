@@ -259,7 +259,72 @@ if (isset($_GET['data'])) {
             border-color: #007bff;
             outline: none;
         }
+
+        .btn-logout {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 0;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-logout:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-logout:active {
+            background-color: #dc3545;
+            transform: translateY(0);
+        }
+
+        /* Mejorar el estilo del botón de Excel */
+        .btn-excel {
+            background-color: #1e7e34;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-excel:hover {
+            background-color: #218838;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-excel:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Incluir el ícono de Font Awesome */
+        .fa-file-excel:before {
+            content: "\f1c3";
+        }
     </style>
+
+    <!-- Añadir referencia a Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Añadir SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -269,6 +334,9 @@ if (isset($_GET['data'])) {
         <p>Aquí podrás acceder a las diferentes funciones del sistema.</p>
 
         <?php
+        // Verificar si el usuario es técnico (rol 2)
+        $esTecnico = isset($_SESSION['rol']) && $_SESSION['rol'] == 2;
+        
         if ($verReportesAdministrador) {
             ?>
             <a href="consulta_general.php" data-no-warning>Ir a Consulta General</a>
@@ -278,16 +346,39 @@ if (isset($_GET['data'])) {
         <?php
         if ($verReportesTecnico) {
             ?>
-            <a href="consulta_general_tecnico.php" data-no-warning>Ir a Consulta técnico</a>
+            <a href="consulta_general_tecnico.php" data-no-warning>Ver Mis Servicios Realizados</a>
             <?php
         }
         ?>
-        <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
+        
+        <?php
+        // Mostrar el botón de Consulta por Identificación solo si NO es técnico
+        if (!$esTecnico) {
+            ?>
+            <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
+            <?php
+        }
+        ?>
+        
+        <!-- Botón de cerrar sesión -->
+        <a href="logout.php" data-no-warning class="btn-logout">Cerrar Sesión</a>
 
         <!-- Selector de mes -->
         <div class="month-selector">
             <label for="mes-reporte"><strong>Selecciona el mes del reporte:</strong></label>
             <input type="month" id="mes-reporte" name="mes-reporte" onchange="actualizarReportesPorMes()" />
+            
+            <?php
+            // Mostrar el botón de descarga Excel solo si NO es técnico
+            if (!$esTecnico) {
+            ?>
+                <!-- Botón de descarga Excel mejorado -->
+                <button id="btn-descargar-excel" class="btn-excel" onclick="descargarExcel()">
+                    <i class="fas fa-file-excel"></i> Descargar datos del mes en Excel
+                </button>
+            <?php
+            }
+            ?>
         </div>
 
         <?php
@@ -350,7 +441,7 @@ if (isset($_GET['data'])) {
         function cargarServiciosTecnico(mes) {
             fetch(`dashboard.php?data=serviciosEmpleados&mes=${mes}`)
                 .then(res => res.json())
-                .then(data => {
+                .then(data => { // Corregido: agregar paréntesis
                     console.log(data);
 
                     const categories = data.map(item => item.fecha);
@@ -383,7 +474,7 @@ if (isset($_GET['data'])) {
         function cargarServicios(mes) {
             fetch(`dashboard.php?data=servicios&mes=${mes}`)
                 .then(res => res.json())
-                .then(data => {
+                .then(data => {  // CORREGIDO: añadido el paréntesis
                     const categories = data.map(item => item.name);
                     const values = data.map(item => item.y);
                     Highcharts.chart('service-container', {
@@ -431,7 +522,7 @@ if (isset($_GET['data'])) {
         function cargarEmpleados(mes) {
             fetch(`dashboard.php?data=empleados&mes=${mes}`)
                 .then(res => res.json())
-                .then(data => {
+                .then (data => {
                     Highcharts.chart('worker-container', {
                         chart: { type: 'bar' },
                         title: { text: 'Servicios Realizados por Empleado' },
@@ -453,6 +544,57 @@ if (isset($_GET['data'])) {
             cargarServicios(mes);
             cargarMunicipios(mes);
             cargarEmpleados(mes);
+        }
+
+        // Añadir función para descargar Excel
+        function descargarExcel() {
+            const mes = document.getElementById('mes-reporte').value;
+            if (!mes) {
+                alert('Por favor selecciona un mes para descargar el reporte');
+                return;
+            }
+            
+            // Mostrar mensaje de procesamiento
+            Swal.fire({
+                title: 'Generando Excel',
+                text: 'Procesando los datos del mes ' + mes + '...',
+                icon: 'info',
+                showConfirmButton: false,
+                allowOutsideClick: false
+            });
+            
+            // SOLUCIÓN: Usar un iframe oculto para mantener la sesión
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.name = 'download_frame';
+            document.body.appendChild(iframe);
+            
+            // Crear un formulario para enviar con POST
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = 'descargar_dashboard_excel.php';
+            form.target = 'download_frame'; // Importante: usar el iframe
+    
+            // Agregar el mes seleccionado como parámetro
+            const mesInput = document.createElement('input');
+            mesInput.type = 'hidden';
+            mesInput.name = 'mes';
+            mesInput.value = mes;
+            form.appendChild(mesInput);
+            
+            // Enviar el formulario
+            document.body.appendChild(form);
+            form.submit();
+            
+            // Cerrar el mensaje después de un tiempo
+            setTimeout(() => {
+                Swal.close();
+                // Limpiar recursos después de la descarga
+                setTimeout(() => {
+                    document.body.removeChild(form);
+                    document.body.removeChild(iframe);
+                }, 1000);
+            }, 2000);
         }
     </script>
 

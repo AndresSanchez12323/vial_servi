@@ -2,7 +2,11 @@
 include('validPermissions.php');
 include('header.php');
 
-session_start();
+// Solo iniciar sesión si no hay una sesión activa
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
 if (!isset($_SESSION['loggedin'])) {
     header("Location: index.php");
     exit;
@@ -19,10 +23,50 @@ $usuarioPuedeEditar = usuarioTienePermiso($_SESSION['cedula'], 'actualizar_servi
 $usuarioPuedeEliminar = usuarioTienePermiso($_SESSION['cedula'], 'eliminar_servicio', $conn);
 
 $mostrarAcciones = $usuarioPuedeEditar || $usuarioPuedeEliminar;
+
+// Verificar si el usuario es técnico (rol 2)
+$es_tecnico = false;
+
+// Modificar la consulta para usar la tabla correcta
+$sql_rol = "SELECT Rol_id as rol FROM empleados WHERE Cedula_Empleado_id = ?";
+$stmt_rol = $conn->prepare($sql_rol);
+
+if ($stmt_rol) {
+    $stmt_rol->bind_param("s", $usuarioId);
+    $stmt_rol->execute();
+    $resultado_rol = $stmt_rol->get_result();
+    
+    if ($fila_rol = $resultado_rol->fetch_assoc()) {
+        $es_tecnico = ($fila_rol['rol'] == 2);
+    }
+    $stmt_rol->close();
+} else {
+    // Error al preparar la consulta - mostrar mensaje de error para depuración
+    echo "Error preparando la consulta: " . $conn->error;
+}
+
+// Inicializar variables de filtro
+$filtro_cedula = isset($_GET['cedula']) ? $_GET['cedula'] : '';
+// Si es técnico, forzar el filtro a su propia cédula
+if ($es_tecnico) {
+    $filtro_cedula = $usuarioId;
+}
+$filtro_fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
+$filtro_placa = isset($_GET['placa']) ? $_GET['placa'] : '';
+$filtro_servicio = isset($_GET['servicio']) ? $_GET['servicio'] : '';
+$filtro_municipio = isset($_GET['municipio']) ? $_GET['municipio'] : '';
+
+// Obtener la lista de empleados para el filtro
+$sql_empleados = "SELECT e.Cedula_Empleado_id, CONCAT(e.Nombre, ' ', e.Apellido) as nombre_completo 
+                 FROM empleados e";
+$result_empleados = $conn->query($sql_empleados);
+$empleados_lista = $result_empleados->fetch_all(MYSQLI_ASSOC);
+
 $sql = "
-    SELECT 
+    SELECT
         sr.Servicio_Realizado_id,
         sr.Cedula_Empleado_id_Servicios_Realizados,
+        CONCAT(e.Nombre, ' ', e.Apellido) as nombre_tecnico,
         sr.Vehiculo_id_Servicios_Realizados,
         s.Nombre_Servicio,
         sr.Fecha,
@@ -35,8 +79,103 @@ $sql = "
     FROM servicios_realizados sr
     JOIN servicios s ON sr.Servicio_id_Servicios_Realizados = s.Servicio_id
     JOIN municipios m ON sr.municipio = m.id
+    LEFT JOIN empleados e ON sr.Cedula_Empleado_id_Servicios_Realizados = e.Cedula_Empleado_id
+    WHERE 1 = 1
 ";
+
+// Para técnicos, siempre filtrar por su propia cédula
+if ($es_tecnico) {
+    $sql .= " AND sr.Cedula_Empleado_id_Servicios_Realizados = '" . $usuarioId . "'";
+} 
+// Para otros roles, aplicar filtro de cédula solo si se ha proporcionado
+else if (!empty($filtro_cedula)) {
+    $sql .= " AND sr.Cedula_Empleado_id_Servicios_Realizados = '" . $filtro_cedula . "'";
+}
+
+// Aplicar otros filtros si se han proporcionado
+if (!empty($filtro_fecha)) {
+    $sql .= " AND sr.Fecha = '" . $filtro_fecha . "'";
+}
+if (!empty($filtro_placa)) {
+    $sql .= " AND sr.Vehiculo_id_Servicios_Realizados LIKE '%" . $filtro_placa . "%'";
+}
+if (!empty($filtro_servicio)) {
+    $sql .= " AND s.Servicio_id = " . $filtro_servicio;
+}
+if (!empty($filtro_municipio)) {
+    $sql .= " AND m.id = " . $filtro_municipio;
+}
+
+// Configuración de paginación
+$registros_por_pagina = 10; // Cantidad de servicios por página
+$pagina_actual = isset($_GET['pagina']) ? intval($_GET['pagina']) : 1;
+$offset = ($pagina_actual - 1) * $registros_por_pagina;
+
+// Primero obtener el total de registros para calcular las páginas
+$sql_count = "
+    SELECT COUNT(*) as total
+    FROM servicios_realizados sr
+    JOIN servicios s ON sr.Servicio_id_Servicios_Realizados = s.Servicio_id
+    JOIN municipios m ON sr.municipio = m.id
+    LEFT JOIN empleados e ON sr.Cedula_Empleado_id_Servicios_Realizados = e.Cedula_Empleado_id
+    WHERE 1 = 1
+";
+
+// Aplicar los mismos filtros a la consulta de conteo
+if ($es_tecnico) {
+    $sql_count .= " AND sr.Cedula_Empleado_id_Servicios_Realizados = '" . $usuarioId . "'";
+} else if (!empty($filtro_cedula)) {
+    $sql_count .= " AND sr.Cedula_Empleado_id_Servicios_Realizados = '" . $filtro_cedula . "'";
+}
+
+if (!empty($filtro_fecha)) {
+    $sql_count .= " AND sr.Fecha = '" . $filtro_fecha . "'";
+}
+if (!empty($filtro_placa)) {
+    $sql_count .= " AND sr.Vehiculo_id_Servicios_Realizados LIKE '%" . $filtro_placa . "%'";
+}
+if (!empty($filtro_servicio)) {
+    $sql_count .= " AND s.Servicio_id = " . $filtro_servicio;
+}
+if (!empty($filtro_municipio)) {
+    $sql_count .= " AND m.id = " . $filtro_municipio;
+}
+
+$result_count = $conn->query($sql_count);
+$row_count = $result_count->fetch_assoc();
+$total_registros = $row_count['total'];
+$total_paginas = ceil($total_registros / $registros_por_pagina);
+
+// Añadir límite y offset a la consulta principal
+$sql .= " ORDER BY sr.Servicio_Realizado_id DESC LIMIT $registros_por_pagina OFFSET $offset";
+
+// Función para construir las URLs de paginación
+function construirUrlPaginacion($pagina) {
+    global $filtro_cedula, $filtro_fecha, $filtro_placa, $filtro_servicio, $filtro_municipio;
+    
+    $url = $_SERVER['PHP_SELF'] . '?pagina=' . $pagina;
+    
+    if (!empty($filtro_cedula)) $url .= '&cedula=' . $filtro_cedula;
+    if (!empty($filtro_fecha)) $url .= '&fecha=' . $filtro_fecha;
+    if (!empty($filtro_placa)) $url .= '&placa=' . $filtro_placa;
+    if (!empty($filtro_servicio)) $url .= '&servicio=' . $filtro_servicio;
+    if (!empty($filtro_municipio)) $url .= '&municipio=' . $filtro_municipio;
+    
+    return $url;
+}
+
 $result = $conn->query($sql);
+
+// Obtener la lista de servicios para el filtro
+$sql_servicios = "SELECT Servicio_id, Nombre_Servicio FROM servicios";
+$result_servicios = $conn->query($sql_servicios);
+$servicios = $result_servicios->fetch_all(MYSQLI_ASSOC);
+
+// Obtener la lista de municipios para el filtro
+$sql_municipios = "SELECT id, nombre FROM municipios";
+$result_municipios = $conn->query($sql_municipios);
+$municipios_lista = $result_municipios->fetch_all(MYSQLI_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -47,13 +186,10 @@ $result = $conn->query($sql);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta General</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
@@ -66,18 +202,19 @@ $result = $conn->query($sql);
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-image: url('Imagenes/ConsultaGeneral.jpg');
-            background-size: cover;
+            background-size: auto; /* Cambiado de "cover" a "auto" para mantener tamaño original */
             background-position: center;
             background-repeat: no-repeat;
+            background-attachment: fixed; /* Mantiene la imagen fija mientras se desplaza */
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            padding-top: 120px;
+            padding-top: 170px;
         }
 
         .main-content {
             padding: 20px;
-            margin-top: 120px;
+            margin-top: 20px;
             flex-grow: 1;
             display: flex;
             justify-content: center;
@@ -100,6 +237,66 @@ $result = $conn->query($sql);
             margin-bottom: 25px;
             font-size: 24px;
             font-weight: 600;
+        }
+
+        .filter-form {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 150px;
+            max-width: 200px;
+            flex: 1;
+        }
+
+        .filter-form label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .filter-form input[type="text"],
+        .filter-form input[type="date"],
+        .filter-form select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .filter-actions {
+            display: flex;
+            align-items: flex-end;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 992px) {
+            .filter-group {
+                min-width: 120px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-group {
+                min-width: 45%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .filter-group {
+                min-width: 100%;
+            }
         }
 
         .table {
@@ -165,27 +362,106 @@ $result = $conn->query($sql);
             background-color: #f9f9f9;
             font-size: 0.9em;
         }
+
+        .pagination-container {
+            margin: 20px 0;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: #680c39;
+            border-color: #680c39;
+            color: white;
+        }
+
+        .pagination .page-link {
+            color: #680c39;
+            border-color: #ddd;
+        }
+
+        .pagination .page-link:hover {
+            background-color: #f8f9fa;
+            color: #4a0b29;
+            border-color: #ddd;
+        }
+
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- Contenido principal -->
     <div class="main-content">
         <div class="container">
             <h2>Servicios Realizados</h2>
+
+            <form class="filter-form" action="" method="GET" id="filterForm">
+                <?php if (!$es_tecnico): ?>
+                <div class="filter-group">
+                    <label for="cedula">Técnico:</label>
+                    <select name="cedula" id="cedula" class="auto-submit">
+                        <option value="">Seleccione...</option>
+                        <?php foreach ($empleados_lista as $emp): ?>
+                            <option value="<?= $emp['Cedula_Empleado_id']; ?>" <?= ($emp['Cedula_Empleado_id'] == $filtro_cedula ? 'selected' : '') ?>>
+                                <?= htmlspecialchars($emp['nombre_completo']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <?php endif; ?>
+
+                <div class="filter-group">
+                    <label for="fecha">Fecha:</label>
+                    <input type="date" id="fecha" name="fecha" value="<?= htmlspecialchars($filtro_fecha); ?>" class="auto-submit">
+                </div>
+
+                <div class="filter-group">
+                    <label for="placa">Placa:</label>
+                    <input type="text" id="placa" name="placa" value="<?= htmlspecialchars($filtro_placa); ?>" placeholder="Ej. ABC123" class="auto-submit">
+                </div>
+
+                <div class="filter-group">
+                    <label for="servicio">Servicio:</label>
+                    <select name="servicio" id="servicio" class="auto-submit">
+                        <option value="">Seleccione...</option>
+                        <?php foreach ($servicios as $s): ?>
+                            <option value="<?= $s['Servicio_id']; ?>" <?= ($s['Servicio_id'] == $filtro_servicio ? 'selected' : '') ?>>
+                                <?= htmlspecialchars($s['Nombre_Servicio']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="municipio">Municipio:</label>
+                    <select name="municipio" id="municipio" class="auto-submit">
+                        <option value="">Seleccione...</option>
+                        <?php foreach ($municipios_lista as $m): ?>
+                            <option value="<?= $m['id']; ?>" <?= ($m['id'] == $filtro_municipio ? 'selected' : '') ?>>
+                                <?= htmlspecialchars($m['nombre']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div class="filter-group filter-actions">
+                    <a href="consulta_general.php" class="btn btn-secondary" data-no-warning>Limpiar</a>
+                </div>
+            </form>
+
             <table class="table table-bordered">
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Técnico</th>
                         <th>Placa</th>
                         <th>Servicio</th>
                         <th>Fecha</th>
                         <th>Municipio</th>
                         <th>Detalle</th>
                         <?php if ($mostrarAcciones) { ?>
-                            <th>Acciones</th> <!-- Solo se muestra si el usuario tiene permisos -->
-                        <?php } ?>
+                            <th>Acciones</th> <?php } ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -194,6 +470,7 @@ $result = $conn->query($sql);
                         while ($row = $result->fetch_assoc()) {
                             echo "<tr id='row-" . $row['Servicio_Realizado_id'] . "'>";
                             echo "<td>" . $row['Servicio_Realizado_id'] . "</td>";
+                            echo "<td>" . ($row['nombre_tecnico'] ?? 'No asignado') . "</td>";
                             echo "<td>" . $row['Vehiculo_id_Servicios_Realizados'] . "</td>";
                             echo "<td>" . $row['Nombre_Servicio'] . "</td>";
                             echo "<td>" . $row['Fecha'] . "</td>";
@@ -217,20 +494,25 @@ $result = $conn->query($sql);
 
                             echo "<tr id='details-" . $row['Servicio_Realizado_id'] . "' class='details-row' style='display:none;'>";
                             echo "<td colspan='4'>";
-                            echo "<strong>Empleado:</strong> " . $row['Cedula_Empleado_id_Servicios_Realizados'] . "<br>";
+                            echo "<strong>Empleado:</strong> " . ($row['nombre_tecnico'] ?? 'No asignado') . " (" . ($row['Cedula_Empleado_id_Servicios_Realizados'] ?? 'N/A') . ")<br>";
                             echo "<strong>Vehículo:</strong> " . $row['Vehiculo_id_Servicios_Realizados'] . "<br>";
                             echo "<strong>Ubicación:</strong> " . $row['Ubicación'] . "<br>";
                             echo "<strong>Novedades:</strong> " . $row['Novedades'] . "<br>";
                             echo "<strong>Detalle del servicio:</strong> " . $row['Detalle_Servicio'] . "<br>";
                             echo "<strong>Custodia:</strong> " . $row['Custodia_Servicio'] . "<br>";
                             echo "</td>";
-                            echo "<td colspan='3'>";
-                            echo "<strong>Foto:</strong><br><img src='" . $row['Fotos'] . "' alt='Foto' style='max-width: 200px; max-height: 200px;'><br>";
+                            echo "<td colspan='".($mostrarAcciones ? '4' : '3')."'>";
+                            echo "<strong>Foto:</strong><br>";
+                            if (!empty($row['Fotos'])) {
+                                echo "<img src='" . $row['Fotos'] . "' alt='Foto' style='max-width: 200px; max-height: 200px;'><br>";
+                            } else {
+                                echo "<p>No hay foto disponible</p>";
+                            }
                             echo "</td>";
                             echo "</tr>";
                         }
                     } else {
-                        echo "<tr><td colspan='12'>No se encontraron registros</td></tr>";
+                        echo "<tr><td colspan='".($mostrarAcciones ? '8' : '7')."'>No se encontraron registros</td></tr>";
                     }
                     ?>
                 </tbody>
@@ -247,11 +529,78 @@ $result = $conn->query($sql);
                 }
                 ?>
             </div>
+
+            <!-- Paginación -->
+            <?php if ($total_paginas > 1): ?>
+            <div class="paginacion-container mt-4">
+                <nav aria-label="Navegación de páginas">
+                    <ul class="pagination justify-content-center">
+                        <!-- Botón Anterior -->
+                        <li class="page-item <?= ($pagina_actual <= 1) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= construirUrlPaginacion($pagina_actual - 1) ?>" data-no-warning aria-label="Anterior">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Anterior</span>
+                            </a>
+                        </li>
+                        
+                        <?php
+                        // Calcular rango de páginas a mostrar
+                        $rango = 2; // Mostrar 2 páginas antes y después de la actual
+                        $inicio_rango = max(1, $pagina_actual - $rango);
+                        $fin_rango = min($total_paginas, $pagina_actual + $rango);
+                        
+                        // Mostrar primera página si no está en el rango
+                        if ($inicio_rango > 1) {
+                            echo '<li class="page-item"><a class="page-link" href="' . construirUrlPaginacion(1) . '" data-no-warning>1</a></li>';
+                            if ($inicio_rango > 2) {
+                                echo '<li class="page-item disabled"><a class="page-link">...</a></li>';
+                            }
+                        }
+                        
+                        // Mostrar páginas en el rango
+                        for ($i = $inicio_rango; $i <= $fin_rango; $i++) {
+                            echo '<li class="page-item ' . ($i == $pagina_actual ? 'active' : '') . '">
+                                    <a class="page-link" href="' . construirUrlPaginacion($i) . '" data-no-warning>' . $i . '</a>
+                                  </li>';
+                        }
+                        
+                        // Mostrar última página si no está en el rango
+                        if ($fin_rango < $total_paginas) {
+                            if ($fin_rango < $total_paginas - 1) {
+                                echo '<li class="page-item disabled"><a class="page-link">...</a></li>';
+                            }
+                            echo '<li class="page-item"><a class="page-link" href="' . construirUrlPaginacion($total_paginas) . '" data-no-warning>' . $total_paginas . '</a></li>';
+                        }
+                        ?>
+                        
+                        <!-- Botón Siguiente -->
+                        <li class="page-item <?= ($pagina_actual >= $total_paginas) ? 'disabled' : '' ?>">
+                            <a class="page-link" href="<?= construirUrlPaginacion($pagina_actual + 1) ?>" data-no-warning aria-label="Siguiente">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Siguiente</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="text-center text-muted small">
+                    Mostrando <?= min(($pagina_actual - 1) * $registros_por_pagina + 1, $total_registros) ?> 
+                    a <?= min($pagina_actual * $registros_por_pagina, $total_registros) ?> 
+                    de <?= $total_registros ?> registros
+                </div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
 
-    <!-- JavaScript para eliminar con confirmación usando SweetAlert2 -->
     <script>
+        function toggleDetails(id) {
+            var detailsRow = document.getElementById('details-' + id);
+            if (detailsRow.style.display === 'none') {
+                detailsRow.style.display = 'table-row';
+            } else {
+                detailsRow.style.display = 'none';
+            }
+        }
 
         function confirmDelete(id) {
             Swal.fire({
@@ -307,46 +656,33 @@ $result = $conn->query($sql);
                 }
             });
         }
+
+        // Script para enviar el formulario automáticamente al cambiar los filtros
+        document.addEventListener('DOMContentLoaded', function() {
+            // Seleccionar todos los elementos con la clase auto-submit
+            const autoSubmitElements = document.querySelectorAll('.auto-submit');
+            
+            // Agregar listener de eventos para cada elemento
+            autoSubmitElements.forEach(element => {
+                element.addEventListener('change', function() {
+                    // Pequeño retraso para mejor experiencia de usuario
+                    setTimeout(() => {
+                        document.getElementById('filterForm').submit();
+                    }, 300);
+                });
+            });
+            
+            // Para el campo de texto de placa, aplicar un retraso después de que el usuario deje de escribir
+            const placaInput = document.getElementById('placa');
+            let typingTimer;
+            
+            placaInput.addEventListener('input', function() {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => {
+                    document.getElementById('filterForm').submit();
+                }, 1000); // Esperar 1 segundo después de que el usuario deje de escribir
+            });
+        });
     </script>
-
-    <script>
-        const checkSession = () => {
-            fetch('session.php')
-                .then(response => response.text())
-                .then(data => {
-                    if (data.includes('No active session')) {
-                        window.location.href = 'index.php';
-                    }
-                })
-                .catch(error => console.error('Error al validar la sesión:', error));
-        };
-
-        checkSession();
-
-        const beforeUnloadHandler = (event) => {
-            if (event.target.activeElement?.hasAttribute('data-no-warning')) return;
-            navigator.sendBeacon('session.php', new URLSearchParams({ logout: 'true' }));
-        };
-
-        window.addEventListener('beforeunload', beforeUnloadHandler);
-    </script>
-
-    <script>
-        function toggleDetails(id) {
-            const row = document.getElementById('details-' + id);
-            if (row.style.display === 'none') {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        }
-    </script>
-
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
 </body>
-
 </html>

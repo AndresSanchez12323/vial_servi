@@ -6,13 +6,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Sistema</title>
 
-    <!-- 👇 Aquí cargas tu CSS general -->
     <link rel="stylesheet" href="css/estilos.css">
+    <style>
+        /* Estilos existentes... */
+        
+        /* Evitar que los enlaces se vuelvan azules al pasar el ratón */
+        .sidebar a:hover {
+            background-color: #440f33; /* Color oscuro para el hover */
+            color: #fff; /* Mantener el texto en blanco */
+            text-decoration: none; /* Eliminar subrayado */
+            transform: translateY(-2px); /* Mantener el efecto de elevación */
+        }
+        
+        /* Eliminar el estilo predeterminado de los enlaces */
+        .sidebar a {
+            text-decoration: none;
+            color: #fff;
+            background-color: #2d0f2a;
+            margin-right: 15px;
+            border-radius: 50px;
+            padding: 12px 25px;
+            font-size: 18px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        
+        /* Asegurarse de que no hay cambios de color al hacer clic */
+        .sidebar a:active, 
+        .sidebar a:focus, 
+        .sidebar a:visited {
+            color: #fff;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body>
 
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
+
+// Verificar si el usuario es técnico (rol 2)
+$esTecnico = isset($_SESSION['rol']) && $_SESSION['rol'] == 2;
 ?>
 
 <div id="mySidebar" class="sidebar">
@@ -26,10 +59,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
         <?php if ($currentPage !== 'gestionar_servicios.php' && usuarioTienePermiso($_SESSION['cedula'], 'crear_servicio', $conn)) { ?>
             <a href="gestionar_servicios.php" data-no-warning>Servicios</a>
-        <?php } ?>
-
-        <?php if ($currentPage !== 'consulta_general.php') { ?>
-            <a href="consulta_general.php" data-no-warning>Consulta General</a>
         <?php } ?>
 
         <?php if ($currentPage !== 'consulta_identificacion.php') { ?>
