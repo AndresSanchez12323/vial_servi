@@ -932,4 +932,3 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     </script>
 </body>
 </html>
-<?php
