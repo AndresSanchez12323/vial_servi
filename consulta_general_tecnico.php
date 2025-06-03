@@ -20,11 +20,12 @@ if ($conn->connect_error) {
     die("Conexión fallida: " . $conn->connect_error);
 }
 
-// Inicializar variables de filtro (solo se aplicarán dentro de los servicios del técnico)
-$filtro_fecha = isset($_GET['fecha']) ? $_GET['fecha'] : '';
-$filtro_placa = isset($_GET['placa']) ? $_GET['placa'] : '';
+// Inicializar filtros. Reemplazar el viejo filtro por el nuevo intervalo de fechas
+$filtro_inicio   = isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : '';
+$filtro_fin      = isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : '';
+$filtro_placa    = isset($_GET['placa']) ? $_GET['placa'] : '';
 $filtro_servicio = isset($_GET['servicio']) ? $_GET['servicio'] : '';
-$filtro_municipio = isset($_GET['municipio']) ? $_GET['municipio'] : '';
+$filtro_municipio= isset($_GET['municipio']) ? $_GET['municipio'] : '';
 
 // Configuración de paginación
 $registros_por_pagina = 10; // Número de registros por página
@@ -63,11 +64,12 @@ $sql = "
 $params = [$cedula_tecnico];
 $param_types = "i";
 
-if (!empty($filtro_fecha)) {
-    $sql .= " AND DATE_FORMAT(sr.Fecha, '%Y-%m') = ?";
-    $sql_count .= " AND DATE_FORMAT(sr.Fecha, '%Y-%m') = ?";
-    $params[] = $filtro_fecha;
-    $param_types .= "s";
+if (!empty($filtro_inicio) && !empty($filtro_fin)) {
+    $sql .= " AND DATE(sr.Fecha) BETWEEN ? AND ?";
+    $sql_count .= " AND DATE(sr.Fecha) BETWEEN ? AND ?";
+    $params[] = $filtro_inicio;
+    $params[] = $filtro_fin;
+    $param_types .= "ss";
 }
 
 if (!empty($filtro_placa)) {
@@ -122,11 +124,12 @@ $result_municipios = $conn->query($sql_municipios);
 
 // Función para construir la URL de paginación
 function construirUrlPaginacion($pagina) {
-    global $filtro_fecha, $filtro_placa, $filtro_servicio, $filtro_municipio;
+    global $filtro_inicio, $filtro_fin, $filtro_placa, $filtro_servicio, $filtro_municipio;
     
     $url = $_SERVER['PHP_SELF'] . '?pagina=' . $pagina;
     
-    if (!empty($filtro_fecha)) $url .= '&fecha=' . $filtro_fecha;
+    if (!empty($filtro_inicio)) $url .= '&fecha_inicio=' . $filtro_inicio;
+    if (!empty($filtro_fin)) $url .= '&fecha_fin=' . $filtro_fin;
     if (!empty($filtro_placa)) $url .= '&placa=' . $filtro_placa;
     if (!empty($filtro_servicio)) $url .= '&servicio=' . $filtro_servicio;
     if (!empty($filtro_municipio)) $url .= '&municipio=' . $filtro_municipio;
@@ -140,13 +143,13 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
     header("Content-Disposition: attachment; filename=servicios_tecnico_{$cedula_tecnico}.xls");
     header('Cache-Control: max-age=0');
-    
+
     // Asegurar zona horaria correcta para Colombia
     date_default_timezone_set('America/Bogota');
-    
+
     // Recuperar el nombre del técnico
     $nombre_tecnico = isset($_SESSION['nombre']) ? $_SESSION['nombre'] : $cedula_tecnico;
-    
+
     // Iniciar documento HTML/Excel
     echo '<!DOCTYPE html>';
     echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
@@ -173,132 +176,83 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     echo '</x:ExcelWorkbook>';
     echo '</xml>';
     echo '<![endif]-->';
-    
-    // Estilos CSS mejorados (igual al diseño anterior)
+
+    // Estilos CSS 
     echo '<style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        th {
-            background-color: #4F6228;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-            padding: 8px;
-            border: 1px solid #000000;
-        }
-        td {
-            padding: 6px;
-            border: 1px solid #CCCCCC;
-        }
-        .section-title {
-            background-color: #C6E0B4;
-            font-size: 16pt;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            border: 1px solid #000000;
-        }
-        .sub-title {
-            background-color: #D6EECD;
-            font-size: 14pt;
-            font-weight: bold;
-            padding: 8px;
-            border: 1px solid #000000;
-        }
-        .info-row td {
-            font-weight: bold;
-            background-color: #F2F2F2;
-        }
-        .total-row td {
-            font-weight: bold;
-            background-color: #E2EFDA;
-            text-align: right;
-        }
-        .cell-right {
-            text-align: right;
-        }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th { background-color: #4F6228; color: white; font-weight: bold; text-align: center; padding: 8px; border: 1px solid #000000; }
+        td { padding: 6px; border: 1px solid #CCCCCC; }
+        .section-title { background-color: #C6E0B4; font-size: 16pt; font-weight: bold; text-align: center; padding: 10px; border: 1px solid #000000; }
+        .sub-title { background-color: #D6EECD; font-size: 14pt; font-weight: bold; padding: 8px; border: 1px solid #000000; }
+        .info-row td { font-weight: bold; background-color: #F2F2F2; }
+        .total-row td { font-weight: bold; background-color: #E2EFDA; text-align: right; }
+        .cell-right { text-align: right; }
     </style>';
     echo '</head>';
     echo '<body>';
-    
+
     // ENCABEZADO DEL DOCUMENTO
     echo '<table>';
     echo '<tr><td colspan="10" class="section-title">VIALSERVI - REPORTE DE SERVICIOS DE ' . strtoupper(htmlspecialchars($nombre_tecnico)) . '</td></tr>';
     echo '<tr><td colspan="10" class="sub-title">INFORMACIÓN GENERAL</td></tr>';
-    
-    // Datos del informe
-    echo '<tr class="info-row">';
-    echo '<td>Técnico:</td>';
-    echo '<td colspan="9">' . htmlspecialchars($nombre_tecnico) . '</td>';
-    echo '</tr>';
-    
-    echo '<tr class="info-row">';
-    echo '<td>Fecha de generación:</td>';
-    echo '<td colspan="9">' . date('d/m/Y H:i:s') . '</td>';
-    echo '</tr>';
-    
+    echo '<tr class="info-row"><td>Técnico:</td><td colspan="9">' . htmlspecialchars($nombre_tecnico) . '</td></tr>';
+    echo '<tr class="info-row"><td>Fecha de generación:</td><td colspan="9">' . date('d/m/Y H:i:s') . '</td></tr>';
+
     // Filtros aplicados
-    if (!empty($filtro_fecha) || !empty($filtro_placa) || !empty($filtro_servicio) || !empty($filtro_municipio)) {
-        echo '<tr class="info-row">';
-        echo '<td>Filtros aplicados:</td>';
-        echo '<td colspan="9">';
-        
-        $filtros_texto = [];
-        if (!empty($filtro_fecha)) $filtros_texto[] = "Fecha: $filtro_fecha";
-        if (!empty($filtro_placa)) $filtros_texto[] = "Placa: $filtro_placa";
-        
-        if (!empty($filtro_servicio)) {
-            // Obtener el nombre del servicio
-            $stmt_servicio = $conn->prepare("SELECT Nombre_Servicio FROM servicios WHERE Servicio_id = ?");
-            $stmt_servicio->bind_param("i", $filtro_servicio);
-            $stmt_servicio->execute();
-            $result_servicio = $stmt_servicio->get_result();
-            if ($row_servicio = $result_servicio->fetch_assoc()) {
-                $filtros_texto[] = "Servicio: " . $row_servicio['Nombre_Servicio'];
-            }
-        }
-        
-        if (!empty($filtro_municipio)) {
-            // Obtener el nombre del municipio
-            $stmt_municipio = $conn->prepare("SELECT nombre FROM municipios WHERE id = ?");
-            $stmt_municipio->bind_param("i", $filtro_municipio);
-            $stmt_municipio->execute();
-            $result_municipio = $stmt_municipio->get_result();
-            if ($row_municipio = $result_municipio->fetch_assoc()) {
-                $filtros_texto[] = "Municipio: " . $row_municipio['nombre'];
-            }
-        }
-        
-        echo implode(" | ", $filtros_texto);
-        echo '</td>';
-        echo '</tr>';
+    $filtros_texto = [];
+    if (!empty($filtro_inicio) && !empty($filtro_fin)) {
+        $filtros_texto[] = "Fechas: $filtro_inicio a $filtro_fin";
     }
-    
+    if (!empty($filtro_placa)) {
+        $filtros_texto[] = "Placa: $filtro_placa";
+    }
+    if (!empty($filtro_servicio)) {
+        // Obtener el nombre del servicio
+        $stmt_servicio = $conn->prepare("SELECT Nombre_Servicio FROM servicios WHERE Servicio_id = ?");
+        $stmt_servicio->bind_param("i", $filtro_servicio);
+        $stmt_servicio->execute();
+        $result_servicio = $stmt_servicio->get_result();
+        if ($row_servicio = $result_servicio->fetch_assoc()) {
+            $filtros_texto[] = "Servicio: " . $row_servicio['Nombre_Servicio'];
+        }
+        $stmt_servicio->close();
+    }
+    if (!empty($filtro_municipio)) {
+        // Obtener el nombre del municipio
+        $stmt_municipio = $conn->prepare("SELECT nombre FROM municipios WHERE id = ?");
+        $stmt_municipio->bind_param("i", $filtro_municipio);
+        $stmt_municipio->execute();
+        $result_municipio = $stmt_municipio->get_result();
+        if ($row_municipio = $result_municipio->fetch_assoc()) {
+            $filtros_texto[] = "Municipio: " . $row_municipio['nombre'];
+        }
+        $stmt_municipio->close();
+    }
+    if (!empty($filtros_texto)) {
+        echo '<tr class="info-row"><td>Filtros aplicados:</td><td colspan="9">' . implode(" | ", $filtros_texto) . '</td></tr>';
+    }
     echo '</table>';
-    
+
     // TABLA PRINCIPAL DE SERVICIOS
     echo '<table>';
     echo '<tr><td colspan="10" class="sub-title">DETALLE DE SERVICIOS REALIZADOS</td></tr>';
-    echo '<tr>';
-    echo '<th>ID</th>';
-    echo '<th>Nombre del Servicio</th>';
-    echo '<th>Descripción</th>';
-    echo '<th>Mes</th>'; // Cambiar "Fecha" por "Mes"
-    echo '<th>Placa</th>';
-    echo '<th>Ubicación</th>';
-    echo '<th>Municipio</th>';
-    echo '<th>Novedades</th>';
-    echo '<th>Detalle</th>';
-    echo '<th>Custodia</th>';
-    echo '</tr>';
+    echo '<tr>
+            <th>ID</th>
+            <th>Nombre del Servicio</th>
+            <th>Descripción</th>
+            <th>Mes</th>
+            <th>Placa</th>
+            <th>Ubicación</th>
+            <th>Municipio</th>
+            <th>Novedades</th>
+            <th>Detalle</th>
+            <th>Custodia</th>
+          </tr>';
     
-    // Recuperar los datos sin límite para exportar todos
+    // Recuperar registros sin límite para Excel (quitando el LIMIT y OFFSET)
     $sql_export = str_replace("LIMIT ? OFFSET ?", "", $sql);
-    $param_types_export = substr($param_types, 0, -2); // Quitar los últimos dos caracteres (ii)
-    $params_export = array_slice($params, 0, -2); // Quitar los últimos dos elementos del array
+    $param_types_export = substr($param_types, 0, -2); // Quitar los últimos dos caracteres ("ii")
+    $params_export = array_slice($params, 0, -2); // Quitar los últimos dos elementos
     
     $stmt_export = $conn->prepare($sql_export);
     $stmt_export->bind_param($param_types_export, ...$params_export);
@@ -306,19 +260,15 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     $result_export = $stmt_export->get_result();
     
     $total_records = 0;
-    
-    // Modificar las celdas para tener atributo readonly (no es completamente efectivo pero añade una capa más)
     while ($row = $result_export->fetch_assoc()) {
         // Formatear la fecha para mostrar solo mes y año
         $fecha_completa = new DateTime($row['Fecha']);
-        $mes_anio = $fecha_completa->format('Y-m'); // Formato YYYY-MM
-        $mes_nombre = $fecha_completa->format('F Y'); // Nombre del mes y año
-        
+        $mes_nombre = $fecha_completa->format('F Y'); // Ej: "March 2025"
         echo '<tr>';
         echo '<td readonly="true">' . htmlspecialchars($row['Servicio_Realizado_id']) . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Nombre_Servicio']) . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Descripción']) . '</td>';
-        echo '<td readonly="true">' . $mes_nombre . '</td>'; // Mostrar nombre del mes y año
+        echo '<td readonly="true">' . $mes_nombre . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Placa']) . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Ubicación']) . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Municipio']) . '</td>';
@@ -328,25 +278,15 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
         echo '</tr>';
         $total_records++;
     }
-    
-    // Agregar fila con el total
-    echo '<tr class="total-row">';
-    echo '<td colspan="9">Total de servicios:</td>';
-    echo '<td>' . $total_records . '</td>';
-    echo '</tr>';
-    
+    echo '<tr class="total-row"><td colspan="9">Total de servicios:</td><td>' . $total_records . '</td></tr>';
     echo '</table>';
-    
+
     // RESUMEN ESTADÍSTICO
     echo '<table>';
     echo '<tr><td colspan="3" class="sub-title">RESUMEN DE SERVICIOS</td></tr>';
-    echo '<tr>';
-    echo '<th>Tipo de Servicio</th>';
-    echo '<th>Cantidad</th>';
-    echo '<th>Porcentaje</th>';
-    echo '</tr>';
+    echo '<tr><th>Tipo de Servicio</th><th>Cantidad</th><th>Porcentaje</th></tr>';
     
-    // Consulta para obtener conteo por tipo de servicio
+    // Consulta para obtener resumen por tipo de servicio
     $sql_resumen = "
         SELECT 
             s.Nombre_Servicio, 
@@ -355,38 +295,42 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
         LEFT JOIN servicios s ON sr.Servicio_id_Servicios_Realizados = s.Servicio_id
         WHERE sr.Cedula_Empleado_id_Servicios_Realizados = ?
     ";
-    
-    // Aplicar los mismos filtros que la consulta principal
-    if (!empty($filtro_fecha)) {
-        $sql_resumen .= " AND sr.Fecha = ?";
+    $param_types_resumen = "i";
+    $params_resumen = [$cedula_tecnico];
+    if (!empty($filtro_inicio) && !empty($filtro_fin)) {
+        $sql_resumen .= " AND DATE(sr.Fecha) BETWEEN ? AND ?";
+        $params_resumen[] = $filtro_inicio;
+        $params_resumen[] = $filtro_fin;
+        $param_types_resumen .= "ss";
     }
     if (!empty($filtro_placa)) {
         $sql_resumen .= " AND sr.Vehiculo_id_Servicios_Realizados LIKE ?";
+        $params_resumen[] = "%$filtro_placa%";
+        $param_types_resumen .= "s";
     }
     if (!empty($filtro_servicio)) {
         $sql_resumen .= " AND s.Servicio_id = ?";
+        $params_resumen[] = $filtro_servicio;
+        $param_types_resumen .= "i";
     }
     if (!empty($filtro_municipio)) {
         $sql_resumen .= " AND sr.municipio = ?";
+        $params_resumen[] = $filtro_municipio;
+        $param_types_resumen .= "i";
     }
-    
     $sql_resumen .= " GROUP BY s.Nombre_Servicio ORDER BY cantidad DESC";
-    
+
     $stmt_resumen = $conn->prepare($sql_resumen);
-    $stmt_resumen->bind_param($param_types_export, ...$params_export);
+    $stmt_resumen->bind_param($param_types_resumen, ...$params_resumen);
     $stmt_resumen->execute();
     $result_resumen = $stmt_resumen->get_result();
     
     $datos_resumen = [];
     $total_servicios = 0;
-    
-    // Recopilar datos para el resumen
     while ($row = $result_resumen->fetch_assoc()) {
         $datos_resumen[] = $row;
         $total_servicios += $row['cantidad'];
     }
-    
-    // Mostrar datos con porcentajes
     foreach ($datos_resumen as $servicio) {
         $porcentaje = ($total_servicios > 0) ? round(($servicio['cantidad'] / $total_servicios) * 100, 1) . '%' : '0%';
         echo '<tr>';
@@ -395,26 +339,14 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
         echo '<td class="cell-right">' . $porcentaje . '</td>';
         echo '</tr>';
     }
-    
-    // Agregar fila total
-    echo '<tr class="total-row">';
-    echo '<td>TOTAL</td>';
-    echo '<td class="cell-right">' . $total_servicios . '</td>';
-    echo '<td class="cell-right">100%</td>';
-    echo '</tr>';
-    
+    echo '<tr class="total-row"><td>TOTAL</td><td class="cell-right">' . $total_servicios . '</td><td class="cell-right">100%</td></tr>';
     echo '</table>';
 
     // RESUMEN POR MES
     echo '<table>';
     echo '<tr><td colspan="3" class="sub-title">RESUMEN POR MES</td></tr>';
-    echo '<tr>';
-    echo '<th>Mes</th>';
-    echo '<th>Cantidad de Servicios</th>';
-    echo '<th>Porcentaje</th>';
-    echo '</tr>';
-
-    // Consulta para obtener conteo por mes
+    echo '<tr><th>Mes</th><th>Cantidad de Servicios</th><th>Porcentaje</th></tr>';
+    
     $sql_meses = "
         SELECT 
             DATE_FORMAT(sr.Fecha, '%Y-%m') as mes,
@@ -423,29 +355,23 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
         FROM servicios_realizados sr
         WHERE sr.Cedula_Empleado_id_Servicios_Realizados = ?
     ";
-
-    // Aplicar filtros similares pero excluyendo el filtro de fecha
     $params_meses = [$cedula_tecnico];
     $param_types_meses = "i";
-
     if (!empty($filtro_placa)) {
         $sql_meses .= " AND sr.Vehiculo_id_Servicios_Realizados LIKE ?";
         $params_meses[] = "%$filtro_placa%";
         $param_types_meses .= "s";
     }
-
     if (!empty($filtro_servicio)) {
-        $sql_meses .= " AND sr.Servicio_id_Servicios_Realizados = ?";
+        $sql_meses .= " AND s.Servicio_id = ?";  // Asegúrate de que la unión con "servicios" esté definida si se usa este filtro
         $params_meses[] = $filtro_servicio;
         $param_types_meses .= "i";
     }
-
     if (!empty($filtro_municipio)) {
         $sql_meses .= " AND sr.municipio = ?";
         $params_meses[] = $filtro_municipio;
         $param_types_meses .= "i";
     }
-
     $sql_meses .= " GROUP BY mes ORDER BY mes DESC";
 
     $stmt_meses = $conn->prepare($sql_meses);
@@ -453,14 +379,12 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     $stmt_meses->execute();
     $result_meses = $stmt_meses->get_result();
 
-    $total_por_meses = 0;
     $datos_meses = [];
-
+    $total_por_meses = 0;
     while ($row = $result_meses->fetch_assoc()) {
         $datos_meses[] = $row;
         $total_por_meses += $row['cantidad'];
     }
-
     foreach ($datos_meses as $mes_data) {
         $porcentaje = ($total_por_meses > 0) ? round(($mes_data['cantidad'] / $total_por_meses) * 100, 1) . '%' : '0%';
         echo '<tr>';
@@ -469,26 +393,15 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
         echo '<td class="cell-right">' . $porcentaje . '</td>';
         echo '</tr>';
     }
-
-    echo '<tr class="total-row">';
-    echo '<td>TOTAL</td>';
-    echo '<td class="cell-right">' . $total_por_meses . '</td>';
-    echo '<td class="cell-right">100%</td>';
-    echo '</tr>';
-
+    echo '<tr class="total-row"><td>TOTAL</td><td class="cell-right">' . $total_por_meses . '</td><td class="cell-right">100%</td></tr>';
     echo '</table>';
-    
+
     // PIE DEL DOCUMENTO
     echo '<table>';
     echo '<tr><td colspan="10" class="section-title">DOCUMENTO GENERADO EL ' . date('d/m/Y H:i:s') . '</td></tr>';
     echo '</table>';
-    
-    echo '<div style="margin-top: 20px; color: #cc0000; font-weight: bold; text-align: center;">';
-    echo 'DOCUMENTO DE SOLO LECTURA - NO MODIFICAR';
-    echo '</div>';
-    
-    echo '</body>';
-    echo '</html>';
+    echo '<div style="margin-top: 20px; color: #cc0000; font-weight: bold; text-align: center;">DOCUMENTO DE SOLO LECTURA - NO MODIFICAR</div>';
+    echo '</body></html>';
     exit;
 }
 ?>
@@ -749,8 +662,14 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
                     <div class="row">
                         <div class="col-md-3 col-sm-6">
                             <div class="form-group">
-                                <label for="fecha"><i class="far fa-calendar-alt mr-1"></i>Mes:</label>
-                                <input type="month" id="fecha" name="fecha" value="<?= htmlspecialchars($filtro_fecha); ?>" class="form-control auto-submit">
+                                <label for="fecha_inicio"><i class="far fa-calendar-alt mr-1"></i>Fecha Inicio:</label>
+                                <input type="date" id="fecha_inicio" name="fecha_inicio" value="<?= htmlspecialchars(isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : ''); ?>" class="form-control auto-submit">
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="form-group">
+                                <label for="fecha_fin"><i class="far fa-calendar-alt mr-1"></i>Fecha Fin:</label>
+                                <input type="date" id="fecha_fin" name="fecha_fin" value="<?= htmlspecialchars(isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : ''); ?>" class="form-control auto-submit">
                             </div>
                         </div>
                         
@@ -803,7 +722,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
                 </div>
                 
                 <div class="btn-group">
-                    <a href="?export=excel<?= (!empty($filtro_fecha) ? '&fecha='.$filtro_fecha : '') ?><?= (!empty($filtro_placa) ? '&placa='.$filtro_placa : '') ?><?= (!empty($filtro_servicio) ? '&servicio='.$filtro_servicio : '') ?><?= (!empty($filtro_municipio) ? '&municipio='.$filtro_municipio : '') ?>" class="dashboard-btn">
+                    <a href="?export=excel<?= (!empty($filtro_inicio) ? '&fecha_inicio=' . $filtro_inicio : '') ?><?= (!empty($filtro_fin) ? '&fecha_fin=' . $filtro_fin : '') ?><?= (!empty($filtro_placa) ? '&placa=' . $filtro_placa : '') ?><?= (!empty($filtro_servicio) ? '&servicio=' . $filtro_servicio : '') ?><?= (!empty($filtro_municipio) ? '&municipio=' . $filtro_municipio : '') ?>" class="dashboard-btn">
                         <i class="fas fa-file-excel"></i> Descargar en Excel
                     </a>
                     <a href="dashboard.php" class="dashboard-btn dashboard-btn-secondary">

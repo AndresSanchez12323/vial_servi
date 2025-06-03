@@ -402,6 +402,66 @@ if ($verReportesTecnico) {
     
     echo '</table>';
 }
+
+// RESUMEN POR MES
+echo '<table>';
+echo '<tr><td colspan="3" class="sub-title">RESUMEN POR MES</td></tr>';
+echo '<tr>
+        <th style="mso-number-format:\@;">Mes</th>
+        <th style="mso-number-format:\@;">Cantidad de Servicios</th>
+        <th style="mso-number-format:\@;">Porcentaje</th>
+      </tr>';
+
+$sql_meses = "
+    SELECT 
+        DATE_FORMAT(sr.Fecha, '%Y-%m') as mes,
+        DATE_FORMAT(sr.Fecha, '%M %Y') as mes_nombre,
+        COUNT(*) as cantidad
+    FROM servicios_realizados sr
+    WHERE sr.Cedula_Empleado_id_Servicios_Realizados = ?
+";
+$params_meses = [$cedula_tecnico];
+$param_types_meses = "i";
+
+if (!empty($filtro_placa)) {
+    $sql_meses .= " AND sr.Vehiculo_id_Servicios_Realizados LIKE ?";
+    $params_meses[] = "%$filtro_placa%";
+    $param_types_meses .= "s";
+}
+if (!empty($filtro_servicio)) {
+    $sql_meses .= " AND s.Servicio_id = ?";  // Asegúrate de que la unión con "servicios" esté definida si se usa este filtro
+    $params_meses[] = $filtro_servicio;
+    $param_types_meses .= "i";
+}
+if (!empty($filtro_municipio)) {
+    $sql_meses .= " AND sr.municipio = ?";
+    $params_meses[] = $filtro_municipio;
+    $param_types_meses .= "i";
+}
+$sql_meses .= " GROUP BY mes ORDER BY mes DESC";
+
+$stmt_meses = $conn->prepare($sql_meses);
+$stmt_meses->bind_param($param_types_meses, ...$params_meses);
+$stmt_meses->execute();
+$result_meses = $stmt_meses->get_result();
+
+$datos_meses = [];
+$total_por_meses = 0;
+while ($row = $result_meses->fetch_assoc()) {
+    $datos_meses[] = $row;
+    $total_por_meses += $row['cantidad'];
+}
+foreach ($datos_meses as $mes_data) {
+    $porcentaje = ($total_por_meses > 0) ? round(($mes_data['cantidad'] / $total_por_meses) * 100, 1) . '%' : '0%';
+    echo '<tr>';
+    // Aquí convertimos la fecha (mes_nombre) a string forzado por mso-number-format:\@;
+    echo '<td style="mso-number-format:\@;">' . htmlspecialchars($mes_data['mes_nombre']) . '</td>';
+    echo '<td class="cell-right" style="mso-number-format:\@;">' . htmlspecialchars($mes_data['cantidad']) . '</td>';
+    echo '<td class="cell-right" style="mso-number-format:\@;">' . htmlspecialchars($porcentaje) . '</td>';
+    echo '</tr>';
+}
+echo '<tr class="total-row"><td style="mso-number-format:\@;">TOTAL</td><td class="cell-right" style="mso-number-format:\@;">' . $total_por_meses . '</td><td class="cell-right" style="mso-number-format:\@;">100%</td></tr>';
+echo '</table>';
 ?>
 </body>
 </html>
