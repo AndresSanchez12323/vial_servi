@@ -298,170 +298,158 @@ if ($verReportesAdministrador) {
           </tr>';
     
     echo '</table>';
-}
 
-// SECCIÓN DE TÉCNICO
-if ($verReportesTecnico) {
-    // 4. SERVICIOS POR DÍA
-    echo '<table>
-            <tr>
-                <td colspan="2" class="sub-title">SERVICIOS REALIZADOS POR DÍA</td>
-            </tr>
-            <tr>
-                <th>Fecha</th>
-                <th>Cantidad</th>
-            </tr>';
+    // COMPARATIVO MES ACTUAL VS MES ANTERIOR (ADMIN)
+    $mesAnteriorAdmin    = date('Y-m', strtotime("$mesFiltro -1 month"));
+    $mesAnteriorAdminSQL = "'" . mysqli_real_escape_string($conn, $mesAnteriorAdmin) . "'";
+    $query_comp_admin    = "
+        SELECT
+           SUM(CASE WHEN DATE_FORMAT(Fecha, '%Y-%m') = $mesFiltroSQL THEN 1 ELSE 0 END)   AS actual,
+           SUM(CASE WHEN DATE_FORMAT(Fecha, '%Y-%m') = $mesAnteriorAdminSQL THEN 1 ELSE 0 END) AS anterior
+        FROM servicios_realizados
+        WHERE Cedula_Empleado_id_Servicios_Realizados IS NOT NULL
+    ";
+    $res_comp_admin      = mysqli_query($conn, $query_comp_admin);
+    $rc_admin            = $res_comp_admin
+                             ? mysqli_fetch_assoc($res_comp_admin)
+                             : ['actual'=>0,'anterior'=>0];
+    setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES');
+    $nombreMesAntAdmin   = ucfirst(strftime('%B %Y', strtotime($mesAnteriorAdmin.'-01')));
+    $variacionAdmin      = $rc_admin['anterior'] > 0
+                             ? round(($rc_admin['actual'] - $rc_admin['anterior']) / $rc_admin['anterior'] * 100, 1) . '%'
+                             : 'N/A';
+
+    echo '<table>';
+    echo '<tr><td colspan="3" class="sub-title">COMPARATIVO MES ACTUAL VS MES ANTERIOR</td></tr>';
+    echo '<tr>
+            <th style="mso-number-format:\@;">Mes</th>
+            <th>Cantidad</th>
+            <th>% Variación</th>
+          </tr>';
+    // Fila para mes anterior
+    echo '<tr>
+            <td style="mso-number-format:\@;">'. htmlspecialchars($nombreMesAntAdmin) .'</td>
+            <td class="cell-right">'. intval($rc_admin['anterior']) .'</td>
+            <td class="cell-right">-</td>
+          </tr>';
+    // Fila para mes actual
+    echo '<tr>
+            <td style="mso-number-format:\@;">'. htmlspecialchars($nombreMes) .'</td>
+            <td class="cell-right">'. intval($rc_admin['actual']) .'</td>
+            <td class="cell-right">'. $variacionAdmin .'</td>
+          </tr>';
+    echo '</table>';
+
+    // 4. TENDENCIA SEMESTRAL
+    $primerMesInicio = date('Y-m-d', strtotime("$mesFiltro-01 -5 months"));
+    $primerMesSQL    = "'" . mysqli_real_escape_string($conn, $primerMesInicio) . "'";
+    $query_trend     = "
+        SELECT DATE_FORMAT(Fecha, '%Y-%m') AS mes, COUNT(*) AS cantidad
+        FROM servicios_realizados
+        WHERE Fecha >= $primerMesSQL
+          AND DATE_FORMAT(Fecha, '%Y-%m') <= $mesFiltroSQL
+          AND Cedula_Empleado_id_Servicios_Realizados IS NOT NULL
+        GROUP BY mes
+        ORDER BY mes ASC
+    ";
+    $res_trend = mysqli_query($conn, $query_trend);
     
-    // Consulta para servicios por día
-    $query_servicios_tecnico = "
-        SELECT 
-            DATE(Fecha) AS fecha,
-            COUNT(*) AS cantidad
+    echo '<table>';
+    echo '<tr><td colspan="2" class="sub-title">TENDENCIA SEMESTRAL (Últimos 6 meses)</td></tr>';
+    echo '<tr>
+            <th>Mes</th>
+            <th>Cantidad</th>
+          </tr>';
+    setlocale(LC_TIME, 'es_ES.UTF-8', 'es_ES');
+    if ($res_trend) {
+        while ($r = mysqli_fetch_assoc($res_trend)) {
+            $ts    = strtotime($r['mes'].'-01');
+            $label = ucfirst(strftime('%B %Y', $ts));
+            echo '<tr>
+                    <td style="mso-number-format:\@;">'. htmlspecialchars($label) .'</td>
+                    <td class="cell-right">'. $r['cantidad'] .'</td>
+                  </tr>';
+        }
+    }
+    echo '</table>';
+
+    // 6. GRÁFICO DE EVOLUCIÓN MENSUAL (últimos 6 meses)
+    echo '<!--[if gte mso 9]><xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Evolución</x:Name>
+    <x:WorksheetOptions>
+     <x:Print>
+      <x:ValidPrinterInfo/>
+     </x:Print>
+     <x:Charts>
+      <x:Chart>
+       <x:ID>1</x:ID>
+       <x:ChartType>ColumnClustered</x:ChartType>
+       <x:SeriesCollection>
+        <x:Series>
+         <x:Name><![CDATA[Servicios]]></x:Name>
+         <!-- Ajusta Sheet1!R7C2:R12C2 y Sheet1!R7C1:R12C1 al rango donde estén tus datos -->
+         <x:Values>Sheet1!R7C2:R12C2</x:Values>
+         <x:CategoryLabels>Sheet1!R7C1:R12C1</x:CategoryLabels>
+        </x:Series>
+       </x:SeriesCollection>
+      </x:Chart>
+     </x:Charts>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+ </x:ExcelWorkbook>
+</xml><![endif]-->';
+
+    /*
+    // 5. ESTADO DE SERVICIOS: Pendientes vs Completados
+    $query_status = "
+        SELECT
+            SUM(CASE WHEN estado = 'Pendiente' THEN 1 ELSE 0 END)   AS pendientes,
+            SUM(CASE WHEN estado = 'Completado' THEN 1 ELSE 0 END)  AS completados
         FROM servicios_realizados
         WHERE DATE_FORMAT(Fecha, '%Y-%m') = $mesFiltroSQL
-          AND Cedula_Empleado_id_Servicios_Realizados = $usuarioId
-        GROUP BY fecha
-        ORDER BY fecha ASC
+          AND Cedula_Empleado_id_Servicios_Realizados IS NOT NULL
     ";
+    $res_status = mysqli_query($conn, $query_status);
+    $st        = $res_status ? mysqli_fetch_assoc($res_status) : ['pendientes'=>0,'completados'=>0];
     
-    $result_servicios_tecnico = mysqli_query($conn, $query_servicios_tecnico);
-    $total_servicios_tecnico = 0;
-    
-    // Escribir datos
-    if ($result_servicios_tecnico) {
-        while ($row = mysqli_fetch_assoc($result_servicios_tecnico)) {
-            echo '<tr>
-                    <td>' . $row['fecha'] . '</td>
-                    <td class="cell-right">' . $row['cantidad'] . '</td>
-                  </tr>';
-            $total_servicios_tecnico += $row['cantidad'];
-        }
-    }
-    
-    // Agregar fila total
-    echo '<tr class="total-row">
-            <td>TOTAL</td>
-            <td>' . $total_servicios_tecnico . '</td>
+    echo '<table>';
+    echo '<tr><td colspan="2" class="sub-title">ESTADO DE SERVICIOS</td></tr>';
+    echo '<tr>
+             <th>Estado</th>
+             <th>Cantidad</th>
+           </tr>';
+    echo '<tr>
+            <td>Pendientes</td>
+            <td class="cell-right">'. intval($st['pendientes']) .'</td>
           </tr>';
-    
+    echo '<tr>
+            <td>Completados</td>
+            <td class="cell-right">'. intval($st['completados']) .'</td>
+          </tr>';
     echo '</table>';
-    
-    // 5. DETALLE DE SERVICIOS REALIZADOS
+    */
+ }  // fin if administrador
+
+// SECCIÓN DE TÉCNICO
+/*
+if ($verReportesTecnico) {
+    // Sección del técnico vacía - tablas eliminadas
     echo '<table>
             <tr>
-                <td colspan="7" class="sub-title">DETALLE DE SERVICIOS REALIZADOS</td>
+                <td colspan="2" class="sub-title">SECCIÓN DE TÉCNICO</td>
             </tr>
             <tr>
-                <th>Fecha</th>
-                <th>Hora</th>
-                <th>Servicio</th>
-                <th>Vehículo</th>
-                <th>Cliente</th>
-                <th>Municipio</th>
-                <th>Detalle</th>
-            </tr>';
-    
-    // Consulta para detalles
-    $query_detalle = "
-        SELECT 
-            sr.Fecha,
-            s.Nombre_Servicio,
-            sr.Vehiculo_id_Servicios_Realizados,
-            c.Nombre AS cliente,
-            m.nombre AS municipio,
-            sr.Detalle_Servicio
-        FROM servicios_realizados sr
-        JOIN servicios s ON sr.Servicio_id_Servicios_Realizados = s.Servicio_id
-        JOIN municipios m ON sr.municipio = m.id
-        LEFT JOIN clientes c ON sr.Cliente_id_Servicios_Realizados = c.Cliente_id
-        WHERE DATE_FORMAT(sr.Fecha, '%Y-%m') = $mesFiltroSQL
-          AND sr.Cedula_Empleado_id_Servicios_Realizados = $usuarioId
-        ORDER BY sr.Fecha ASC
-    ";
-    
-    $result_detalle = mysqli_query($conn, $query_detalle);
-    
-    // Escribir datos
-    if ($result_detalle) {
-        while ($row = mysqli_fetch_assoc($result_detalle)) {
-            $fecha = date('Y-m-d', strtotime($row['Fecha']));
-            $hora = date('H:i:s', strtotime($row['Fecha']));
-            $cliente = isset($row['cliente']) ? htmlspecialchars($row['cliente']) : '-';
-            
-            echo '<tr>
-                    <td>' . $fecha . '</td>
-                    <td>' . $hora . '</td>
-                    <td>' . htmlspecialchars($row['Nombre_Servicio']) . '</td>
-                    <td>' . htmlspecialchars($row['Vehiculo_id_Servicios_Realizados']) . '</td>
-                    <td>' . $cliente . '</td>
-                    <td>' . htmlspecialchars($row['municipio']) . '</td>
-                    <td>' . htmlspecialchars($row['Detalle_Servicio']) . '</td>
-                  </tr>';
-        }
-    }
-    
-    echo '</table>';
+                <td colspan="2" style="text-align: center; padding: 20px;">
+                    Las tablas específicas del técnico han sido removidas del reporte.
+                </td>
+            </tr>
+          </table>';
 }
-
-// RESUMEN POR MES
-echo '<table>';
-echo '<tr><td colspan="3" class="sub-title">RESUMEN POR MES</td></tr>';
-echo '<tr>
-        <th style="mso-number-format:\@;">Mes</th>
-        <th style="mso-number-format:\@;">Cantidad de Servicios</th>
-        <th style="mso-number-format:\@;">Porcentaje</th>
-      </tr>';
-
-$sql_meses = "
-    SELECT 
-        DATE_FORMAT(sr.Fecha, '%Y-%m') as mes,
-        DATE_FORMAT(sr.Fecha, '%M %Y') as mes_nombre,
-        COUNT(*) as cantidad
-    FROM servicios_realizados sr
-    WHERE sr.Cedula_Empleado_id_Servicios_Realizados = ?
-";
-$params_meses = [$cedula_tecnico];
-$param_types_meses = "i";
-
-if (!empty($filtro_placa)) {
-    $sql_meses .= " AND sr.Vehiculo_id_Servicios_Realizados LIKE ?";
-    $params_meses[] = "%$filtro_placa%";
-    $param_types_meses .= "s";
-}
-if (!empty($filtro_servicio)) {
-    $sql_meses .= " AND s.Servicio_id = ?";  // Asegúrate de que la unión con "servicios" esté definida si se usa este filtro
-    $params_meses[] = $filtro_servicio;
-    $param_types_meses .= "i";
-}
-if (!empty($filtro_municipio)) {
-    $sql_meses .= " AND sr.municipio = ?";
-    $params_meses[] = $filtro_municipio;
-    $param_types_meses .= "i";
-}
-$sql_meses .= " GROUP BY mes ORDER BY mes DESC";
-
-$stmt_meses = $conn->prepare($sql_meses);
-$stmt_meses->bind_param($param_types_meses, ...$params_meses);
-$stmt_meses->execute();
-$result_meses = $stmt_meses->get_result();
-
-$datos_meses = [];
-$total_por_meses = 0;
-while ($row = $result_meses->fetch_assoc()) {
-    $datos_meses[] = $row;
-    $total_por_meses += $row['cantidad'];
-}
-foreach ($datos_meses as $mes_data) {
-    $porcentaje = ($total_por_meses > 0) ? round(($mes_data['cantidad'] / $total_por_meses) * 100, 1) . '%' : '0%';
-    echo '<tr>';
-    // Aquí convertimos la fecha (mes_nombre) a string forzado por mso-number-format:\@;
-    echo '<td style="mso-number-format:\@;">' . htmlspecialchars($mes_data['mes_nombre']) . '</td>';
-    echo '<td class="cell-right" style="mso-number-format:\@;">' . htmlspecialchars($mes_data['cantidad']) . '</td>';
-    echo '<td class="cell-right" style="mso-number-format:\@;">' . htmlspecialchars($porcentaje) . '</td>';
-    echo '</tr>';
-}
-echo '<tr class="total-row"><td style="mso-number-format:\@;">TOTAL</td><td class="cell-right" style="mso-number-format:\@;">' . $total_por_meses . '</td><td class="cell-right" style="mso-number-format:\@;">100%</td></tr>';
-echo '</table>';
+*/
 ?>
 </body>
 </html>

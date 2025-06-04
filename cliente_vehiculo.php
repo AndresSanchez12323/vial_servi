@@ -13,12 +13,41 @@ $mensaje = '';
 $tipo_mensaje = '';
 
 // Obtener lista de vehículos del cliente
-$sql_vehiculos = "SELECT * FROM vehiculos WHERE Clientes_Vehiculos = ?";
+$sql_vehiculos = "
+    SELECT
+      v.Placa,
+      v.Marca,
+      mo.nombre       AS Modelo,
+      co.nombre_color AS Color,
+      v.Objetos_Valiosos
+    FROM vehiculos v
+    LEFT JOIN modelos  mo ON v.modelo_id = mo.id
+    LEFT JOIN colores  co ON v.color_id   = co.color_id
+    WHERE v.Clientes_Vehiculos = ?
+";
 $stmt_vehiculos = $conn->prepare($sql_vehiculos);
+if (!$stmt_vehiculos) {
+    die("Error al preparar consulta de vehículos: " . $conn->error);
+}
 $stmt_vehiculos->bind_param("i", $cliente_id);
 $stmt_vehiculos->execute();
 $vehiculos = $stmt_vehiculos->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt_vehiculos->close();
+
+// Cargar opciones de marcas
+$marcas = $conn
+    ->query("SELECT id AS value, nombre AS label FROM marcas")
+    ->fetch_all(MYSQLI_ASSOC);
+
+// Cargar datos de modelos con su marca_id
+$modelosData = $conn
+    ->query("SELECT id AS value, nombre AS label, marca_id FROM modelos")
+    ->fetch_all(MYSQLI_ASSOC);
+
+// Cargar opciones de colores
+$colores = $conn
+    ->query("SELECT color_id AS value, nombre_color AS label FROM colores")
+    ->fetch_all(MYSQLI_ASSOC);
 
 // Determinar la acción a realizar
 $accion = isset($_GET['accion']) ? $_GET['accion'] : 'listar';
@@ -31,9 +60,9 @@ $vehiculo_editar = null;
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar'])) {
     // Obtener datos del formulario
     $placa = $_POST['placa'];
-    $marca = $_POST['marca'];
-    $modelo = $_POST['modelo'];
-    $color = $_POST['color'];
+    $marca_id = $_POST['marca_id'];
+    $modelo_id = $_POST['modelo_id'];
+    $color_id = $_POST['color_id'];
     $objetos_valiosos = $_POST['objetos_valiosos'];
 
     // Verificar si la placa ya existe
@@ -49,11 +78,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar'])) {
         $tipo_mensaje = "error";
     } else {
         // Insertar el vehículo en la base de datos
-        $sql = "INSERT INTO vehiculos (Placa, Marca, Modelo, Color, Objetos_Valiosos, Clientes_Vehiculos) 
+        $sql = "INSERT INTO vehiculos 
+                    (Placa, Marca, modelo_id, color_id, Objetos_Valiosos, Clientes_Vehiculos) 
                 VALUES (?, ?, ?, ?, ?, ?)";
-        
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssi", $placa, $marca, $modelo, $color, $objetos_valiosos, $cliente_id);
+        if (!$stmt) {
+            die("Error al preparar INSERT: " . $conn->error);
+        }
+
+        // 1) Obtener el nombre de la marca según el id
+        $marcaStmt = $conn->prepare("SELECT nombre FROM marcas WHERE id = ?");
+        $marcaStmt->bind_param("i", $marca_id);
+        $marcaStmt->execute();
+        $marcaName = $marcaStmt->get_result()->fetch_assoc()['nombre'];
+        $marcaStmt->close();
+
+        // 2) Ahora bind con el nombre (string) en vez del id
+        $stmt->bind_param(
+            "ssiisi",   // s: placa, s: marcaName, i: modelo_id, i: color_id, s: objetos_valiosos, i: cliente_id
+            $placa,
+            $marcaName,
+            $modelo_id,
+            $color_id,
+            $objetos_valiosos,
+            $cliente_id
+        );
 
         if ($stmt->execute()) {
             $mensaje = "Tu vehículo ha sido registrado exitosamente.";
@@ -81,9 +130,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registrar'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['actualizar'])) {
     // Obtener datos del formulario
     $placa = $_POST['placa'];
-    $marca = $_POST['marca'];
-    $modelo = $_POST['modelo'];
-    $color = $_POST['color'];
+    $marca_id = $_POST['marca_id'];
+    $modelo_id = $_POST['modelo_id'];
+    $color_id = $_POST['color_id'];
     $objetos_valiosos = $_POST['objetos_valiosos'];
 
     // Verificar que el vehículo pertenezca al cliente
@@ -98,31 +147,70 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['actualizar'])) {
         $mensaje = "No tienes permiso para editar este vehículo.";
         $tipo_mensaje = "error";
     } else {
-        // Actualizar el vehículo
-        $sql = "UPDATE vehiculos SET Marca = ?, Modelo = ?, Color = ?, Objetos_Valiosos = ? WHERE Placa = ? AND Clientes_Vehiculos = ?";
+        // Obtener el nombre de la marca según el id
+        $marcaStmt = $conn->prepare("SELECT nombre FROM marcas WHERE id = ?");
+        $marcaStmt->bind_param("i", $marca_id);
+        $marcaStmt->execute();
+        $marcaResult = $marcaStmt->get_result()->fetch_assoc();
+        $marcaStmt->close();
         
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssssi", $marca, $modelo, $color, $objetos_valiosos, $placa, $cliente_id);
-
-        if ($stmt->execute()) {
-            $mensaje = "La información del vehículo ha sido actualizada exitosamente.";
-            $tipo_mensaje = "success";
-            
-            // Actualizar la lista de vehículos
-            $stmt_vehiculos = $conn->prepare($sql_vehiculos);
-            $stmt_vehiculos->bind_param("i", $cliente_id);
-            $stmt_vehiculos->execute();
-            $vehiculos = $stmt_vehiculos->get_result()->fetch_all(MYSQLI_ASSOC);
-            $stmt_vehiculos->close();
-            
-            // Redirigir a la lista después de actualizar
-            header("Location: cliente_vehiculo.php?mensaje=actualizacion_exitosa");
-            exit;
-        } else {
-            $mensaje = "Error al actualizar el vehículo: " . $stmt->error;
+        if (!$marcaResult) {
+            $mensaje = "Error: Marca no encontrada.";
             $tipo_mensaje = "error";
+        } else {
+            $marcaName = $marcaResult['nombre'];
+            
+            // Actualizar el vehículo
+            $sql = "UPDATE vehiculos 
+                    SET Marca = ?, modelo_id = ?, color_id = ?, Objetos_Valiosos = ?
+                    WHERE Placa = ? AND Clientes_Vehiculos = ?";
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                die("Error al preparar UPDATE: " . $conn->error);
+            }
+
+            $stmt->bind_param(
+                "siissi",   // s=marca_name, i=modelo_id, i=color_id, s=objetos, s=placa, i=cliente_id
+                $marcaName,
+                $modelo_id,
+                $color_id,
+                $objetos_valiosos,
+                $placa,
+                $cliente_id
+            );
         }
-        $stmt->close();
+
+        // Verificar que el modelo_id existe y pertenece a la marca seleccionada
+        $checkModeloStmt = $conn->prepare("SELECT COUNT(*) as count FROM modelos WHERE id = ? AND marca_id = ?");
+        $checkModeloStmt->bind_param("ii", $modelo_id, $marca_id);
+        $checkModeloStmt->execute();
+        $modeloResult = $checkModeloStmt->get_result()->fetch_assoc();
+        $checkModeloStmt->close();
+        
+        if ($modeloResult['count'] == 0) {
+            $mensaje = "Error: El modelo seleccionado no es válido para la marca especificada.";
+            $tipo_mensaje = "error";
+        } else {
+            if ($stmt->execute()) {
+                $mensaje = "La información del vehículo ha sido actualizada exitosamente.";
+                $tipo_mensaje = "success";
+                
+                // Actualizar la lista de vehículos
+                $stmt_vehiculos = $conn->prepare($sql_vehiculos);
+                $stmt_vehiculos->bind_param("i", $cliente_id);
+                $stmt_vehiculos->execute();
+                $vehiculos = $stmt_vehiculos->get_result()->fetch_all(MYSQLI_ASSOC);
+                $stmt_vehiculos->close();
+                
+                // Redirigir a la lista después de actualizar
+                header("Location: cliente_vehiculo.php?mensaje=actualizacion_exitosa");
+                exit;
+            } else {
+                $mensaje = "Error al actualizar el vehículo: " . $stmt->error;
+                $tipo_mensaje = "error";
+            }
+            $stmt->close();
+        }
     }
 }
 
@@ -181,20 +269,30 @@ if ($accion == 'eliminar' && !empty($placa_editar)) {
     }
 }
 
-// Cargar datos del vehículo para edición
+// ---------- Cargar datos del vehículo para edición ----------
 if ($accion == 'editar' && !empty($placa_editar)) {
-    $sql_edit = "SELECT * FROM vehiculos WHERE Placa = ? AND Clientes_Vehiculos = ?";
+    $sql_edit = "
+        SELECT
+          v.Placa,
+          m.id            AS marca_id,
+          v.Marca,
+          v.modelo_id,
+          mo.nombre       AS Modelo,
+          v.color_id,
+          co.nombre_color AS Color,
+          v.Objetos_Valiosos
+        FROM vehiculos v
+        LEFT JOIN marcas  m  ON v.Marca     = m.nombre
+        LEFT JOIN modelos mo ON v.modelo_id = mo.id
+        LEFT JOIN colores co ON v.color_id   = co.color_id
+        WHERE v.Placa = ? AND v.Clientes_Vehiculos = ?
+    ";
     $stmt_edit = $conn->prepare($sql_edit);
     $stmt_edit->bind_param("si", $placa_editar, $cliente_id);
     $stmt_edit->execute();
     $result_edit = $stmt_edit->get_result();
-    
     if ($result_edit->num_rows > 0) {
         $vehiculo_editar = $result_edit->fetch_assoc();
-    } else {
-        $mensaje = "No se encontró el vehículo o no tienes permiso para editarlo.";
-        $tipo_mensaje = "error";
-        $accion = 'listar';
     }
     $stmt_edit->close();
 }
@@ -509,17 +607,30 @@ $conn->close();
             
             <div class="form-group">
                 <label for="marca">Marca</label>
-                <input type="text" name="marca" class="form-control" required placeholder="Ej: Toyota">
+                <select name="marca_id" id="marca" class="form-control">
+                  <?php foreach ($marcas as $m): ?>
+                    <option value="<?= $m['value'] ?>"><?= htmlspecialchars($m['label']) ?></option>
+                  <?php endforeach; ?>
+                </select>
             </div>
             
             <div class="form-group">
                 <label for="modelo">Modelo</label>
-                <input type="text" name="modelo" class="form-control" required placeholder="Ej: Corolla">
+                <select name="modelo_id" id="modelo" class="form-control">
+                  <!-- Se llenará vía JS -->
+                </select>
             </div>
             
             <div class="form-group">
                 <label for="color">Color</label>
-                <input type="text" name="color" class="form-control" required placeholder="Ej: Rojo">
+                <select name="color_id" id="color" class="form-control">
+                  <?php foreach ($colores as $c): ?>
+                  <option value="<?= $c['value'] ?>"
+                    <?= (isset($vehiculo['color_id']) && $vehiculo['color_id']==$c['value'])?'selected':''?>>
+                    <?= htmlspecialchars($c['label']) ?>
+                  </option>
+                  <?php endforeach; ?>
+                </select>
             </div>
             
             <div class="form-group">
@@ -546,17 +657,33 @@ $conn->close();
             
             <div class="form-group">
                 <label for="marca">Marca</label>
-                <input type="text" name="marca" class="form-control" required value="<?php echo htmlspecialchars($vehiculo_editar['Marca']); ?>">
+                <select name="marca_id" id="marca_edit" class="form-control" onchange="actualizarModelosEdit()">
+                  <?php foreach ($marcas as $m): ?>
+                    <option value="<?= $m['value'] ?>" 
+                      <?= ($vehiculo_editar['marca_id'] == $m['value']) ? 'selected' : '' ?>>
+                      <?= htmlspecialchars($m['label']) ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
             </div>
-            
+
             <div class="form-group">
                 <label for="modelo">Modelo</label>
-                <input type="text" name="modelo" class="form-control" required value="<?php echo htmlspecialchars($vehiculo_editar['Modelo']); ?>">
+                <select name="modelo_id" id="modelo_edit" class="form-control">
+                  <!-- Se llenará vía JS -->
+                </select>
             </div>
             
             <div class="form-group">
                 <label for="color">Color</label>
-                <input type="text" name="color" class="form-control" required value="<?php echo htmlspecialchars($vehiculo_editar['Color']); ?>">
+                <select name="color_id" id="color" class="form-control">
+                  <?php foreach ($colores as $c): ?>
+                    <option value="<?= $c['value'] ?>"
+                      <?= ($vehiculo_editar['color_id'] == $c['value']) ? 'selected' : '' ?>>
+                      <?= htmlspecialchars($c['label']) ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
             </div>
             
             <div class="form-group">
@@ -593,6 +720,52 @@ $conn->close();
             }
         });
     }
+
+    // Agrupa modelos por marca
+    var modelosPorMarca = {};
+    <?php foreach($modelosData as $md): ?>
+      modelosPorMarca[<?= $md['marca_id'] ?>] = modelosPorMarca[<?= $md['marca_id'] ?>] || [];
+      modelosPorMarca[<?= $md['marca_id'] ?>].push({
+        value: "<?= $md['value'] ?>",
+        label: "<?= addslashes($md['label']) ?>"
+      });
+    <?php endforeach; ?>
+
+    function actualizarModelos() {
+      var marcaId = $("#marca").val();
+      var $sel = $("#modelo").empty();
+      if (modelosPorMarca[marcaId]) {
+        modelosPorMarca[marcaId].forEach(function(m) {
+          $("<option>").val(m.value).text(m.label).appendTo($sel);
+        });
+      }
+    }
+
+    function actualizarModelosEdit() {
+      var marcaId = $("#marca_edit").val();
+      var $sel = $("#modelo_edit").empty();
+      var modeloActual = <?= $vehiculo_editar['modelo_id'] ?? 'null' ?>;
+      
+      if (modelosPorMarca[marcaId]) {
+        modelosPorMarca[marcaId].forEach(function(m) {
+          var option = $("<option>").val(m.value).text(m.label);
+          if (m.value == modeloActual) {
+            option.prop('selected', true);
+          }
+          option.appendTo($sel);
+        });
+      }
+    }
+
+    // Al cargar y al cambiar marca
+    $(document).ready(function() {
+      actualizarModelos();
+      <?php if ($accion == 'editar' && $vehiculo_editar): ?>
+      actualizarModelosEdit();
+      <?php endif; ?>
+    });
+    $("#marca").on("change", actualizarModelos);
+    $("#marca_edit").on("change", actualizarModelosEdit);
 </script>
 </body>
 </html>

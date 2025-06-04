@@ -25,8 +25,22 @@ $filtro_estado = isset($_GET['estado']) ? $_GET['estado'] : '';
 $filtro_mes = isset($_GET['mes']) ? $_GET['mes'] : '';
 
 // Obtener vehículos del cliente
-$sql_vehiculos = "SELECT * FROM vehiculos WHERE Clientes_Vehiculos = ?";
+$sql_vehiculos = "
+    SELECT
+      v.Placa,
+      v.Marca,
+      mo.nombre        AS Modelo,
+      co.nombre_color  AS Color,
+      COALESCE(v.Objetos_Valiosos,'') AS Objetos_Valiosos
+    FROM vehiculos v
+    LEFT JOIN modelos mo ON v.modelo_id = mo.id
+    LEFT JOIN colores co ON v.color_id   = co.color_id
+    WHERE v.Clientes_Vehiculos = ?
+";
 $stmt_vehiculos = $conn->prepare($sql_vehiculos);
+if (!$stmt_vehiculos) {
+    die("Error al preparar consulta de vehículos: " . $conn->error);
+}
 $stmt_vehiculos->bind_param("i", $cliente_id);
 $stmt_vehiculos->execute();
 $vehiculos = $stmt_vehiculos->get_result()->fetch_all(MYSQLI_ASSOC);

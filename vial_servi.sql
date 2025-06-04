@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: localhost
--- Tiempo de generación: 15-05-2025 a las 16:37:34
--- Versión del servidor: 10.4.28-MariaDB
--- Versión de PHP: 8.2.4
+-- Servidor: 127.0.0.1
+-- Tiempo de generación: 04-06-2025 a las 19:23:58
+-- Versión del servidor: 10.4.32-MariaDB
+-- Versión de PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -66,6 +66,31 @@ INSERT INTO `clientes` (`Cedula_Id`, `Nombre`, `Apellido`, `Teléfono`, `Email`,
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `colores`
+--
+
+CREATE TABLE `colores` (
+  `color_id` int(11) NOT NULL,
+  `nombre_color` varchar(20) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `colores`
+--
+
+INSERT INTO `colores` (`color_id`, `nombre_color`) VALUES
+(8, 'Amarillo'),
+(5, 'Azul'),
+(4, 'Blanco'),
+(2, 'Gris'),
+(3, 'Negro'),
+(7, 'Plateado'),
+(1, 'Rojo'),
+(6, 'Verde');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `empleados`
 --
 
@@ -102,6 +127,43 @@ INSERT INTO `empleados` (`Cedula_Empleado_id`, `Nombre`, `Apellido`, `Contraseñ
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `marcas`
+--
+
+CREATE TABLE `marcas` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `marcas`
+--
+
+INSERT INTO `marcas` (`id`, `nombre`) VALUES
+(1, 'Audi'),
+(2, 'BMW'),
+(3, 'Chevrolet'),
+(4, 'Dodge'),
+(5, 'Fiat'),
+(6, 'Ford'),
+(7, 'Honda'),
+(8, 'Hyundai'),
+(9, 'Jeep'),
+(10, 'Kia'),
+(11, 'Mazda'),
+(12, 'Mercedes-Benz'),
+(13, 'Mitsubishi'),
+(14, 'Nissan'),
+(15, 'Peugeot'),
+(16, 'Renault'),
+(17, 'Subaru'),
+(18, 'Suzuki'),
+(19, 'Toyota'),
+(20, 'Volkswagen');
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `mensajes`
 --
 
@@ -121,6 +183,85 @@ INSERT INTO `mensajes` (`id`, `nombre`, `email`, `mensaje`, `fecha`) VALUES
 (1, 'nube', 'usuario1@gmail.com', ',nmklnklklkljkl', '2025-04-01 20:54:22'),
 (2, 'Brian', 'brian@gmail.com', 'hola mi bro', '2025-04-01 21:10:17'),
 (3, 'Juan', 'hola@gmail.com', 'llamame', '2025-04-02 23:14:30');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `modelos`
+--
+
+CREATE TABLE `modelos` (
+  `id` int(11) NOT NULL,
+  `nombre` varchar(50) NOT NULL,
+  `marca_id` int(11) NOT NULL,
+  `año` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `modelos`
+--
+
+INSERT INTO `modelos` (`id`, `nombre`, `marca_id`, `año`) VALUES
+(1, 'A3', 1, 2021),
+(2, 'A4', 1, 2022),
+(3, 'Q5', 1, 2020),
+(4, 'Serie 3', 2, 2021),
+(5, 'X5', 2, 2022),
+(6, 'Serie 1', 2, 2020),
+(7, 'Aveo', 3, 2019),
+(8, 'Spark GT', 3, 2021),
+(9, 'Tracker', 3, 2022),
+(10, 'Durango', 4, 2021),
+(11, 'Charger', 4, 2020),
+(12, 'Journey', 4, 2022),
+(13, 'Uno', 5, 2018),
+(14, 'Cronos', 5, 2020),
+(15, 'Mobi', 5, 2021),
+(16, 'Fiesta', 6, 2019),
+(17, 'Focus', 6, 2020),
+(18, 'Ranger', 6, 2022),
+(19, 'Civic', 7, 2020),
+(20, 'CR-V', 7, 2022),
+(21, 'Fit', 7, 2021),
+(22, 'Accent', 8, 2019),
+(23, 'Elantra', 8, 2021),
+(24, 'Tucson', 8, 2022),
+(25, 'Compass', 9, 2021),
+(26, 'Renegade', 9, 2022),
+(27, 'Wrangler', 9, 2020),
+(28, 'Rio', 10, 2020),
+(29, 'Sportage', 10, 2022),
+(30, 'Cerato', 10, 2021),
+(31, '3', 11, 2020),
+(32, 'CX-5', 11, 2022),
+(33, '6', 11, 2021),
+(34, 'Clase A', 12, 2021),
+(35, 'GLA', 12, 2022),
+(36, 'CLA', 12, 2020),
+(37, 'Lancer', 13, 2019),
+(38, 'Outlander', 13, 2021),
+(39, 'ASX', 13, 2022),
+(40, 'Versa', 14, 2020),
+(41, 'Sentra', 14, 2021),
+(42, 'Frontier', 14, 2022),
+(43, '208', 15, 2020),
+(44, '2008', 15, 2021),
+(45, '3008', 15, 2022),
+(46, 'Logan', 16, 2021),
+(47, 'Sandero', 16, 2020),
+(48, 'Duster', 16, 2022),
+(49, 'Impreza', 17, 2020),
+(50, 'Forester', 17, 2021),
+(51, 'Outback', 17, 2022),
+(52, 'Swift', 18, 2020),
+(53, 'Vitara', 18, 2022),
+(54, 'Jimny', 18, 2021),
+(55, 'Corolla', 19, 2021),
+(56, 'Hilux', 19, 2022),
+(57, 'Yaris', 19, 2020),
+(58, 'Polo', 20, 2020),
+(59, 'Jetta', 20, 2021),
+(60, 'Tiguan', 20, 2022);
 
 -- --------------------------------------------------------
 
@@ -641,27 +782,27 @@ INSERT INTO `servicios_realizados` (`Servicio_Realizado_id`, `Cedula_Empleado_id
 CREATE TABLE `vehiculos` (
   `Placa` varchar(20) NOT NULL,
   `Marca` varchar(50) DEFAULT NULL,
-  `Modelo` varchar(50) DEFAULT NULL,
-  `Color` varchar(20) DEFAULT NULL,
   `Objetos_Valiosos` text DEFAULT NULL,
-  `Clientes_Vehiculos` int(11) DEFAULT NULL
+  `Clientes_Vehiculos` int(11) DEFAULT NULL,
+  `modelo_id` int(11) DEFAULT NULL,
+  `color_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `vehiculos`
 --
 
-INSERT INTO `vehiculos` (`Placa`, `Marca`, `Modelo`, `Color`, `Objetos_Valiosos`, `Clientes_Vehiculos`) VALUES
-('ABC123', 'Toyota', 'Corolla', 'Rojo', 'GPS, Radio', 5050),
-('DEF456', 'Toyota', 'Corolla', 'Gris', 'Herramientas', 5050),
-('GHI101', 'Honda', 'Civic', 'Negro', 'Aire acondicionado', 33333),
-('IEX747', 'Duster Dynamiq', '2015', 'Blanco', 'celular', 5050),
-('JKL112', 'Ford', 'Fiesta', 'Azul', 'Documentos', 44444),
-('MNI982', 'Renault', 'Logan', 'Negro', 'Computador', 5050),
-('MNO345', 'Chevrolet', 'Spark', 'Verde', 'Teléfono', 11111),
-('PQR678', 'Nissan', 'Sentra', 'Plateado', 'Bocinas', 33333),
-('STU901', 'Kia', 'Rio', 'Amarillo', 'Cámara', 22222),
-('XYZ789', 'Honda', 'Accord', 'Blanco', 'Laptop', 55555);
+INSERT INTO `vehiculos` (`Placa`, `Marca`, `Objetos_Valiosos`, `Clientes_Vehiculos`, `modelo_id`, `color_id`) VALUES
+('ABC123', 'Toyota', 'GPS, Radio', 5050, NULL, 1),
+('DEF456', 'Toyota', 'Herramientas', 5050, NULL, 2),
+('GHI101', 'Honda', 'Aire acondicionado', 33333, NULL, 3),
+('IEX747', 'Duster Dynamiq', 'celular', 5050, NULL, 4),
+('JKL112', 'Ford', 'Documentos', 44444, NULL, 5),
+('MNI982', 'Renault', 'Computador', 5050, NULL, 3),
+('MNO345', 'Chevrolet', 'Teléfono', 11111, NULL, 6),
+('PQR678', 'Nissan', 'Bocinas', 33333, NULL, 7),
+('STU901', 'Kia', 'Cámara', 22222, NULL, 8),
+('XYZ789', 'Honda', 'Laptop', 55555, NULL, 4);
 
 --
 -- Índices para tablas volcadas
@@ -682,6 +823,13 @@ ALTER TABLE `clientes`
   ADD UNIQUE KEY `Email` (`Email`);
 
 --
+-- Indices de la tabla `colores`
+--
+ALTER TABLE `colores`
+  ADD PRIMARY KEY (`color_id`),
+  ADD UNIQUE KEY `nombre_color` (`nombre_color`);
+
+--
 -- Indices de la tabla `empleados`
 --
 ALTER TABLE `empleados`
@@ -689,10 +837,25 @@ ALTER TABLE `empleados`
   ADD KEY `fk_empleados_roles` (`Rol_id`);
 
 --
+-- Indices de la tabla `marcas`
+--
+ALTER TABLE `marcas`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `nombre` (`nombre`);
+
+--
 -- Indices de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indices de la tabla `modelos`
+--
+ALTER TABLE `modelos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `nombre` (`nombre`,`marca_id`),
+  ADD KEY `marca_id` (`marca_id`);
 
 --
 -- Indices de la tabla `municipios`
@@ -742,7 +905,9 @@ ALTER TABLE `servicios_realizados`
 --
 ALTER TABLE `vehiculos`
   ADD PRIMARY KEY (`Placa`),
-  ADD KEY `Clientes_Vehiculos` (`Clientes_Vehiculos`);
+  ADD KEY `Clientes_Vehiculos` (`Clientes_Vehiculos`),
+  ADD KEY `fk_vehiculos_modelo` (`modelo_id`),
+  ADD KEY `fk_color` (`color_id`);
 
 --
 -- AUTO_INCREMENT de las tablas volcadas
@@ -755,10 +920,28 @@ ALTER TABLE `alertas_recordatorios`
   MODIFY `Alertas_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT de la tabla `colores`
+--
+ALTER TABLE `colores`
+  MODIFY `color_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+
+--
+-- AUTO_INCREMENT de la tabla `marcas`
+--
+ALTER TABLE `marcas`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10002;
+
+--
 -- AUTO_INCREMENT de la tabla `mensajes`
 --
 ALTER TABLE `mensajes`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de la tabla `modelos`
+--
+ALTER TABLE `modelos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- AUTO_INCREMENT de la tabla `municipios`
@@ -807,6 +990,12 @@ ALTER TABLE `empleados`
   ADD CONSTRAINT `fk_empleados_roles` FOREIGN KEY (`Rol_id`) REFERENCES `roles` (`id`);
 
 --
+-- Filtros para la tabla `modelos`
+--
+ALTER TABLE `modelos`
+  ADD CONSTRAINT `modelos_ibfk_1` FOREIGN KEY (`marca_id`) REFERENCES `marcas` (`id`);
+
+--
 -- Filtros para la tabla `rol_permisos`
 --
 ALTER TABLE `rol_permisos`
@@ -827,6 +1016,8 @@ ALTER TABLE `servicios_realizados`
 -- Filtros para la tabla `vehiculos`
 --
 ALTER TABLE `vehiculos`
+  ADD CONSTRAINT `fk_color` FOREIGN KEY (`color_id`) REFERENCES `colores` (`color_id`),
+  ADD CONSTRAINT `fk_vehiculos_modelo` FOREIGN KEY (`modelo_id`) REFERENCES `modelos` (`id`),
   ADD CONSTRAINT `vehiculos_ibfk_1` FOREIGN KEY (`Clientes_Vehiculos`) REFERENCES `clientes` (`Cedula_Id`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 

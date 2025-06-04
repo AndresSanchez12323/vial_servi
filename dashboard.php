@@ -392,13 +392,7 @@ if (isset($_GET['data'])) {
             <?php
         }
         ?>
-        <?php
-        if ($verReportesTecnico) {
-            ?>
-            <div id="serviciosEmpleados-container" class="chart-placeholder">Cargando empleados...</div>
-            <?php
-        }
-        ?>
+        
     </div>
 
     <script src="https://code.highcharts.com/highcharts.js"></script>

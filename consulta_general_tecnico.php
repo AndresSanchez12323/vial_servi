@@ -268,7 +268,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
         echo '<td readonly="true">' . htmlspecialchars($row['Servicio_Realizado_id']) . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Nombre_Servicio']) . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Descripción']) . '</td>';
-        echo '<td readonly="true">' . $mes_nombre . '</td>';
+        echo '<td style="mso-number-format:\@;" readonly="true">' . $mes_nombre . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Placa']) . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Ubicación']) . '</td>';
         echo '<td readonly="true">' . htmlspecialchars($row['Municipio']) . '</td>';
@@ -345,7 +345,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     // RESUMEN POR MES
     echo '<table>';
     echo '<tr><td colspan="3" class="sub-title">RESUMEN POR MES</td></tr>';
-    echo '<tr><th>Mes</th><th>Cantidad de Servicios</th><th>Porcentaje</th></tr>';
+    echo '<tr><th style="mso-number-format:\@;">Mes</th><th>Cantidad de Servicios</th><th>Porcentaje</th></tr>';
     
     $sql_meses = "
         SELECT 
@@ -388,7 +388,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     foreach ($datos_meses as $mes_data) {
         $porcentaje = ($total_por_meses > 0) ? round(($mes_data['cantidad'] / $total_por_meses) * 100, 1) . '%' : '0%';
         echo '<tr>';
-        echo '<td>' . htmlspecialchars($mes_data['mes_nombre']) . '</td>';
+        echo '<td style="mso-number-format:\@;">' . htmlspecialchars($mes_data['mes_nombre']) . '</td>';
         echo '<td class="cell-right">' . $mes_data['cantidad'] . '</td>';
         echo '<td class="cell-right">' . $porcentaje . '</td>';
         echo '</tr>';

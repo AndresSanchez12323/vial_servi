@@ -64,18 +64,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 // Obtener vehículos del cliente
 $vehiculos = [];
-$stmt = $conn->prepare("SELECT Placa, Marca, Modelo FROM vehiculos WHERE Clientes_Vehiculos = ?");
-if ($stmt) {
-    $stmt->bind_param("i", $cliente_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    while ($row = $result->fetch_assoc()) {
-        $vehiculos[] = $row;
-    }
-    $stmt->close();
-} else {
-    die("Error al preparar la consulta de vehículos: " . $conn->error);
+$stmt = $conn->prepare("
+  SELECT 
+    v.Placa,
+    v.Marca,
+    mo.nombre AS Modelo
+  FROM vehiculos v
+  LEFT JOIN modelos mo ON v.modelo_id = mo.id
+  WHERE v.Clientes_Vehiculos = ?
+");
+if (!$stmt) {
+    die('Error al preparar la consulta de vehículos: ' . $conn->error);
 }
+$stmt->bind_param("i", $cliente_id);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($row = $result->fetch_assoc()) {
+    $vehiculos[] = $row;
+}
+$stmt->close();
 
 // Obtener servicios disponibles
 $servicios = [];
@@ -211,8 +218,8 @@ $conn->close();
             <select name="vehiculo_id" class="form-control" required>
                 <option value="">Seleccione un vehículo</option>
                 <?php foreach ($vehiculos as $vehiculo): ?>
-                    <option value="<?php echo $vehiculo['Placa']; ?>">
-                        <?php echo htmlspecialchars($vehiculo['Marca'] . ' ' . $vehiculo['Modelo'] . ' - ' . $vehiculo['Placa']); ?>
+                    <option value="<?= $vehiculo['Placa'] ?>">
+                      <?= htmlspecialchars($vehiculo['Marca'] . ' ' . $vehiculo['Modelo'] . ' – ' . $vehiculo['Placa']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>

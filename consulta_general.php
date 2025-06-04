@@ -496,7 +496,7 @@ $municipios_lista = $result_municipios->fetch_all(MYSQLI_ASSOC);
                             echo "<td colspan='4'>";
                             echo "<strong>Empleado:</strong> " . ($row['nombre_tecnico'] ?? 'No asignado') . " (" . ($row['Cedula_Empleado_id_Servicios_Realizados'] ?? 'N/A') . ")<br>";
                             echo "<strong>Vehículo:</strong> " . $row['Vehiculo_id_Servicios_Realizados'] . "<br>";
-                            echo "<strong>Ubicación:</strong> " . $row['Ubicación'] . "<br>";
+                            echo "<strong>Dirección:</strong> " . $row['Ubicación'] . "<br>";
                             echo "<strong>Novedades:</strong> " . $row['Novedades'] . "<br>";
                             echo "<strong>Detalle del servicio:</strong> " . $row['Detalle_Servicio'] . "<br>";
                             echo "<strong>Custodia:</strong> " . $row['Custodia_Servicio'] . "<br>";

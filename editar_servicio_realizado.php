@@ -209,7 +209,7 @@ $conn->close();
             </select>
         </div>
         <div class="form-group">
-            <label for="Ubicacion">Ubicación</label>
+            <label for="Ubicacion">Dirección</label>
             <input type="text" name="Ubicacion" class="form-control" value="<?php echo $servicio['Ubicación']; ?>" required>
         </div>
         <div class="form-group">

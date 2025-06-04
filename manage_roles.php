@@ -220,14 +220,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['accion']) && $_POST['a
             border-radius: 5px;
         }
         button {
-            background: #007bff;
+            background: #27ae60;
             color: white;
             border: none;
             cursor: pointer;
             padding: 10px 15px;
         }
         button:hover {
-            background: #0056b3;
+            background: #2d0f2a;
         }
         .alert {
             padding: 15px;
@@ -259,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['accion']) && $_POST['a
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #27ae60;
         }
         .action-button {
             background: #dc3545;
@@ -292,14 +292,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['accion']) && $_POST['a
         }
         .tab {
             padding: 10px 20px;
-            background: #e9ecef;
+            background: #440f33;
+            color: white;
             cursor: pointer;
-            border: 1px solid #dee2e6;
+            border: 1px solidrgb(15, 71, 126);
             border-radius: 5px 5px 0 0;
             margin: 0 5px;
         }
         .tab.active {
-            background: #fff;
+            background: #2d0f2a;
+            color: white;
             border-bottom: none;
         }
         .tab-content {
@@ -333,7 +335,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['accion']) && $_POST['a
         <div class="tabs">
             <div class="tab" onclick="openTab(event, 'crear_permiso')">Crear Permiso</div>
             <div class="tab active" onclick="openTab(event, 'asignar')">Asignar Permiso</div>
-            <div class="tab" onclick="openTab(event, 'ver')">Ver Permisos de Rol</div>
             <div class="tab" onclick="openTab(event, 'editar')">Editar Permisos</div>
         </div>
         
@@ -389,59 +390,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['accion']) && $_POST['a
 
                 <button type="submit">Asignar Permiso</button>
             </form>
-        </div>
-        
-        <!-- Pestaña: Ver Permisos de Rol (READ) -->
-        <div id="ver" class="tab-content">
-            <h2>Ver Permisos de un Rol</h2>
-            <form method="GET">
-                <div class="form-group">
-                    <label for="ver_rol">Seleccionar Rol:</label>
-                    <select name="ver_rol" onchange="this.form.submit()" required>
-                        <option value="">-- Seleccionar --</option>
-                        <?php 
-                        $resultRoles->data_seek(0);
-                        while ($rol = $resultRoles->fetch_assoc()) { 
-                            $selected = (isset($_GET['ver_rol']) && $_GET['ver_rol'] == $rol['id']) ? 'selected' : '';
-                        ?>
-                            <option value="<?php echo $rol['id']; ?>" <?php echo $selected; ?>><?php echo $rol['nombre']; ?></option>
-                        <?php } ?>
-                    </select>
-                </div>
-            </form>
-            
-            <?php if (isset($_GET['ver_rol']) && !empty($_GET['ver_rol'])): ?>
-                <h3>Permisos del rol: <?php echo $rolNombre; ?></h3>
-                
-                <?php if ($permisosDelRol->num_rows > 0): ?>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nombre del Permiso</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php while ($permiso = $permisosDelRol->fetch_assoc()): ?>
-                                <tr>
-                                    <td><?php echo $permiso['id']; ?></td>
-                                    <td><?php echo $permiso['nombre']; ?></td>
-                                    <td>
-                                        <a href="?eliminar_permiso=<?php echo $permiso['id']; ?>&rol_id=<?php echo $_GET['ver_rol']; ?>" 
-                                           class="action-button" 
-                                           onclick="return confirm('¿Estás seguro de eliminar este permiso del rol?')">
-                                            Eliminar
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endwhile; ?>
-                        </tbody>
-                    </table>
-                <?php else: ?>
-                    <p>Este rol no tiene permisos asignados.</p>
-                <?php endif; ?>
-            <?php endif; ?>
         </div>
         
         <!-- Pestaña: Editar Permisos (UPDATE) -->
@@ -531,7 +479,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['accion']) && $_POST['a
         // Mostrar pestaña actual basado en la URL
         document.addEventListener('DOMContentLoaded', function() {
             <?php if (isset($_GET['ver_rol'])): ?>
-                openTab({currentTarget: document.querySelector('.tab:nth-child(3)')}, 'ver');
+                openTab({currentTarget: document.querySelector('.tab:nth-child(3)')}, 'editar');
             <?php endif; ?>
         });
     </script>
