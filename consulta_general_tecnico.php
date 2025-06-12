@@ -663,27 +663,27 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
                         <div class="col-md-3 col-sm-6">
                             <div class="form-group">
                                 <label for="fecha_inicio"><i class="far fa-calendar-alt mr-1"></i>Fecha Inicio:</label>
-                                <input type="date" id="fecha_inicio" name="fecha_inicio" value="<?= htmlspecialchars(isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : ''); ?>" class="form-control auto-submit">
+                                <input  data-no-warning type="date" id="fecha_inicio" name="fecha_inicio" value="<?= htmlspecialchars(isset($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : ''); ?>" class="form-control auto-submit">
                             </div>
                         </div>
                         <div class="col-md-3 col-sm-6">
                             <div class="form-group">
                                 <label for="fecha_fin"><i class="far fa-calendar-alt mr-1"></i>Fecha Fin:</label>
-                                <input type="date" id="fecha_fin" name="fecha_fin" value="<?= htmlspecialchars(isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : ''); ?>" class="form-control auto-submit">
+                                <input  data-no-warning type="date" id="fecha_fin" name="fecha_fin" value="<?= htmlspecialchars(isset($_GET['fecha_fin']) ? $_GET['fecha_fin'] : ''); ?>" class="form-control auto-submit">
                             </div>
                         </div>
                         
                         <div class="col-md-3 col-sm-6">
                             <div class="form-group">
                                 <label for="placa"><i class="fas fa-car mr-1"></i>Placa:</label>
-                                <input type="text" id="placa" name="placa" value="<?= htmlspecialchars($filtro_placa); ?>" placeholder="Ej. ABC123" class="form-control auto-submit">
+                                <input  data-no-warning type="text" id="placa" name="placa" value="<?= htmlspecialchars($filtro_placa); ?>" placeholder="Ej. ABC123" class="form-control auto-submit">
                             </div>
                         </div>
                         
                         <div class="col-md-3 col-sm-6">
                             <div class="form-group">
                                 <label for="servicio"><i class="fas fa-wrench mr-1"></i>Servicio:</label>
-                                <select name="servicio" id="servicio" class="form-control auto-submit">
+                                <select  data-no-warning name="servicio" id="servicio" class="form-control auto-submit">
                                     <option value="">Todos los servicios</option>
                                     <?php while ($s = $result_servicios->fetch_assoc()): ?>
                                         <option value="<?= $s['Servicio_id']; ?>" <?= ($s['Servicio_id'] == $filtro_servicio ? 'selected' : '') ?>>
@@ -697,7 +697,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
                         <div class="col-md-3 col-sm-6">
                             <div class="form-group">
                                 <label for="municipio"><i class="fas fa-map-marker-alt mr-1"></i>Municipio:</label>
-                                <select name="municipio" id="municipio" class="form-control auto-submit">
+                                <select  data-no-warning name="municipio" id="municipio" class="form-control auto-submit">
                                     <option value="">Todos los municipios</option>
                                     <?php while ($m = $result_municipios->fetch_assoc()): ?>
                                         <option value="<?= $m['id']; ?>" <?= ($m['id'] == $filtro_municipio ? 'selected' : '') ?>>
@@ -722,13 +722,13 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
                 </div>
                 
                 <div class="btn-group">
-                    <a href="?export=excel<?= (!empty($filtro_inicio) ? '&fecha_inicio=' . $filtro_inicio : '') ?><?= (!empty($filtro_fin) ? '&fecha_fin=' . $filtro_fin : '') ?><?= (!empty($filtro_placa) ? '&placa=' . $filtro_placa : '') ?><?= (!empty($filtro_servicio) ? '&servicio=' . $filtro_servicio : '') ?><?= (!empty($filtro_municipio) ? '&municipio=' . $filtro_municipio : '') ?>" class="dashboard-btn">
+                    <a  data-no-warning href="?export=excel<?= (!empty($filtro_inicio) ? '&fecha_inicio=' . $filtro_inicio : '') ?><?= (!empty($filtro_fin) ? '&fecha_fin=' . $filtro_fin : '') ?><?= (!empty($filtro_placa) ? '&placa=' . $filtro_placa : '') ?><?= (!empty($filtro_servicio) ? '&servicio=' . $filtro_servicio : '') ?><?= (!empty($filtro_municipio) ? '&municipio=' . $filtro_municipio : '') ?>" class="dashboard-btn">
                         <i class="fas fa-file-excel"></i> Descargar en Excel
                     </a>
-                    <a href="dashboard.php" class="dashboard-btn dashboard-btn-secondary">
+                    <a  data-no-warning href="dashboard.php" class="dashboard-btn dashboard-btn-secondary">
                         <i class="fas fa-tachometer-alt"></i> Volver al Dashboard
                     </a>
-                    <a href="consulta_general_tecnico.php" class="dashboard-btn dashboard-btn-secondary">
+                    <a  data-no-warning href="consulta_general_tecnico.php" class="dashboard-btn dashboard-btn-secondary">
                         <i class="fas fa-sync-alt"></i> Limpiar Filtros
                     </a>
                 </div>
@@ -822,6 +822,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     <!-- JavaScript para el envío automático de filtros -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/session-check.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Seleccionar todos los elementos con la clase auto-submit

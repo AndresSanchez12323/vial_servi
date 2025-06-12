@@ -63,6 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <title>Editar Servicio</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/session-check.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -110,8 +111,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
 
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                <a href="consulta_general.php" class="btn btn-secondary">Cancelar</a>
+                <button data-no-warning type="submit" class="btn btn-primary">Guardar Cambios</button>
+                <a data-no-warning href="consulta_general.php" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
     </div>

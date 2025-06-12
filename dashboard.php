@@ -405,25 +405,8 @@ if (isset($_GET['data'])) {
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
     <script src="https://code.highcharts.com/modules/export-data.js"></script>
     <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="js/session-check.js"></script>
     <script>
-        const checkSession = () => {
-            fetch('session.php')
-                .then(response => response.text())
-                .then(data => {
-                    if (data.includes('No active session')) {
-                        window.location.href = 'index.php';
-                    }
-                })
-                .catch(error => console.error('Error al validar la sesión:', error));
-        };
-        checkSession();
-
-        const beforeUnloadHandler = (event) => {
-            if (event.target.activeElement?.hasAttribute('data-no-warning')) return;
-            navigator.sendBeacon('session.php', new URLSearchParams({ logout: 'true' }));
-        };
-        window.addEventListener('beforeunload', beforeUnloadHandler);
-
         document.addEventListener('DOMContentLoaded', () => {
             const inputMes = document.getElementById('mes-reporte');
             let mesActual = '';

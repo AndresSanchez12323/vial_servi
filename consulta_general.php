@@ -400,7 +400,7 @@ $municipios_lista = $result_municipios->fetch_all(MYSQLI_ASSOC);
                 <?php if (!$es_tecnico): ?>
                 <div class="filter-group">
                     <label for="cedula">Técnico:</label>
-                    <select name="cedula" id="cedula" class="auto-submit">
+                    <select  data-no-warning name="cedula" id="cedula" class="auto-submit">
                         <option value="">Seleccione...</option>
                         <?php foreach ($empleados_lista as $emp): ?>
                             <option value="<?= $emp['Cedula_Empleado_id']; ?>" <?= ($emp['Cedula_Empleado_id'] == $filtro_cedula ? 'selected' : '') ?>>
@@ -413,17 +413,17 @@ $municipios_lista = $result_municipios->fetch_all(MYSQLI_ASSOC);
 
                 <div class="filter-group">
                     <label for="fecha">Fecha:</label>
-                    <input type="date" id="fecha" name="fecha" value="<?= htmlspecialchars($filtro_fecha); ?>" class="auto-submit">
+                    <input data-no-warning type="date" id="fecha" name="fecha" value="<?= htmlspecialchars($filtro_fecha); ?>" class="auto-submit">
                 </div>
 
                 <div class="filter-group">
                     <label for="placa">Placa:</label>
-                    <input type="text" id="placa" name="placa" value="<?= htmlspecialchars($filtro_placa); ?>" placeholder="Ej. ABC123" class="auto-submit">
+                    <input data-no-warning type="text" id="placa" name="placa" value="<?= htmlspecialchars($filtro_placa); ?>" placeholder="Ej. ABC123" class="auto-submit">
                 </div>
 
                 <div class="filter-group">
                     <label for="servicio">Servicio:</label>
-                    <select name="servicio" id="servicio" class="auto-submit">
+                    <select data-no-warning name="servicio" id="servicio" class="auto-submit">
                         <option value="">Seleccione...</option>
                         <?php foreach ($servicios as $s): ?>
                             <option value="<?= $s['Servicio_id']; ?>" <?= ($s['Servicio_id'] == $filtro_servicio ? 'selected' : '') ?>>
@@ -435,7 +435,7 @@ $municipios_lista = $result_municipios->fetch_all(MYSQLI_ASSOC);
 
                 <div class="filter-group">
                     <label for="municipio">Municipio:</label>
-                    <select name="municipio" id="municipio" class="auto-submit">
+                    <select data-no-warning name="municipio" id="municipio" class="auto-submit">
                         <option value="">Seleccione...</option>
                         <?php foreach ($municipios_lista as $m): ?>
                             <option value="<?= $m['id']; ?>" <?= ($m['id'] == $filtro_municipio ? 'selected' : '') ?>>
@@ -591,7 +591,7 @@ $municipios_lista = $result_municipios->fetch_all(MYSQLI_ASSOC);
             <?php endif; ?>
         </div>
     </div>
-
+    <script src="js/session-check.js"></script>
     <script>
         function toggleDetails(id) {
             var detailsRow = document.getElementById('details-' + id);

@@ -562,7 +562,7 @@ $conn->close();
                     <input type="hidden" name="pagina" value="1">
                     <div class="filter-group">
                         <label for="placa">Placa:</label>
-                        <select name="placa" id="placa" class="auto-submit">
+                        <select data-no-warning name="placa" id="placa" class="auto-submit">
                             <option value="">Todas las placas</option>
                             <?php foreach ($vehiculos as $vehiculo): ?>
                                 <option value="<?php echo htmlspecialchars($vehiculo['Placa']); ?>" <?php echo ($filtro_placa == $vehiculo['Placa']) ? 'selected' : ''; ?>>
@@ -574,7 +574,7 @@ $conn->close();
                     
                     <div class="filter-group">
                         <label for="servicio">Tipo de Servicio:</label>
-                        <select name="servicio" id="servicio" class="auto-submit">
+                        <select data-no-warning name="servicio" id="servicio" class="auto-submit">
                             <option value="">Todos los servicios</option>
                             <?php foreach ($tipos_servicios as $servicio): ?>
                                 <option value="<?php echo $servicio['Servicio_id']; ?>" <?php echo ($filtro_servicio == $servicio['Servicio_id']) ? 'selected' : ''; ?>>
@@ -586,7 +586,7 @@ $conn->close();
                     
                     <div class="filter-group">
                         <label for="estado">Estado:</label>
-                        <select name="estado" id="estado" class="auto-submit">
+                        <select data-no-warning name="estado" id="estado" class="auto-submit">
                             <option value="">Todos</option>
                             <option value="programado" <?php echo ($filtro_estado == 'programado') ? 'selected' : ''; ?>>Programados</option>
                             <option value="completado" <?php echo ($filtro_estado == 'completado') ? 'selected' : ''; ?>>Completados</option>
@@ -595,12 +595,12 @@ $conn->close();
                     
                     <div class="filter-group">
                         <label for="mes">Mes:</label>
-                        <input type="month" id="mes" name="mes" value="<?php echo $filtro_mes; ?>" class="auto-submit">
+                        <input data-no-warning type="month" id="mes" name="mes" value="<?php echo $filtro_mes; ?>" class="auto-submit">
                     </div>
                     
                     <div class="filter-group">
                         <div class="filter-buttons">
-                            <a href="cliente_dashboard.php" class="filter-button clear-button">Limpiar filtros</a>
+                            <a data-no-warning href="cliente_dashboard.php" class="filter-button clear-button">Limpiar filtros</a>
                         </div>
                     </div>
                 </form>
@@ -708,13 +708,13 @@ $conn->close();
         </div>
 
         <!-- Formulario de descarga de reporte -->
-        <form action="descargar_reporte_cliente.php" method="get">
+        <form data-no-warning action="descargar_reporte_cliente.php" method="get">
             <!-- Pasar los filtros actuales como parámetros ocultos -->
             <input type="hidden" name="placa" value="<?php echo htmlspecialchars($filtro_placa); ?>">
             <input type="hidden" name="servicio" value="<?php echo htmlspecialchars($filtro_servicio); ?>">
             <input type="hidden" name="estado" value="<?php echo htmlspecialchars($filtro_estado); ?>">
             <input type="hidden" name="mes" value="<?php echo htmlspecialchars($filtro_mes); ?>">
-            <button type="submit" class="logout-btn" style="background-color:#3498db;">Descargar Reporte Filtrado</button>
+            <button data-no-warning type="submit" class="logout-btn" style="background-color:#3498db;">Descargar Reporte Filtrado</button>
         </form>
 
         <form action="logout_cliente.php" method="post">
@@ -723,6 +723,7 @@ $conn->close();
     </div>
 
     <!-- Script para enviar el formulario automáticamente al cambiar los filtros -->
+     <script src="js/session-check.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Seleccionar todos los elementos con clase auto-submit

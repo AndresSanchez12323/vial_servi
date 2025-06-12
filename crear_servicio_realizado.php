@@ -67,29 +67,36 @@ if (isset($_FILES['Fotos']) && $_FILES['Fotos']['error'] === UPLOAD_ERR_OK) {
 
     if (in_array($fotoExtension, $allowedExtensions) && in_array($mimeType, $allowedMimeTypes)) {
         $fotoTmpPath = $_FILES['Fotos']['tmp_name'];
-        $fotoName = $_FILES['Fotos']['name'];
-        $fotoExtension = pathinfo($fotoName, PATHINFO_EXTENSION);
         $fotoNewName = uniqid('img_', true) . '.' . $fotoExtension;
         $uploadDir = __DIR__ . '/uploads/';
-        $uploadPath = 'uploads/' . $fotoNewName;;
-        
+        $destinationPath = $uploadDir . $fotoNewName;
+
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
-        
-        if (move_uploaded_file($fotoTmpPath, $uploadPath)) {
-            $fotoPath = $uploadPath;
-            if (!$fotoPath) {
-                error_log("Error al asignar el path de la imagen.");
-                die("Error al asignar el path de la imagen.");
-            }
+
+        if (move_uploaded_file($fotoTmpPath, $destinationPath)) {
+            $fotoPath = 'uploads/' . $fotoNewName; // ruta relativa para la BD o frontend
         } else {
+            error_log("Fallo al mover archivo desde $fotoTmpPath hacia $destinationPath");
             die("Error al mover la imagen al directorio destino.");
         }
     } else {
         die("Archivo no permitido. Asegúrate de subir una imagen válida (JPG, PNG o GIF).");
     }
+} elseif (isset($_FILES['Fotos']) && $_FILES['Fotos']['error'] !== UPLOAD_ERR_NO_FILE) {
+    // Si hubo un error distinto a no haber archivo
+    switch ($_FILES['Fotos']['error']) {
+        case UPLOAD_ERR_INI_SIZE:
+        case UPLOAD_ERR_FORM_SIZE:
+            die("El archivo es demasiado grande.");
+        case UPLOAD_ERR_PARTIAL:
+            die("El archivo fue subido parcialmente.");
+        default:
+            die("Error al subir el archivo. Código: " . $_FILES['Fotos']['error']);
+    }
 }
+
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $cedulaEmpleado = $_POST['Cedula_Empleado_id_Servicios_Realizados'];
@@ -99,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $municipality = $_POST['municipality'];
     $ubicacion = $_POST['Ubicacion'];
     $novedades = $_POST['Novedades'];
-    $fotos = $_POST['Fotos'];
+    $fotos = $fotoPath;
     $detalleServicio = $_POST['Detalle_Servicio'];
     $custodiaServicio = $_POST['Custodia_Servicio'];
     $facturacionSeparada = isset($_POST['Facturacion_Separada']) ? 1 : 0;
@@ -131,6 +138,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         icon: 'success',
                         confirmButtonText: 'Aceptar',
                         confirmButtonColor: '#ff6b6b'
+                        didOpen: () => {
+                                        document.querySelector('.swal2-confirm').setAttribute('data-no-warning', '');
+                                    }
                     }).then((result) => {
                         if (result.isConfirmed) {
                             window.location.href = 'consulta_general.php';
@@ -149,6 +159,7 @@ $conn->close();
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -156,10 +167,11 @@ $conn->close();
 
     <!-- SweetAlert2 CSS & JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/session-check.js"></script>
 
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <style>
         * {
             margin: 0;
@@ -213,7 +225,7 @@ $conn->close();
             text-align: left;
         }
 
-        input[type="text"], 
+        input[type="text"],
         input[type="date"],
         input[type="password"],
         select,
@@ -230,7 +242,7 @@ $conn->close();
             transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus, 
+        input[type="text"]:focus,
         input[type="date"]:focus,
         input[type="password"]:focus,
         select:focus,
@@ -281,92 +293,96 @@ $conn->close();
         }
     </style>
 </head>
+
 <body>
 
-<!-- Contenido principal -->
-<div class="container">
-    <h2>Agregar Servicio Realizado</h2>
-    <form method="post" action=""  enctype="multipart/form-data">
-        <div class="form-group">
-            <label for="Cedula_Empleado_id_Servicios_Realizados">Técnico asignado</label>
-            <select name="Cedula_Empleado_id_Servicios_Realizados" class="form-control" required>
-                <option value="">Seleccione un empleado</option>
-                <?php foreach ($empleados as $empleado): ?>
-                    <option value="<?= htmlspecialchars($empleado['Cedula_Empleado_id']) ?>">
-                        <?= htmlspecialchars($empleado['Cedula_Empleado_id']) ?> - <?= htmlspecialchars($empleado['Nombre']) ?> <?= htmlspecialchars($empleado['Apellido']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="Vehiculo_id_Servicios_Realizados">Placa del Vehículo</label>
-            <select name="Vehiculo_id_Servicios_Realizados" class="form-control" required>
-                <option value="">Seleccione un Vehículo</option>
-                <?php foreach ($cars as $car): ?>
-                    <option value="<?= htmlspecialchars($car['Placa']) ?>">
-                        <?= htmlspecialchars($car['Placa']) ?> - <?= htmlspecialchars($car['NombreCliente']) ?> <?= htmlspecialchars($car['ApellidoCliente']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="Servicio_id_Servicios_Realizados">Servicio a realizar</label>
-            <select name="Servicio_id_Servicios_Realizados" class="form-control" required>
-                <option value="">Seleccione un Servicio</option>
-                <?php foreach ($service as $service): ?>
-                    <option value="<?= htmlspecialchars($service['Servicio_id']) ?>">
-                        <?= htmlspecialchars($service['Nombre_Servicio']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="Fecha">Fecha</label>
-            <input type="date" name="Fecha" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="municipality">Municipio</label>
-            <select name="municipality" class="form-control" required>
-                <option value="">Seleccione un municipio</option>
-                <?php foreach ($municipality as $municipality): ?>
-                    <option value="<?= htmlspecialchars($municipality['id']) ?>">
-                        <?= htmlspecialchars($municipality['nombre']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="Ubicacion">Ubicación</label>
-            <input type="text" name="Ubicacion" class="form-control" required>
-        </div>
-        <div class="form-group">
-            <label for="Novedades">Novedades</label>
-            <input type="text" name="Novedades" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="Fotos">Fotos (seleccionar archivo)</label>
-            <input type="file" name="Fotos" class="form-control" accept="image/*">
-        </div>
-        <div class="form-group">
-            <label for="Detalle_Servicio">Detalle del Servicio</label>
-            <input type="text" name="Detalle_Servicio" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="Custodia_Servicio">Custodia del Servicio</label>
-            <input type="text" name="Custodia_Servicio" class="form-control">
-        </div>
-        <!-- <div class="form-check">
+    <!-- Contenido principal -->
+    <div class="container">
+        <h2>Agregar Servicio Realizado</h2>
+        <form method="post" action="" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="Cedula_Empleado_id_Servicios_Realizados">Técnico asignado</label>
+                <select name="Cedula_Empleado_id_Servicios_Realizados" class="form-control" required>
+                    <option value="">Seleccione un empleado</option>
+                    <?php foreach ($empleados as $empleado): ?>
+                        <option value="<?= htmlspecialchars($empleado['Cedula_Empleado_id']) ?>">
+                            <?= htmlspecialchars($empleado['Cedula_Empleado_id']) ?> -
+                            <?= htmlspecialchars($empleado['Nombre']) ?>     <?= htmlspecialchars($empleado['Apellido']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Vehiculo_id_Servicios_Realizados">Placa del Vehículo</label>
+                <select name="Vehiculo_id_Servicios_Realizados" class="form-control" required>
+                    <option value="">Seleccione un Vehículo</option>
+                    <?php foreach ($cars as $car): ?>
+                        <option value="<?= htmlspecialchars($car['Placa']) ?>">
+                            <?= htmlspecialchars($car['Placa']) ?> - <?= htmlspecialchars($car['NombreCliente']) ?>
+                            <?= htmlspecialchars($car['ApellidoCliente']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Servicio_id_Servicios_Realizados">Servicio a realizar</label>
+                <select name="Servicio_id_Servicios_Realizados" class="form-control" required>
+                    <option value="">Seleccione un Servicio</option>
+                    <?php foreach ($service as $service): ?>
+                        <option value="<?= htmlspecialchars($service['Servicio_id']) ?>">
+                            <?= htmlspecialchars($service['Nombre_Servicio']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Fecha">Fecha</label>
+                <input type="date" name="Fecha" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="municipality">Municipio</label>
+                <select name="municipality" class="form-control" required>
+                    <option value="">Seleccione un municipio</option>
+                    <?php foreach ($municipality as $municipality): ?>
+                        <option value="<?= htmlspecialchars($municipality['id']) ?>">
+                            <?= htmlspecialchars($municipality['nombre']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="Ubicacion">Ubicación</label>
+                <input type="text" name="Ubicacion" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="Novedades">Novedades</label>
+                <input type="text" name="Novedades" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="Fotos">Fotos (seleccionar archivo)</label>
+                <input type="file" name="Fotos" class="form-control" accept="image/*">
+            </div>
+            <div class="form-group">
+                <label for="Detalle_Servicio">Detalle del Servicio</label>
+                <input type="text" name="Detalle_Servicio" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="Custodia_Servicio">Custodia del Servicio</label>
+                <input type="text" name="Custodia_Servicio" class="form-control">
+            </div>
+            <!-- <div class="form-check">
             <input type="checkbox" name="Facturacion_Separada" class="form-check-input" value="1">
             <label for="Facturacion_Separada" class="form-check-label">¿Facturación Separada?</label>
         </div> -->
-        <button type="submit" class="btn btn-primary">Agregar Registro</button>
-    </form>
-</div>
+            <button data-no-warning type="submit" class="btn btn-primary">Agregar Registro</button>
+        </form>
+    </div>
 
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 </body>
+
 </html>
