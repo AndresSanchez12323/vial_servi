@@ -347,6 +347,7 @@ if (isset($_GET['data'])) {
         if ($verReportesTecnico) {
             ?>
             <a href="consulta_general_tecnico.php" data-no-warning>Ver Mis Servicios Realizados</a>
+            <a href="editar_novedades_servicio.php" data-no-warning>Editar Novedades de Servicios</a>
             <?php
         }
         ?>
