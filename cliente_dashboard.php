@@ -514,7 +514,7 @@ $conn->close();
             <img src="Imagenes/Logo.jpg" alt="Logo VialServi" class="logo">
         </div>
         <div>
-            <a href="crear_servicio_realizado_cliente.php">Pedir un Servicio</a>
+            <a data-no-warning href="crear_servicio_realizado_cliente.php">Pedir un Servicio</a>
         </div>
     </div>
 

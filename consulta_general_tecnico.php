@@ -764,7 +764,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
                     echo "<div class='no-results'>
                             <i class='fas fa-search fa-3x mb-3'></i>
                             <p>No se encontraron servicios realizados con los filtros aplicados.</p>
-                            <a href='consulta_general_tecnico.php' class='btn btn-outline-secondary mt-3'><i class='fas fa-sync-alt mr-2'></i>Limpiar filtros</a>
+                            <a data-no-warning  href='consulta_general_tecnico.php' class='btn btn-outline-secondary mt-3'><i class='fas fa-sync-alt mr-2'></i>Limpiar filtros</a>
                           </div>";
                 }
                 ?>
@@ -776,7 +776,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
                 <ul class="pagination">
                     <!-- Botón Anterior -->
                     <li class="page-item <?= ($pagina_actual <= 1) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="<?= construirUrlPaginacion($pagina_actual - 1) ?>">
+                        <a data-no-warning  class="page-link" href="<?= construirUrlPaginacion($pagina_actual - 1) ?>">
                             <i class="fas fa-chevron-left"></i>
                         </a>
                     </li>
@@ -795,7 +795,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
                     
                     for ($i = $inicio_rango; $i <= $fin_rango; $i++) {
                         echo '<li class="page-item ' . ($i == $pagina_actual ? 'active' : '') . '">
-                                <a class="page-link" href="' . construirUrlPaginacion($i) . '">' . $i . '</a>
+                                <a data-no-warning  class="page-link" href="' . construirUrlPaginacion($i) . '">' . $i . '</a>
                               </li>';
                     }
                     
@@ -809,7 +809,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
                     
                     <!-- Botón Siguiente -->
                     <li class="page-item <?= ($pagina_actual >= $total_paginas) ? 'disabled' : '' ?>">
-                        <a class="page-link" href="<?= construirUrlPaginacion($pagina_actual + 1) ?>">
+                        <a data-no-warning  class="page-link" href="<?= construirUrlPaginacion($pagina_actual + 1) ?>">
                             <i class="fas fa-chevron-right"></i>
                         </a>
                     </li>

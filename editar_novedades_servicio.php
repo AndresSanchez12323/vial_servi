@@ -599,10 +599,10 @@ $resultServicios = mysqli_stmt_get_result($stmtConsultaServicios);
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
+\</head>
 <body>
     <div class="container">
-        <a href="dashboard.php" class="btn btn-back">← Volver al Dashboard</a>
+        <a data-no-warning  href="dashboard.php" class="btn btn-back">← Volver al Dashboard</a>
         
         <h1>Editar Novedades de Servicios - Técnico #<?php echo $usuarioId; ?></h1>
 
@@ -619,7 +619,7 @@ $resultServicios = mysqli_stmt_get_result($stmtConsultaServicios);
             <form method="post" action="" class="filter-form" id="filterForm">
                 <div class="form-group">
                     <label for="placa">Placa del Vehículo</label>
-                    <select name="placa" id="placa" class="form-select auto-submit <?php echo !empty($filtroPlaca) ? 'is-filtered' : ''; ?>">
+                    <select data-no-warning  name="placa" id="placa" class="form-select auto-submit <?php echo !empty($filtroPlaca) ? 'is-filtered' : ''; ?>">
                         <option value="">Todas las placas</option>
                         <?php 
                         // Reset pointer al inicio de los resultados
@@ -636,7 +636,7 @@ $resultServicios = mysqli_stmt_get_result($stmtConsultaServicios);
                 <!-- Nuevo filtro por tipo de servicio -->
                 <div class="form-group">
                     <label for="tipo_servicio">Tipo de Servicio</label>
-                    <select name="tipo_servicio" id="tipo_servicio" class="form-select auto-submit <?php echo !empty($filtroServicio) ? 'is-filtered' : ''; ?>">
+                    <select data-no-warning  name="tipo_servicio" id="tipo_servicio" class="form-select auto-submit <?php echo !empty($filtroServicio) ? 'is-filtered' : ''; ?>">
                         <option value="">Todos los servicios</option>
                         <?php 
                         mysqli_data_seek($resultTiposServicio, 0);
@@ -663,7 +663,7 @@ $resultServicios = mysqli_stmt_get_result($stmtConsultaServicios);
                 
                 <div class="filter-buttons">
                     <input type="hidden" name="filtrar" value="1">
-                    <a href="?limpiar_filtros=1" class="btn btn-reset">
+                    <a data-no-warning  href="?limpiar_filtros=1" class="btn btn-reset">
                         Limpiar Filtros
                     </a>
                 </div>
@@ -777,8 +777,8 @@ $resultServicios = mysqli_stmt_get_result($stmtConsultaServicios);
             <?php if ($totalPaginas > 1): ?>
                 <div class="pagination">
                     <?php if ($paginaActual > 1): ?>
-                        <a href="?pagina=1&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" data-no-warning class="page-link">&laquo; Primera</a>
-                        <a href="?pagina=<?php echo $paginaActual - 1; ?>&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" data-no-warning class="page-link">&lsaquo; Anterior</a>
+                        <a data-no-warning  href="?pagina=1&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" data-no-warning class="page-link">&laquo; Primera</a>
+                        <a data-no-warning  href="?pagina=<?php echo $paginaActual - 1; ?>&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" data-no-warning class="page-link">&lsaquo; Anterior</a>
                     <?php else: ?>
                         <span class="page-link disabled">&laquo; Primera</span>
                         <span class="page-link disabled">&lsaquo; Anterior</span>
@@ -791,15 +791,15 @@ $resultServicios = mysqli_stmt_get_result($stmtConsultaServicios);
                     
                     for ($i = $inicio; $i <= $fin; $i++):
                     ?>
-                        <a href="?pagina=<?php echo $i; ?>&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" 
+                        <a data-no-warning  href="?pagina=<?php echo $i; ?>&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" 
                            class="page-link <?php echo ($i == $paginaActual) ? 'active' : ''; ?>" data-no-warning>
                             <?php echo $i; ?>
                         </a>
                     <?php endfor; ?>
                     
                     <?php if ($paginaActual < $totalPaginas): ?>
-                        <a href="?pagina=<?php echo $paginaActual + 1; ?>&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" data-no-warning class="page-link">Siguiente &rsaquo;</a>
-                        <a href="?pagina=<?php echo $totalPaginas; ?>&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" data-no-warning class="page-link">Última &raquo;</a>
+                        <a data-no-warning  href="?pagina=<?php echo $paginaActual + 1; ?>&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" data-no-warning class="page-link">Siguiente &rsaquo;</a>
+                        <a data-no-warning  href="?pagina=<?php echo $totalPaginas; ?>&placa=<?php echo urlencode($filtroPlaca); ?>&tipo_servicio=<?php echo urlencode($filtroServicio); ?>&fecha_inicio=<?php echo urlencode($filtroFechaInicio); ?>&fecha_fin=<?php echo urlencode($filtroFechaFin); ?>" data-no-warning class="page-link">Última &raquo;</a>
                     <?php else: ?>
                         <span class="page-link disabled">Siguiente &rsaquo;</span>
                         <span class="page-link disabled">Última &raquo;</span>
