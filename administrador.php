@@ -32,27 +32,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['usuario_id']) && isset($_POST['nuevo_rol'])) {
         $usuario_id = $_POST['usuario_id'];
         $nuevo_rol = $_POST['nuevo_rol'];
-        
+
         $sqlActualizar = "UPDATE empleados SET Rol_id = ? WHERE Cedula_Empleado_id = ?";
         $stmt = $conn->prepare($sqlActualizar);
         $stmt->bind_param("si", $nuevo_rol, $usuario_id);
         $stmt->execute();
-        
+
         $sqlRegistro = "INSERT INTO actividad (usuario_id, accion) VALUES (?, 'Cambio de rol')";
         $stmt = $conn->prepare($sqlRegistro);
         $stmt->bind_param("i", $_SESSION['cedula']);
         $stmt->execute();
     }
-    
+
     if (isset($_POST['usuario_id']) && isset($_POST['permisos'])) {
         $usuario_id = $_POST['usuario_id'];
         $permisosSeleccionados = $_POST['permisos'];
-        
+
         $sqlBorrarPermisos = "DELETE FROM usuario_permisos WHERE usuario_id = ?";
         $stmt = $conn->prepare($sqlBorrarPermisos);
         $stmt->bind_param("i", $usuario_id);
         $stmt->execute();
-        
+
         foreach ($permisosSeleccionados as $permiso_id) {
             $sqlInsertPermiso = "INSERT INTO usuario_permisos (usuario_id, permiso_id) VALUES (?, ?)";
             $stmt = $conn->prepare($sqlInsertPermiso);
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt->execute();
         }
     }
-    
+
     if (isset($_POST['eliminar_usuario'])) {
         $usuario_id = $_POST['eliminar_usuario'];
         $sqlEliminar = "DELETE FROM empleados WHERE Cedula_Empleado_id = ?";
@@ -68,21 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->bind_param("i", $usuario_id);
         $stmt->execute();
     }
-    
+
     // Actualizar datos de usuario (para la función de edición)
     if (isset($_POST['editar_usuario'])) {
         $usuario_id = $_POST['editar_usuario'];
         $nombre = $_POST['editar_nombre'];
         $apellido = $_POST['editar_apellido'];
         $rol = $_POST['editar_rol'];
-        
+
         $sqlEditar = "UPDATE empleados SET Nombre = ?, Apellido = ?, Rol_id = ? WHERE Cedula_Empleado_id = ?";
         $stmt = $conn->prepare($sqlEditar);
-        
+
         if ($stmt) {
             $stmt->bind_param("ssis", $nombre, $apellido, $rol, $usuario_id);
             $stmt->execute();
-            
+
             // No hay tabla de actividad en la base de datos, así que omitimos el registro
             // Si decides añadir esta funcionalidad, primero debes crear la tabla 'actividad'
             /*
@@ -97,26 +97,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             echo "<script>alert('Error al actualizar: " . $conn->error . "');</script>";
         }
     }
-    
+
     if (isset($_POST['nuevo_nombre']) && isset($_POST['nuevo_apellido']) && isset($_POST['nuevo_cedula']) && isset($_POST['nuevo_rol'])) {
         $nombre = $_POST['nuevo_nombre'];
         $apellido = $_POST['nuevo_apellido'];
         $cedula = $_POST['nuevo_cedula'];
         $rol = $_POST['nuevo_rol'];
         $password = password_hash("123456", PASSWORD_DEFAULT);
-        
+
         $sqlInsertar = "INSERT INTO empleados (Cedula_Empleado_id, Nombre, Apellido, Contraseña, Rol_id) VALUES (?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sqlInsertar);
         $stmt->bind_param("isssi", $cedula, $nombre, $apellido, $password, $rol);
         $stmt->execute();
     }
-    
+
     echo "<script>alert('Cambios guardados correctamente.'); window.location.href='administrador.php';</script>";
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -124,6 +125,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmarEliminarUsuario(form, nombre, apellido) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `Vas a eliminar al usuario ${nombre} ${apellido}. Esta acción no se puede deshacer.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#c82333',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        }
+    </script>
 
     <!-- Estilos -->
     <style>
@@ -162,14 +181,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             overflow: auto;
         }
 
-        h2, h3 {
+        h2,
+        h3 {
             color: #680c39;
             font-size: 24px;
             font-weight: 600;
             margin-bottom: 20px;
         }
 
-        input, select {
+        input,
+        select {
             width: 100%;
             padding: 12px;
             margin-bottom: 15px;
@@ -181,7 +202,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             transition: all 0.3s ease;
         }
 
-        input:focus, select:focus {
+        input:focus,
+        select:focus {
             outline: none;
             border-color: #2d0f2a;
             background-color: #fff;
@@ -237,7 +259,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             padding: 12px;
         }
 
-        th, td {
+        th,
+        td {
             padding: 12px;
             text-align: center;
             font-weight: 500;
@@ -309,7 +332,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
         }
 
         .modal-content {
@@ -363,7 +386,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         // Cerrar el modal si se hace clic fuera de él
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             let modal = document.getElementById('modalEditar');
             if (event.target == modal) {
                 modal.style.display = "none";
@@ -371,16 +394,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     </script>
 </head>
+
 <body>
 
-<div class="container">
-    <main class="container_scroll">
-        <button onclick="window.location.href='roles.php'">
-            <i class="fas fa-users-cog"></i> Gestionar Roles
-        </button>
-    
-        <!-- Sección de agregar usuario comentada como solicitado -->
-        <!--
+    <div class="container">
+        <main class="container_scroll">
+            <button onclick="window.location.href='roles.php'">
+                <i class="fas fa-users-cog"></i> Gestionar Roles
+            </button>
+
+            <!-- Sección de agregar usuario comentada como solicitado -->
+            <!--
         <h3>Agregar Nuevo Usuario</h3>
         <form method="POST">
             <div class="form">
@@ -397,68 +421,73 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </form>
         -->
 
-        <br>                
-        <h2>Administración de Usuarios</h2>
-        <input type="text" id="buscarUsuario" placeholder="Buscar usuario..." onkeyup="filtrarUsuarios()">
-    
-        <div class="table-container">
-            <table>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Apellido</th>
-                    <th>Rol</th>
-                    <th>Permisos</th>
-                    <th>Acción</th>
-                </tr>
-                <?php while ($usuario = $resultUsuarios->fetch_assoc()) { ?>
-                <tr>
-                    <td><?php echo $usuario['Nombre']; ?></td>
-                    <td><?php echo $usuario['Apellido']; ?></td>
-                    <td><?php echo $usuario['rol_nombre']; ?></td>
-                    <td><?php echo $usuario['Rol_id'] == 0 ? 'Control de usuarios y roles' : ($usuario['permisos'] ? $usuario['permisos'] : 'No asignados'); ?></td>
-                    <td>
-                        <?php if ($usuario['Rol_id'] != 0) { ?>
-                            <!-- Botón Editar -->
-                            <button type="button" class="edit" onclick="abrirModalEditar('<?php echo $usuario['Cedula_Empleado_id']; ?>', '<?php echo $usuario['Nombre']; ?>', '<?php echo $usuario['Apellido']; ?>', '<?php echo $usuario['Rol_id']; ?>')">Editar</button>
-                            
-                            <!-- Botón Eliminar -->
-                            <form method="POST">
-                                <input type="hidden" name="eliminar_usuario" value="<?php echo $usuario['Cedula_Empleado_id']; ?>">
-                                <button type="submit" class="delete">Eliminar</button>
-                            </form>
-                        <?php } ?>
-                    </td>
-                </tr>
-                <?php } ?>
-            </table>
-        </div>
-    
-        <div class="logout">
-            <a href="logout.php">Cerrar Sesión</a>
-        </div>
-    </main>
-</div>
+            <br>
+            <h2>Administración de Usuarios</h2>
+            <input type="text" id="buscarUsuario" placeholder="Buscar usuario..." onkeyup="filtrarUsuarios()">
 
-<!-- Modal para editar usuario -->
-<div id="modalEditar" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="cerrarModal()">&times;</span>
-        <h3>Editar Usuario</h3>
-        <form method="POST">
-            <div class="form">
-                <input type="hidden" id="editar_usuario" name="editar_usuario">
-                <input type="text" id="editar_nombre" name="editar_nombre" placeholder="Nombre" required>
-                <input type="text" id="editar_apellido" name="editar_apellido" placeholder="Apellido" required>
-                <select id="editar_rol" name="editar_rol">
-                    <?php foreach ($rolesDisponibles as $id => $nombre) { ?>
-                        <option value="<?php echo $id; ?>"><?php echo $nombre; ?></option>
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Rol</th>
+                        <th>Permisos</th>
+                        <th>Acción</th>
+                    </tr>
+                    <?php while ($usuario = $resultUsuarios->fetch_assoc()) { ?>
+                        <tr>
+                            <td><?php echo $usuario['Nombre']; ?></td>
+                            <td><?php echo $usuario['Apellido']; ?></td>
+                            <td><?php echo $usuario['rol_nombre']; ?></td>
+                            <td><?php echo $usuario['Rol_id'] == 0 ? 'Control de usuarios y roles' : ($usuario['permisos'] ? $usuario['permisos'] : 'No asignados'); ?>
+                            </td>
+                            <td>
+                                <?php if ($usuario['Rol_id'] != 0) { ?>
+                                    <!-- Botón Editar -->
+                                    <button type="button" class="edit"
+                                        onclick="abrirModalEditar('<?php echo $usuario['Cedula_Empleado_id']; ?>', '<?php echo $usuario['Nombre']; ?>', '<?php echo $usuario['Apellido']; ?>', '<?php echo $usuario['Rol_id']; ?>')">Editar</button>
+
+                                    <!-- Botón Eliminar -->
+                                    <form method="POST" onsubmit="return false;">
+                                        <input type="hidden" name="eliminar_usuario"
+                                            value="<?php echo $usuario['Cedula_Empleado_id']; ?>">
+                                        <button type="button" class="delete"
+                                            onclick="confirmarEliminarUsuario(this.form, '<?php echo $usuario['Nombre']; ?>', '<?php echo $usuario['Apellido']; ?>')">Eliminar</button>
+                                    </form>
+                                <?php } ?>
+                            </td>
+                        </tr>
                     <?php } ?>
-                </select>
+                </table>
             </div>
-            <button type="submit">Guardar Cambios</button>
-        </form>
+
+            <div class="logout">
+                <a href="logout.php">Cerrar Sesión</a>
+            </div>
+        </main>
     </div>
-</div>
+
+    <!-- Modal para editar usuario -->
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal()">&times;</span>
+            <h3>Editar Usuario</h3>
+            <form method="POST">
+                <div class="form">
+                    <input type="hidden" id="editar_usuario" name="editar_usuario">
+                    <input type="text" id="editar_nombre" name="editar_nombre" placeholder="Nombre" required>
+                    <input type="text" id="editar_apellido" name="editar_apellido" placeholder="Apellido" required>
+                    <select id="editar_rol" name="editar_rol">
+                        <?php foreach ($rolesDisponibles as $id => $nombre) { ?>
+                            <option value="<?php echo $id; ?>"><?php echo $nombre; ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <button type="submit">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
 
 </body>
+
 </html>
