@@ -46,6 +46,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 // Verificar si el usuario es técnico (rol 2)
 $esTecnico = isset($_SESSION['rol']) && $_SESSION['rol'] == 2;
+
+// Verificar si la sesión tiene la cedula del usuario antes de usarla
+$tieneSesionValida = isset($_SESSION['loggedin']) && isset($_SESSION['cedula']);
 ?>
 
 <div id="mySidebar" class="sidebar">
@@ -53,19 +56,23 @@ $esTecnico = isset($_SESSION['rol']) && $_SESSION['rol'] == 2;
         <img src="Imagenes/Logo.jpg" alt="Logo" class="logo">
     </div>
     <div class="menu-links">
-        <?php if ($currentPage !== 'dashboard.php') { ?>
+        <?php if ($currentPage !== 'dashboard.php' && $tieneSesionValida) { ?>
             <a href="dashboard.php" data-no-warning>Dashboard</a>
         <?php } ?>
 
-        <?php if ($currentPage !== 'gestionar_servicios.php' && usuarioTienePermiso($_SESSION['cedula'], 'crear_servicio', $conn)) { ?>
+        <?php if ($currentPage !== 'gestionar_servicios.php' && $tieneSesionValida && usuarioTienePermiso($_SESSION['cedula'], 'crear_servicio', $conn)) { ?>
             <a href="gestionar_servicios.php" data-no-warning>Servicios</a>
         <?php } ?>
 
-        <?php if ($currentPage !== 'consulta_identificacion.php') { ?>
+        <?php if ($currentPage !== 'consulta_identificacion.php' && $tieneSesionValida) { ?>
             <a href="consulta_identificacion.php" data-no-warning>Consulta por Placa</a>
         <?php } ?>
 
-        <a href="logout.php" data-no-warning>Cerrar Sesión</a>
+        <?php if ($tieneSesionValida) { ?>
+            <a href="logout.php" data-no-warning>Cerrar Sesión</a>
+        <?php } else { ?>
+            <a href="index.php" data-no-warning>Iniciar Sesión</a>
+        <?php } ?>
     </div>
 </div>
 

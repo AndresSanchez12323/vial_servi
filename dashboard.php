@@ -16,18 +16,30 @@ if (!isset($_SESSION['loggedin'])) {
 }
 
 include('validPermissions.php');
-$usuarioId = $_SESSION['cedula'];
-$permisoRequerido = 'leer_servicio';
 
-if (!usuarioTienePermiso($usuarioId, $permisoRequerido, $conn)) {
-    die("❌ Acceso denegado: No tienes permiso para ver esta página.");
+// NUEVO: Verificar si el usuario tiene rol 5
+$usuarioId = $_SESSION['cedula'];
+$rolUsuario = $_SESSION['rol'] ?? 0;
+
+// Si el usuario tiene rol 5, mostrar mensaje de espera y no permitir más acciones
+if ($rolUsuario == 5) {
+    // Definir mensaje para mostrar
+    $rolEsperaMessage = true;
+    
+    // No necesitamos verificar permisos u otras funcionalidades para este rol
+} else {
+    $permisoRequerido = 'leer_servicio';
+
+    if (!usuarioTienePermiso($usuarioId, $permisoRequerido, $conn)) {
+        die("❌ Acceso denegado: No tienes permiso para ver esta página.");
+    }
+
+    $verReportesAdministrador = usuarioTienePermiso($_SESSION['cedula'], 'ver_reporte_administrador', $conn);
+    $verReportesTecnico = usuarioTienePermiso($_SESSION['cedula'], 'ver_reporte_tecnico', $conn);
+    $mesSeleccionado = date('Y-m'); // Mes actual por defecto
 }
 
-$verReportesAdministrador = usuarioTienePermiso($_SESSION['cedula'], 'ver_reporte_administrador', $conn);
-$verReportesTecnico = usuarioTienePermiso($_SESSION['cedula'], 'ver_reporte_tecnico', $conn);
-$mesSeleccionado = date('Y-m'); // Mes actual por defecto
-
-// PETICIONES DE DATOS DINÁMICOS
+// PETICIONES DE DATOS DINÁMICOS (mantener igual)
 if (isset($_GET['data'])) {
     $dataType = $_GET['data'];
     $mesFiltro = $_GET['mes'];
@@ -319,6 +331,38 @@ if (isset($_GET['data'])) {
         .fa-file-excel:before {
             content: "\f1c3";
         }
+
+        /* NUEVO: Estilo para el mensaje de espera de rol */
+        .waiting-message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px auto;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .waiting-message h3 {
+            color: #721c24;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .waiting-message p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .waiting-icon {
+            font-size: 60px;
+            color: #721c24;
+            margin-bottom: 20px;
+        }
     </style>
 
     <!-- Añadir referencia a Font Awesome -->
@@ -328,260 +372,278 @@ if (isset($_GET['data'])) {
 </head>
 
 <body>
-
     <div class="container">
-        <h2>Bienvenido al Dashboard</h2>
-        <p>Aquí podrás acceder a las diferentes funciones del sistema.</p>
+        <!-- NUEVO: Mostrar mensaje de espera para rol 5 -->
+        <?php if (isset($rolEsperaMessage) && $rolEsperaMessage): ?>
+            <div class="waiting-message">
+                <div class="waiting-icon">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+                <h3>Cuenta en proceso de activación</h3>
+                <p>Estimado usuario, tu cuenta ha sido registrada correctamente pero actualmente no tienes asignado un rol con permisos suficientes para acceder al sistema.</p>
+                <p>Un administrador debe revisar y asignar un rol adecuado a tu cuenta. Este proceso puede tomar de 24 a 48 horas hábiles.</p>
+                <p>Por favor, intenta acceder nuevamente más tarde o contacta al administrador del sistema si este mensaje persiste por más de 48 horas.</p>
+                
+                <!-- Botón de cerrar sesión -->
+                <a href="logout.php" data-no-warning class="btn-logout">Cerrar Sesión</a>
+            </div>
+        <?php else: ?>
+            <!-- Contenido normal del dashboard para usuarios con roles válidos -->
+            <h2>Bienvenido al Dashboard</h2>
+            <p>Aquí podrás acceder a las diferentes funciones del sistema.</p>
 
-        <?php
-        // Verificar si el usuario es técnico (rol 2)
-        $esTecnico = isset($_SESSION['rol']) && $_SESSION['rol'] == 2;
-        
-        if ($verReportesAdministrador) {
-            ?>
-            <a href="consulta_general.php" data-no-warning>Ir a Consulta General</a>
             <?php
-        }
-        ?>
-        <?php
-        if ($verReportesTecnico) {
-            ?>
-            <a href="consulta_general_tecnico.php" data-no-warning>Ver Mis Servicios Realizados</a>
-            <a href="editar_novedades_servicio.php" data-no-warning>Editar Novedades de Servicios</a>
-            <?php
-        }
-        ?>
-        
-        <?php
-        // Mostrar el botón de Consulta por Identificación solo si NO es técnico
-        if (!$esTecnico) {
-            ?>
-            <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
-            <?php
-        }
-        ?>
-        
-        <!-- Botón de cerrar sesión -->
-        <a href="logout.php" data-no-warning class="btn-logout">Cerrar Sesión</a>
-
-        <!-- Selector de mes -->
-        <div class="month-selector">
-            <label for="mes-reporte"><strong>Selecciona el mes del reporte:</strong></label>
-            <input type="month" id="mes-reporte" name="mes-reporte" onchange="actualizarReportesPorMes()" />
+            // Verificar si el usuario es técnico (rol 2)
+            $esTecnico = isset($_SESSION['rol']) && $_SESSION['rol'] == 2;
             
-            <?php
-            // Mostrar el botón de descarga Excel solo si NO es técnico
-            if (!$esTecnico) {
-            ?>
-                <!-- Botón de descarga Excel mejorado -->
-                <button id="btn-descargar-excel" class="btn-excel" onclick="descargarExcel()">
-                    <i class="fas fa-file-excel"></i> Descargar datos del mes en Excel
-                </button>
-            <?php
+            if ($verReportesAdministrador) {
+                ?>
+                <a href="consulta_general.php" data-no-warning>Ir a Consulta General</a>
+                <?php
             }
             ?>
-        </div>
+            <?php
+            if ($verReportesTecnico) {
+                ?>
+                <a href="consulta_general_tecnico.php" data-no-warning>Ver Mis Servicios Realizados</a>
+                <a href="editar_novedades_servicio.php" data-no-warning>Editar Novedades de Servicios</a>
+                <?php
+            }
+            ?>
+            
+            <?php
+            // Mostrar el botón de Consulta por Identificación solo si NO es técnico
+            if (!$esTecnico) {
+                ?>
+                <a href="consulta_identificacion.php" data-no-warning>Consulta por Identificación</a>
+                <?php
+            }
+            ?>
+            
+            <!-- Botón de cerrar sesión -->
+            <a href="logout.php" data-no-warning class="btn-logout">Cerrar Sesión</a>
 
-        <?php
-        if ($verReportesAdministrador) {
-            ?>
-            <div class="reports">
-                <div id="service-container" class="chart-placeholder">Cargando servicios...</div>
-                <div id="municipality-container" class="chart-placeholder">Cargando municipios...</div>
-                <div id="worker-container" class="chart-placeholder">Cargando empleados...</div>
+            <!-- Selector de mes -->
+            <div class="month-selector">
+                <label for="mes-reporte"><strong>Selecciona el mes del reporte:</strong></label>
+                <input type="month" id="mes-reporte" name="mes-reporte" onchange="actualizarReportesPorMes()" />
+                
+                <?php
+                // Mostrar el botón de descarga Excel solo si NO es técnico
+                if (!$esTecnico) {
+                ?>
+                    <!-- Botón de descarga Excel mejorado -->
+                    <button id="btn-descargar-excel" class="btn-excel" onclick="descargarExcel()">
+                        <i class="fas fa-file-excel"></i> Descargar datos del mes en Excel
+                    </button>
+                <?php
+                }
+                ?>
             </div>
+
             <?php
-        }
-        ?>
-        <?php
-        if ($verReportesTecnico) {
+            if ($verReportesAdministrador) {
+                ?>
+                <div class="reports">
+                    <div id="service-container" class="chart-placeholder">Cargando servicios...</div>
+                    <div id="municipality-container" class="chart-placeholder">Cargando municipios...</div>
+                    <div id="worker-container" class="chart-placeholder">Cargando empleados...</div>
+                </div>
+                <?php
+            }
             ?>
-            <div id="serviciosEmpleados-container" class="chart-placeholder">Cargando empleados...</div>
             <?php
-        }
-        ?>
+            if ($verReportesTecnico) {
+                ?>
+                <div id="serviciosEmpleados-container" class="chart-placeholder">Cargando empleados...</div>
+                <?php
+            }
+            ?>
+        <?php endif; ?>
     </div>
 
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <script src="https://code.highcharts.com/modules/export-data.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-    <script src="js/session-check.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const inputMes = document.getElementById('mes-reporte');
-            let mesActual = '';
-            if (inputMes) {
-                const hoy = new Date();
-                mesActual = hoy.toISOString().slice(0, 7); // formato YYYY-MM
-                inputMes.value = mesActual;
+    <!-- Scripts - Solo cargar si el usuario no tiene rol 5 -->
+    <?php if (!isset($rolEsperaMessage) || !$rolEsperaMessage): ?>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
+        <script src="https://code.highcharts.com/modules/export-data.js"></script>
+        <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+        <script src="js/session-check.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const inputMes = document.getElementById('mes-reporte');
+                let mesActual = '';
+                if (inputMes) {
+                    const hoy = new Date();
+                    mesActual = hoy.toISOString().slice(0, 7); // formato YYYY-MM
+                    inputMes.value = mesActual;
+                }
+                cargarServiciosTecnico(mesActual);
+                cargarServicios(mesActual);
+                cargarMunicipios(mesActual);
+                cargarEmpleados(mesActual);
+            });
+
+            function cargarServiciosTecnico(mes) {
+                fetch(`dashboard.php?data=serviciosEmpleados&mes=${mes}`)
+                    .then(res => res.json())
+                    .then(data => { // Corregido: agregar paréntesis
+                        console.log(data);
+
+                        const categories = data.map(item => item.fecha);
+                        const values = data.map(item => item.cantidad_reservas);
+                        Highcharts.chart('serviciosEmpleados-container', {
+                            chart: { type: 'column' },
+                            title: { text: 'Servicios realizados por mes' },
+                            xAxis: {
+                                categories,
+                                title: { text: 'Mes' }
+                            },
+                            yAxis: {
+                                min: 0,
+                                title: { text: 'Cantidad de servicios' }
+                            },
+                            credits: { enabled: false },
+                            series: [{
+                                name: 'Servicios',
+                                data: values
+                            }]
+                        });
+                    })
+                    .catch(error => {
+                        document.getElementById('serviciosEmpleados-container').innerText = 'Error al cargar datos.';
+                        console.error('Error al cargar servicios:', error);
+                    });
             }
-            cargarServiciosTecnico(mesActual);
-            cargarServicios(mesActual);
-            cargarMunicipios(mesActual);
-            cargarEmpleados(mesActual);
-        });
 
-        function cargarServiciosTecnico(mes) {
-            fetch(`dashboard.php?data=serviciosEmpleados&mes=${mes}`)
-                .then(res => res.json())
-                .then(data => { // Corregido: agregar paréntesis
-                    console.log(data);
 
-                    const categories = data.map(item => item.fecha);
-                    const values = data.map(item => item.cantidad_reservas);
-                    Highcharts.chart('serviciosEmpleados-container', {
-                        chart: { type: 'column' },
-                        title: { text: 'Servicios realizados por mes' },
-                        xAxis: {
-                            categories,
-                            title: { text: 'Mes' }
-                        },
-                        yAxis: {
-                            min: 0,
-                            title: { text: 'Cantidad de servicios' }
-                        },
-                        credits: { enabled: false },
-                        series: [{
-                            name: 'Servicios',
-                            data: values
-                        }]
+            function cargarServicios(mes) {
+                fetch(`dashboard.php?data=servicios&mes=${mes}`)
+                    .then(res => res.json())
+                    .then(data => {  // CORREGIDO: añadido el paréntesis
+                        const categories = data.map(item => item.name);
+                        const values = data.map(item => item.y);
+                        Highcharts.chart('service-container', {
+                            chart: { type: 'column' },
+                            title: { text: 'Estadísticas de Servicios Realizados' },
+                            xAxis: { categories, title: { text: 'Tipo de Servicio' } },
+                            yAxis: { min: 0, title: { text: 'Cantidad de Servicios' } },
+                            credits: { enabled: false },
+                            series: [{ name: 'Servicios', data: values }]
+                        });
+                    })
+                    .catch(error => {
+                        document.getElementById('service-container').innerText = 'Error al cargar datos.';
+                        console.error('Error al cargar servicios:', error);
                     });
-                })
-                .catch(error => {
-                    document.getElementById('serviciosEmpleados-container').innerText = 'Error al cargar datos.';
-                    console.error('Error al cargar servicios:', error);
-                });
-        }
+            }
 
-
-        function cargarServicios(mes) {
-            fetch(`dashboard.php?data=servicios&mes=${mes}`)
-                .then(res => res.json())
-                .then(data => {  // CORREGIDO: añadido el paréntesis
-                    const categories = data.map(item => item.name);
-                    const values = data.map(item => item.y);
-                    Highcharts.chart('service-container', {
-                        chart: { type: 'column' },
-                        title: { text: 'Estadísticas de Servicios Realizados' },
-                        xAxis: { categories, title: { text: 'Tipo de Servicio' } },
-                        yAxis: { min: 0, title: { text: 'Cantidad de Servicios' } },
-                        credits: { enabled: false },
-                        series: [{ name: 'Servicios', data: values }]
-                    });
-                })
-                .catch(error => {
-                    document.getElementById('service-container').innerText = 'Error al cargar datos.';
-                    console.error('Error al cargar servicios:', error);
-                });
-        }
-
-        function cargarMunicipios(mes) {
-            fetch(`dashboard.php?data=municipios&mes=${mes}`)
-                .then(res => res.json())
-                .then(data => {
-                    Highcharts.chart('municipality-container', {
-                        chart: { type: 'pie' },
-                        title: { text: 'Servicios por Ubicación' },
-                        tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
-                        accessibility: { point: { valueSuffix: '%' } },
-                        plotOptions: {
-                            pie: {
-                                allowPointSelect: true,
-                                cursor: 'pointer',
-                                dataLabels: { enabled: false },
-                                showInLegend: true
+            function cargarMunicipios(mes) {
+                fetch(`dashboard.php?data=municipios&mes=${mes}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        Highcharts.chart('municipality-container', {
+                            chart: { type: 'pie' },
+                            title: { text: 'Servicios por Ubicación' },
+                            tooltip: { pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>' },
+                            accessibility: { point: { valueSuffix: '%' } },
+                            plotOptions: {
+                                pie: {
+                                    allowPointSelect: true,
+                                    cursor: 'pointer',
+                                    dataLabels: { enabled: false },
+                                    showInLegend: true
                             }
                         },
-                        credits: { enabled: false },
-                        series: [{ name: 'Servicios', colorByPoint: true, data }]
+                            credits: { enabled: false },
+                            series: [{ name: 'Servicios', colorByPoint: true, data }]
+                        });
+                    })
+                    .catch(error => {
+                        document.getElementById('municipality-container').innerText = 'Error al cargar datos.';
+                        console.error('Error al cargar municipios:', error);
                     });
-                })
-                .catch(error => {
-                    document.getElementById('municipality-container').innerText = 'Error al cargar datos.';
-                    console.error('Error al cargar municipios:', error);
-                });
-        }
-
-        function cargarEmpleados(mes) {
-            fetch(`dashboard.php?data=empleados&mes=${mes}`)
-                .then(res => res.json())
-                .then (data => {
-                    Highcharts.chart('worker-container', {
-                        chart: { type: 'bar' },
-                        title: { text: 'Servicios Realizados por Empleado' },
-                        xAxis: { categories: data.categories, title: { text: 'Empleados' }, scrollbar: { enabled: data.categories.length > 10 } },
-                        yAxis: { min: 0, title: { text: 'Cantidad de Servicios' } },
-                        credits: { enabled: false },
-                        series: [{ name: 'Servicios', data: data.data }]
-                    });
-                })
-                .catch(error => {
-                    document.getElementById('worker-container').innerText = 'Error al cargar datos.';
-                    console.error('Error al cargar empleados:', error);
-                });
-        }
-        function actualizarReportesPorMes() {
-            const mes = document.getElementById('mes-reporte').value; // formato: '2025-05'
-            if (!mes) return;
-            cargarServiciosTecnico(mes);
-            cargarServicios(mes);
-            cargarMunicipios(mes);
-            cargarEmpleados(mes);
-        }
-
-        // Añadir función para descargar Excel
-        function descargarExcel() {
-            const mes = document.getElementById('mes-reporte').value;
-            if (!mes) {
-                alert('Por favor selecciona un mes para descargar el reporte');
-                return;
             }
-            
-            // Mostrar mensaje de procesamiento
-            Swal.fire({
-                title: 'Generando Excel',
-                text: 'Procesando los datos del mes ' + mes + '...',
-                icon: 'info',
-                showConfirmButton: false,
-                allowOutsideClick: false
-            });
-            
-            // SOLUCIÓN: Usar un iframe oculto para mantener la sesión
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.name = 'download_frame';
-            document.body.appendChild(iframe);
-            
-            // Crear un formulario para enviar con POST
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'descargar_dashboard_excel.php';
-            form.target = 'download_frame'; // Importante: usar el iframe
-    
-            // Agregar el mes seleccionado como parámetro
-            const mesInput = document.createElement('input');
-            mesInput.type = 'hidden';
-            mesInput.name = 'mes';
-            mesInput.value = mes;
-            form.appendChild(mesInput);
-            
-            // Enviar el formulario
-            document.body.appendChild(form);
-            form.submit();
-            
-            // Cerrar el mensaje después de un tiempo
-            setTimeout(() => {
-                Swal.close();
-                // Limpiar recursos después de la descarga
-                setTimeout(() => {
-                    document.body.removeChild(form);
-                    document.body.removeChild(iframe);
-                }, 1000);
-            }, 2000);
-        }
-    </script>
 
+            function cargarEmpleados(mes) {
+                fetch(`dashboard.php?data=empleados&mes=${mes}`)
+                    .then(res => res.json())
+                    .then (data => {
+                        Highcharts.chart('worker-container', {
+                            chart: { type: 'bar' },
+                            title: { text: 'Servicios Realizados por Empleado' },
+                            xAxis: { categories: data.categories, title: { text: 'Empleados' }, scrollbar: { enabled: data.categories.length > 10 } },
+                            yAxis: { min: 0, title: { text: 'Cantidad de Servicios' } },
+                            credits: { enabled: false },
+                            series: [{ name: 'Servicios', data: data.data }]
+                        });
+                    })
+                    .catch(error => {
+                        document.getElementById('worker-container').innerText = 'Error al cargar datos.';
+                        console.error('Error al cargar empleados:', error);
+                    });
+            }
+            function actualizarReportesPorMes() {
+                const mes = document.getElementById('mes-reporte').value; // formato: '2025-05'
+                if (!mes) return;
+                cargarServiciosTecnico(mes);
+                cargarServicios(mes);
+                cargarMunicipios(mes);
+                cargarEmpleados(mes);
+            }
+
+            // Añadir función para descargar Excel
+            function descargarExcel() {
+                const mes = document.getElementById('mes-reporte').value;
+                if (!mes) {
+                    alert('Por favor selecciona un mes para descargar el reporte');
+                    return;
+                }
+                
+                // Mostrar mensaje de procesamiento
+                Swal.fire({
+                    title: 'Generando Excel',
+                    text: 'Procesando los datos del mes ' + mes + '...',
+                    icon: 'info',
+                    showConfirmButton: false,
+                    allowOutsideClick: false
+                });
+                
+                // SOLUCIÓN: Usar un iframe oculto para mantener la sesión
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.name = 'download_frame';
+                document.body.appendChild(iframe);
+                
+                // Crear un formulario para enviar con POST
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'descargar_dashboard_excel.php';
+                form.target = 'download_frame'; // Importante: usar el iframe
+    
+                // Agregar el mes seleccionado como parámetro
+                const mesInput = document.createElement('input');
+                mesInput.type = 'hidden';
+                mesInput.name = 'mes';
+                mesInput.value = mes;
+                form.appendChild(mesInput);
+                
+                // Enviar el formulario
+                document.body.appendChild(form);
+                form.submit();
+                
+                // Cerrar el mensaje después de un tiempo
+                setTimeout(() => {
+                    Swal.close();
+                    // Limpiar recursos después de la descarga
+                    setTimeout(() => {
+                        document.body.removeChild(form);
+                        document.body.removeChild(iframe);
+                    }, 1000);
+                }, 2000);
+            }
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>
