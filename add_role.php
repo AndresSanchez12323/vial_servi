@@ -77,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         button {
-            background-color: #27ae60;
+            background-color: #2d0f2a;
             color: white;
             border: none;
             padding: 12px;
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         button:hover {
-            background-color: #1e8449;
+            background-color: #440f33;
             transform: translateY(-2px);
         }
 

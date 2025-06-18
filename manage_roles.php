@@ -220,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['accion']) && $_POST['a
             border-radius: 5px;
         }
         button {
-            background: #27ae60;
+            background: #2d0f2a;
             color: white;
             border: none;
             cursor: pointer;

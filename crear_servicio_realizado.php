@@ -163,7 +163,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregar Servicio Realizado</title>
+    <title>Agregar Un Servicio </title>
 
     <!-- SweetAlert2 CSS & JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -298,7 +298,7 @@ $conn->close();
 
     <!-- Contenido principal -->
     <div class="container">
-        <h2>Agregar Servicio Realizado</h2>
+        <h2>Agregar Un Servico </h2>
         <form method="post" action="" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="Cedula_Empleado_id_Servicios_Realizados">Técnico asignado</label>
@@ -374,7 +374,7 @@ $conn->close();
             <input type="checkbox" name="Facturacion_Separada" class="form-check-input" value="1">
             <label for="Facturacion_Separada" class="form-check-label">¿Facturación Separada?</label>
         </div> -->
-            <button data-no-warning type="submit" class="btn btn-primary">Agregar Registro</button>
+            <button data-no-warning type="submit" class="btn btn-primary" style="background-color: #680c39; border-color: #680c39;">Agregar Registro</button>
         </form>
     </div>
 

@@ -12,13 +12,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nombre = $_POST['nombre'];
     $apellido = $_POST['apellido'];
     $email = $_POST['email'];
-    $telefono = $_POST['telefono'];  // Added this line
+    $telefono = $_POST['telefono'];
     $password = $_POST['password'];
     $rol_id = 5; // Rol predeterminado: Técnico
 
-    // Validar formato de correo electrónico
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    // --- Validaciones ---
+    if (!preg_match("/^[0-9]+$/", $cedula_empleado_id)) {
+        $error_message = "La cédula solo debe contener números.";
+    } elseif (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $nombre)) {
+        $error_message = "El nombre solo debe contener letras.";
+    } elseif (!preg_match("/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/", $apellido)) {
+        $error_message = "El apellido solo debe contener letras.";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_message = "Por favor, ingresa un correo electrónico válido.";
+    } elseif (!preg_match("/^[0-9]{7,10}$/", $telefono)) {
+        $error_message = "El teléfono debe tener entre 7 y 10 dígitos.";
+    } elseif (strlen($password) < 6) {
+        $error_message = "La contraseña debe tener al menos 6 caracteres.";
     } else {
         // Verificar si la cédula ya está registrada
         $sql_check_cedula = "SELECT * FROM empleados WHERE Cedula_Empleado_id = ?";
@@ -43,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Cifrar la contraseña
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-                // Insertar nuevo empleado con rol de Técnico en la base de datos
+                // Insertar nuevo empleado en la base de datos
                 $sql_insert = "INSERT INTO empleados (Cedula_Empleado_id, Nombre, Apellido, Email, Telefono, Contraseña, Rol_id) 
                                VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $stmt_insert = $conn->prepare($sql_insert);
@@ -64,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -190,18 +201,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!-- Contenedor de Registro -->
 <div class="container">
     <h2>Formulario de Registro</h2>
+
     <form action="registro.php" method="POST">
-        <input type="text" name="cedula_empleado_id" placeholder="Cédula del Empleado" required>
-        <input type="text" name="nombre" placeholder="Nombre" required>
-        <input type="text" name="apellido" placeholder="Apellido" required>
+        <!-- Cédula: solo números -->
+      <input type="text" name="cedula_empleado_id" placeholder="Cédula del Empleado" required
+       pattern="[0-9]+" title="Solo se permiten números">
+
+        <!-- Nombre: solo letras -->
+        <input type="text" name="nombre" placeholder="Nombre" required
+               pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" title="Solo letras y espacios">
+
+        <!-- Apellido: solo letras -->
+        <input type="text" name="apellido" placeholder="Apellido" required
+               pattern="[A-Za-záéíóúÁÉÍÓÚñÑ\s]+" title="Solo letras y espacios">
+
+        <!-- Correo: validado automáticamente por el navegador -->
         <input type="email" name="email" placeholder="Correo Electrónico" required>
-        <input type="tel" name="telefono" placeholder="Teléfono" required>
-        <input type="password" name="password" placeholder="Contraseña" required>
+
+        <!-- Teléfono: entre 7 y 10 dígitos -->
+        <input type="tel" name="telefono" placeholder="Teléfono" required
+               pattern="[0-9]{7,10}" title="Debe tener entre 7 y 10 dígitos numéricos">
+
+        <!-- Contraseña: mínimo 6 caracteres -->
+        <input type="password" name="password" placeholder="Contraseña" required minlength="6">
+
         <button type="submit">Registrarse</button>
     </form>
+
     <br>
     <a href="index.php">¿Ya tienes cuenta?</a>
 </div>
+
 
 <!-- SweetAlert2 para mensajes de error o éxito -->
 <?php if (isset($error_message) && !empty($error_message)): ?>

@@ -89,11 +89,11 @@ $result = $conn->query($sql);
         }
 
         .btn-red {
-            background-color: #e74c3c;
+            background-color:rgb(226, 48, 28);
         }
 
         .btn-red:hover {
-            background-color: #c0392b;
+            background-color:rgb(137, 19, 6);
         }
 
         .btn-back {
@@ -112,8 +112,8 @@ $result = $conn->query($sql);
         }
 
         .alert-success {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: #440f33;
+            color: #440f33;
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
@@ -122,7 +122,7 @@ $result = $conn->query($sql);
         }
 
         .btn-purple {
-            background-color: #27ae60;
+            background-color: #440f33;
             /* morado oscuro */
             color: white;
             padding: 10px 20px;

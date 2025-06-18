@@ -344,17 +344,21 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
 
     // RESUMEN POR MES
     echo '<table>';
-    echo '<tr><td colspan="3" class="sub-title">RESUMEN POR MES</td></tr>';
+    echo '<tr><td colspan="3" class="sub-title">RESUMEN DE LOS ULTIMOS  MESES</td></tr>';
     echo '<tr><th style="mso-number-format:\@;">Mes</th><th>Cantidad de Servicios</th><th>Porcentaje</th></tr>';
     
-    $sql_meses = "
-        SELECT 
-            DATE_FORMAT(sr.Fecha, '%Y-%m') as mes,
-            DATE_FORMAT(sr.Fecha, '%M %Y') as mes_nombre,
-            COUNT(*) as cantidad
-        FROM servicios_realizados sr
-        WHERE sr.Cedula_Empleado_id_Servicios_Realizados = ?
-    ";
+$sql_meses = "
+    SELECT 
+        DATE_FORMAT(sr.Fecha, '%Y-%m') as mes,
+        DATE_FORMAT(sr.Fecha, '%M %Y') as mes_nombre,
+        COUNT(*) as cantidad
+    FROM servicios_realizados sr
+    WHERE sr.Cedula_Empleado_id_Servicios_Realizados = ?
+    AND sr.Fecha >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+";
+
+
+
     $params_meses = [$cedula_tecnico];
     $param_types_meses = "i";
     if (!empty($filtro_placa)) {

@@ -191,7 +191,7 @@ $result = $conn->query($sql);
             <?php 
             if (usuarioTienePermiso($_SESSION['cedula'], 'crear_servicio', $conn)) { 
             ?>
-                <button onclick="window.location.href='crear_servicio.php'" data-no-warning class="btn btn-success">
+                <button onclick="window.location.href='crear_servicio.php'" data-no-warning class="btn btn-success" style="background-color: #680c39; border-color: #680c39;">
                     <i class="fas fa-plus"></i> Crear Servicio
                 </button>
             <?php 

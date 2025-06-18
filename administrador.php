@@ -230,7 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         button:active {
             background-color: #680c39;
-            transform: translateY(0);
+            transform: translateY(-2px);
         }
 
         .form {
@@ -254,6 +254,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         th {
             background-color: #2d0f2a;
+            transform: translateY(-2px);
             color: white;
             font-weight: bold;
             padding: 12px;
@@ -276,16 +277,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         button.delete:hover {
-            background-color: #b02a37;
+            background-color:rgb(158, 9, 24);
         }
 
         button.edit {
-            background-color: #e0a800;
+            background-color:rgb(218, 174, 39);
             margin-bottom: 5px;
         }
 
         button.edit:hover {
-            background-color: #0b5ed7;
+            background-color:rgb(179, 141, 4);
         }
 
         #buscarUsuario {

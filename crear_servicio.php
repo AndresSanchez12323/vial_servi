@@ -136,8 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <input type="text" name="Descripción" class="form-control" required>
         </div>
         
-        
-        <button type="submit" class="btn btn-primary mt-3" data-no-warning>Crear Servicios</button>
+        <button type="submit" class="btn mt-3" style="background-color: #680c39; color: #fff;" data-no-warning>Crear Servicios</button>
     </form>
 </div>
 <script src="js/session-check.js"></script>

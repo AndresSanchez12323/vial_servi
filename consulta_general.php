@@ -394,7 +394,7 @@ $municipios_lista = $result_municipios->fetch_all(MYSQLI_ASSOC);
 
     <div class="main-content">
         <div class="container">
-            <h2>Servicios Realizados</h2>
+            <h2>Historial Servicios Realizados</h2>
 
             <form class="filter-form" action="" method="GET" id="filterForm">
                 <?php if (!$es_tecnico): ?>
@@ -522,7 +522,8 @@ $municipios_lista = $result_municipios->fetch_all(MYSQLI_ASSOC);
                 if (usuarioTienePermiso($_SESSION['cedula'], 'crear_servicio', $conn)) {
                     ?>
                     <button onclick="window.location.href='crear_servicio_realizado.php'" data-no-warning
-                        class="btn btn-success">
+                        class="btn"
+                        style="background-color: #680c39; color: #fff; border-radius: 10px; border: none; padding: 8px 15px; font-size: 14px; font-weight: 600;">
                         <i class="fas fa-plus"></i> Crear Servicio
                     </button>
                 <?php

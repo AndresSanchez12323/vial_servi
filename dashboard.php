@@ -273,7 +273,7 @@ if (isset($_GET['data'])) {
         }
 
         .btn-logout {
-            background-color: #dc3545;
+            background-color: #440f33;
             color: white;
             padding: 10px 20px;
             border-radius: 10px;
@@ -286,7 +286,8 @@ if (isset($_GET['data'])) {
         }
 
         .btn-logout:hover {
-            background-color: #c82333;
+            background-color: #680c39;
+            background-color: ;
             transform: translateY(-2px);
         }
 
