@@ -414,8 +414,13 @@ $conn->close();
             color: white;
         }
         .btn-danger {
-            background-color: #e53935;
-            border-color: #e53935;
+            background-color:rgb(214, 49, 46);
+            border-color:rgb(107, 3, 1);
+            transition: transform 0.3s;
+        }
+        .btn-danger:hover {
+            transform: translateY(-2px);
+        }
         }
         .readonly-placa {
             background-color: #f2f2f2;
@@ -468,7 +473,7 @@ $conn->close();
             margin-bottom: 10px;
         }
         .btn-add-vehicle {
-            background-color: #28a745;
+            background-color: #680c39;
             color: white;
             padding: 8px 15px;
             border-radius: 5px;
@@ -481,7 +486,7 @@ $conn->close();
             margin-right:.5rem;
         }
         .btn-add-vehicle:hover {
-            background-color: #218838;
+            background-color: #4d0929;
             text-decoration: none;
             color: white;
         }

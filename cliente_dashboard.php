@@ -714,11 +714,11 @@ $conn->close();
             <input type="hidden" name="servicio" value="<?php echo htmlspecialchars($filtro_servicio); ?>">
             <input type="hidden" name="estado" value="<?php echo htmlspecialchars($filtro_estado); ?>">
             <input type="hidden" name="mes" value="<?php echo htmlspecialchars($filtro_mes); ?>">
-            <button data-no-warning type="submit" class="logout-btn" style="background-color:#3498db;">Descargar Reporte Filtrado</button>
+            <button data-no-warning type="submit" class="logout-btn" style="background-color:#680c39;">Descargar Reporte Filtrado</button>
         </form>
 
         <form action="logout_cliente.php" method="post">
-            <button type="submit" class="logout-btn">Cerrar Sesión</button>
+            <button type="submit" class="logout-btn" style="background-color:#680c39; transform: translateY(-2px);">Cerrar Sesión</button>
         </form>
     </div>
 
