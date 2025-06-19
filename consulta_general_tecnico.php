@@ -687,7 +687,7 @@ $sql_meses = "
                         <div class="col-md-3 col-sm-6">
                             <div class="form-group">
                                 <label for="servicio"><i class="fas fa-wrench mr-1"></i>Servicio:</label>
-                                <select  data-no-warning name="servicio" id="servicio" class="form-control auto-submit">
+                                <select data-no-warning name="servicio" id="servicio" class="form-control auto-submit">
                                     <option value="">Todos los servicios</option>
                                     <?php while ($s = $result_servicios->fetch_assoc()): ?>
                                         <option value="<?= $s['Servicio_id']; ?>" <?= ($s['Servicio_id'] == $filtro_servicio ? 'selected' : '') ?>>
@@ -828,7 +828,31 @@ $sql_meses = "
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/session-check.js"></script>
     <script>
+        // Función para mantener la sesión activa
+        function keepSessionAlive() {
+            setInterval(function() {
+                fetch('keep_session_alive.php', {
+                    method: 'POST',
+                    credentials: 'same-origin'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'error') {
+                        window.location.href = 'index.php';
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }, 300000); // 5 minutos
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            keepSessionAlive();
+            
+            // Agregar atributo data-no-warning a todos los enlaces de paginación
+            document.querySelectorAll('.pagination a').forEach(link => {
+                link.setAttribute('data-no-warning', '');
+            });
+            
             // Seleccionar todos los elementos con la clase auto-submit
             const autoSubmitElements = document.querySelectorAll('.auto-submit');
             
