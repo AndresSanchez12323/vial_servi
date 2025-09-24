@@ -743,5 +743,7 @@ $conn->close();
             });
         });
     </script>
+
+    <?php include 'ai_chat_widget.php'; ?>
 </body>
 </html>

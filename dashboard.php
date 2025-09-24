@@ -333,6 +333,146 @@ if (isset($_GET['data'])) {
             content: "\f1c3";
         }
 
+        /* Botón de AI Insights */
+        .btn-ai-insights {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-left: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-ai-insights:hover {
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-ai-insights:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modal para insights AI */
+        .ai-insights-modal {
+            display: none;
+            position: fixed;
+            z-index: 10000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .ai-insights-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .ai-insights-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px 15px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-insights-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .ai-insights-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .ai-insights-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .ai-insights-body {
+            padding: 30px;
+        }
+
+        .insights-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .insights-section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .insights-section p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .loading-insights {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #667eea;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* NUEVO: Estilo para el mensaje de espera de rol */
         .waiting-message {
             background-color: #f8d7da;
@@ -436,6 +576,11 @@ if (isset($_GET['data'])) {
                     <!-- Botón de descarga Excel mejorado -->
                     <button id="btn-descargar-excel" class="btn-excel" onclick="descargarExcel()">
                         <i class="fas fa-file-excel"></i> Descargar datos del mes en Excel
+                    </button>
+                    
+                    <!-- Botón de insights AI -->
+                    <button id="btn-ai-insights" class="btn-ai-insights" onclick="mostrarInsightsAI()">
+                        <i class="fas fa-robot"></i> Insights AI del Dashboard
                     </button>
                 <?php
                 }
@@ -643,8 +788,121 @@ if (isset($_GET['data'])) {
                     }, 1000);
                 }, 2000);
             }
+
+            // Función para mostrar insights AI
+            function mostrarInsightsAI() {
+                const mes = document.getElementById('mes-reporte').value;
+                if (!mes) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Mes requerido',
+                        text: 'Por favor selecciona un mes para generar insights AI'
+                    });
+                    return;
+                }
+
+                // Crear modal
+                const modal = document.createElement('div');
+                modal.className = 'ai-insights-modal';
+                modal.innerHTML = `
+                    <div class="ai-insights-content">
+                        <div class="ai-insights-header">
+                            <h2>🤖 Insights AI - Dashboard VialServi</h2>
+                            <button class="ai-insights-close">&times;</button>
+                        </div>
+                        <div class="ai-insights-body">
+                            <div class="loading-insights">
+                                <div class="loading-spinner"></div>
+                                <p>Generando insights inteligentes para ${mes}...</p>
+                                <small>La IA está analizando los datos del dashboard...</small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(modal);
+                modal.style.display = 'block';
+
+                // Event listener para cerrar modal
+                const closeBtn = modal.querySelector('.ai-insights-close');
+                closeBtn.onclick = () => {
+                    document.body.removeChild(modal);
+                };
+
+                // Cerrar modal al hacer clic fuera
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                };
+
+                // Obtener insights AI
+                fetch(`ai_dashboard_insights.php?mes=${mes}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            mostrarInsights(modal, data);
+                        } else {
+                            mostrarError(modal, data.error || 'Error generando insights');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        mostrarError(modal, 'Error de conexión. Por favor, intenta de nuevo.');
+                    });
+            }
+
+            function mostrarInsights(modal, data) {
+                const body = modal.querySelector('.ai-insights-body');
+                const insights = data.ai_insights;
+                const summary = data.summary;
+                
+                body.innerHTML = `
+                    <div class="insights-section">
+                        <h3>📊 Resumen del Mes</h3>
+                        <p><strong>Servicios totales:</strong> ${summary.total_services}</p>
+                        <p><strong>Empleados activos:</strong> ${summary.active_employees}</p>
+                        <p><strong>Municipios atendidos:</strong> ${summary.municipalities_served}</p>
+                        <p><strong>Clientes atendidos:</strong> ${summary.clients_served}</p>
+                        <p><strong>Ingresos estimados:</strong> $${parseInt(summary.estimated_revenue || 0).toLocaleString()}</p>
+                    </div>
+                    
+                    <div class="insights-section">
+                        <h3>🎯 Análisis General</h3>
+                        <p>${insights.general_insights}</p>
+                    </div>
+                    
+                    <div class="insights-section">
+                        <h3>💡 Recomendaciones</h3>
+                        <p>${insights.recommendations}</p>
+                    </div>
+                    
+                    <div class="insights-section">
+                        <h3>👥 Análisis de Rendimiento</h3>
+                        <p>${insights.performance_analysis}</p>
+                    </div>
+                    
+                    <div class="insights-section">
+                        <h3>🚀 Oportunidades de Mercado</h3>
+                        <p>${insights.market_opportunities}</p>
+                    </div>
+                `;
+            }
+
+            function mostrarError(modal, errorMessage) {
+                const body = modal.querySelector('.ai-insights-body');
+                body.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #e74c3c;">
+                        <h3>❌ Error</h3>
+                        <p>${errorMessage}</p>
+                        <small>Por favor, intenta de nuevo más tarde o contacta al administrador del sistema.</small>
+                    </div>
+                `;
+            }
         </script>
     <?php endif; ?>
+
+    <?php include 'ai_chat_widget.php'; ?>
 </body>
 
 </html>

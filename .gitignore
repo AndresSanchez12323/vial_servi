@@ -1,0 +1,38 @@
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+error.log
+access.log
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Upload directories
+/uploads/*
+!/uploads/.gitkeep
+
+# Cache files
+*.cache
+
+# Backup files
+*.bak
+*.backup
+
+# Sensitive configuration files
+config_sensitive.php

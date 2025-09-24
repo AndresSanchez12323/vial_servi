@@ -1,9 +1,11 @@
 <?php
 session_start();
 require_once 'config.php';
+require_once 'gemini_ai.php';
 
 $mensajeError = "";
 $mensajeExito = "";
+$respuestaAI = "";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nombre = $_POST['nombre'];
@@ -26,6 +28,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             if ($stmt->execute()) {
                 $mensajeExito = "Mensaje enviado correctamente.";
+                
+                // Generar respuesta inteligente con Gemini AI
+                try {
+                    $gemini = getGeminiAI();
+                    $clientData = ['nombre' => $nombre, 'email' => $email];
+                    $respuestaAI = $gemini->generateContactResponse($mensaje, $clientData);
+                } catch (Exception $e) {
+                    // Si falla la AI, continuar normalmente
+                    error_log("Error generando respuesta AI: " . $e->getMessage());
+                }
             } else {
                 $mensajeError = "Error al enviar el mensaje. " . $stmt->error;
             }
@@ -199,6 +211,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #440f33; /* Usando .color2 */
             text-decoration: underline;
         }
+
+        .ai-response {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: rgba(45, 15, 42, 0.1);
+            border-left: 4px solid #2d0f2a;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-response h3 {
+            color: #2d0f2a;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-response h3:before {
+            content: "🤖";
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .ai-response p {
+            color: #555;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #2d0f2a, #440f33);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -251,6 +303,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         <button type="submit">Enviar</button>
     </form>
+
+    <?php if (!empty($respuestaAI)): ?>
+        <div class="ai-response">
+            <div class="ai-badge">✨ Respuesta Inteligente VialServi AI</div>
+            <h3>Respuesta Inmediata</h3>
+            <p><?= nl2br(htmlspecialchars($respuestaAI)) ?></p>
+            <small style="color: #888; font-style: italic;">
+                Esta respuesta fue generada automáticamente para ayudarte de inmediato. 
+                Nuestro equipo también revisará tu mensaje y te contactará pronto.
+            </small>
+        </div>
+    <?php endif; ?>
 </div>
 
 </body>
