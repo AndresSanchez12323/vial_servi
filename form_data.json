@@ -1,0 +1,16 @@
+{
+  "registro_cliente": {
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "cedula": "1234567890",
+    "telefono": "3001234567",
+    "email": "juan.perez@example.com",
+    "password": "MiContraseña123",
+    "confirm_password": "MiContraseña123"
+  },
+  "contactenos": {
+    "nombre": "María González",
+    "email": "maria.gonzalez@example.com",
+    "mensaje": "Hola, me gustaría obtener más información sobre sus servicios. Gracias."
+  }
+}
