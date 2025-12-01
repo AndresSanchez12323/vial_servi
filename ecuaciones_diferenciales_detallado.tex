@@ -1,0 +1,840 @@
+\documentclass[9pt,a4paper,twocolumn]{article}
+\usepackage[margin=0.4in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{8pt}
+
+\begin{document}
+\scriptsize
+
+\textbf{Problema 1:} $y'' + 3y' + 2y = 6$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 + 3r + 2 = 0$
+
+Factorizando: $(r+1)(r+2) = 0$
+
+$r + 1 = 0 \Rightarrow r_1 = -1$
+
+$r + 2 = 0 \Rightarrow r_2 = -2$
+
+\textbf{Paso 2: Solución complementaria}
+
+Como $r_1 \neq r_2$ (raíces reales distintas):
+
+$y_c = C_1 e^{r_1 x} + C_2 e^{r_2 x}$
+
+$y_c = C_1 e^{-x} + C_2 e^{-2x}$
+
+\textbf{Paso 3: Solución particular}
+
+$g(x) = 6$ (constante)
+
+Forma propuesta: $y_p = A$
+
+Derivadas de $y_p$:
+
+$y_p = A$
+
+$y_p' = 0$
+
+$y_p'' = 0$
+
+\textbf{Paso 4: Sustitución en la EDO}
+
+$y_p'' + 3y_p' + 2y_p = 6$
+
+$0 + 3(0) + 2(A) = 6$
+
+$2A = 6$
+
+$A = 3$
+
+Por lo tanto: $y_p = 3$
+
+\textbf{Paso 5: Solución general}
+
+$y = y_c + y_p$
+
+$\boxed{y = C_1 e^{-x} + C_2 e^{-2x} + 3}$
+
+\hrulefill
+
+\textbf{Problema 2:} $4y'' + 9y = 15$
+
+\textbf{Paso 1: Ecuación característica}
+
+$4r^2 + 9 = 0$
+
+$4r^2 = -9$
+
+$r^2 = -\frac{9}{4}$
+
+$r = \pm\sqrt{-\frac{9}{4}} = \pm\frac{3}{2}i$
+
+$r_1 = \frac{3}{2}i$, $r_2 = -\frac{3}{2}i$
+
+\textbf{Paso 2: Solución complementaria}
+
+Como $r = \pm\beta i$ con $\beta = \frac{3}{2}$:
+
+$y_c = C_1 \cos(\beta x) + C_2 \sin(\beta x)$
+
+$y_c = C_1 \cos\frac{3x}{2} + C_2 \sin\frac{3x}{2}$
+
+\textbf{Paso 3: Solución particular}
+
+$g(x) = 15$ (constante)
+
+Forma propuesta: $y_p = A$
+
+Derivadas de $y_p$:
+
+$y_p = A$
+
+$y_p' = 0$
+
+$y_p'' = 0$
+
+\textbf{Paso 4: Sustitución en la EDO}
+
+$4y_p'' + 9y_p = 15$
+
+$4(0) + 9(A) = 15$
+
+$9A = 15$
+
+$A = \frac{15}{9} = \frac{5}{3}$
+
+Por lo tanto: $y_p = \frac{5}{3}$
+
+\textbf{Paso 5: Solución general}
+
+$y = y_c + y_p$
+
+$\boxed{y = C_1 \cos\frac{3x}{2} + C_2 \sin\frac{3x}{2} + \frac{5}{3}}$
+
+\hrulefill
+
+\textbf{Problema 3:} $y'' - 10y' + 25y = 30x + 3$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 - 10r + 25 = 0$
+
+Factorizando: $(r-5)^2 = 0$
+
+$r - 5 = 0 \Rightarrow r = 5$ (raíz doble)
+
+\textbf{Paso 2: Solución complementaria}
+
+Como $r = 5$ es raíz doble:
+
+$y_c = C_1 e^{5x} + C_2 x e^{5x}$
+
+\textbf{Paso 3: Solución particular}
+
+$g(x) = 30x + 3$ (polinomio grado 1)
+
+Forma propuesta: $y_p = Ax + B$
+
+Derivadas de $y_p$:
+
+$y_p = Ax + B$
+
+$y_p' = A$
+
+$y_p'' = 0$
+
+\textbf{Paso 4: Sustitución en la EDO}
+
+$y_p'' - 10y_p' + 25y_p = 30x + 3$
+
+$0 - 10(A) + 25(Ax + B) = 30x + 3$
+
+$-10A + 25Ax + 25B = 30x + 3$
+
+$25Ax + (-10A + 25B) = 30x + 3$
+
+\textbf{Paso 5: Igualación de coeficientes}
+
+Coef. de $x$: $25A = 30 \Rightarrow A = \frac{30}{25} = \frac{6}{5}$
+
+Coef. constante: $-10A + 25B = 3$
+
+$-10\left(\frac{6}{5}\right) + 25B = 3$
+
+$-12 + 25B = 3$
+
+$25B = 15$
+
+$B = \frac{15}{25} = \frac{3}{5}$
+
+Por lo tanto: $y_p = \frac{6}{5}x + \frac{3}{5}$
+
+\textbf{Paso 6: Solución general}
+
+$y = y_c + y_p$
+
+$\boxed{y = C_1 e^{5x} + C_2 x e^{5x} + \frac{6}{5}x + \frac{3}{5}}$
+
+\hrulefill
+
+\textbf{Problema 4:} $y'' + y' - 6y = 2x$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 + r - 6 = 0$
+
+Factorizando: $(r+3)(r-2) = 0$
+
+$r + 3 = 0 \Rightarrow r_1 = -3$
+
+$r - 2 = 0 \Rightarrow r_2 = 2$
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = C_1 e^{-3x} + C_2 e^{2x}$
+
+\textbf{Paso 3: Solución particular}
+
+$g(x) = 2x$ (polinomio grado 1)
+
+Forma propuesta: $y_p = Ax + B$
+
+Derivadas:
+
+$y_p = Ax + B$
+
+$y_p' = A$
+
+$y_p'' = 0$
+
+\textbf{Paso 4: Sustitución en la EDO}
+
+$y_p'' + y_p' - 6y_p = 2x$
+
+$0 + A - 6(Ax + B) = 2x$
+
+$A - 6Ax - 6B = 2x$
+
+$-6Ax + (A - 6B) = 2x + 0$
+
+\textbf{Paso 5: Igualación de coeficientes}
+
+Coef. de $x$: $-6A = 2 \Rightarrow A = -\frac{1}{3}$
+
+Coef. constante: $A - 6B = 0$
+
+$-\frac{1}{3} - 6B = 0$
+
+$-6B = \frac{1}{3}$
+
+$B = -\frac{1}{18}$
+
+Por lo tanto: $y_p = -\frac{1}{3}x - \frac{1}{18}$
+
+\textbf{Paso 6: Solución general}
+
+$\boxed{y = C_1 e^{-3x} + C_2 e^{2x} - \frac{1}{3}x - \frac{1}{18}}$
+
+\hrulefill
+
+\textbf{Problema 5:} $\frac{1}{4}y'' + y' + y = x^2 - 2x$
+
+\textbf{Paso 1: Ecuación característica}
+
+$\frac{1}{4}r^2 + r + 1 = 0$
+
+Multiplicando por 4: $r^2 + 4r + 4 = 0$
+
+$(r+2)^2 = 0 \Rightarrow r = -2$ (raíz doble)
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = C_1 e^{-2x} + C_2 x e^{-2x}$
+
+\textbf{Paso 3: Solución particular}
+
+$g(x) = x^2 - 2x$ (polinomio grado 2)
+
+Forma propuesta: $y_p = Ax^2 + Bx + C$
+
+Derivadas:
+
+$y_p = Ax^2 + Bx + C$
+
+$y_p' = 2Ax + B$
+
+$y_p'' = 2A$
+
+\textbf{Paso 4: Sustitución en la EDO}
+
+$\frac{1}{4}(2A) + (2Ax + B) + (Ax^2 + Bx + C) = x^2 - 2x$
+
+$\frac{A}{2} + 2Ax + B + Ax^2 + Bx + C = x^2 - 2x$
+
+$Ax^2 + (2A + B)x + (\frac{A}{2} + B + C) = x^2 - 2x + 0$
+
+\textbf{Paso 5: Igualación de coeficientes}
+
+Coef. de $x^2$: $A = 1$
+
+Coef. de $x$: $2A + B = -2$
+
+$2(1) + B = -2 \Rightarrow B = -4$
+
+Coef. constante: $\frac{A}{2} + B + C = 0$
+
+$\frac{1}{2} + (-4) + C = 0$
+
+$C = 4 - \frac{1}{2} = \frac{7}{2}$
+
+Por lo tanto: $y_p = x^2 - 4x + \frac{7}{2}$
+
+\textbf{Paso 6: Solución general}
+
+$\boxed{y = C_1 e^{-2x} + C_2 x e^{-2x} + x^2 - 4x + \frac{7}{2}}$
+
+\hrulefill
+
+\textbf{Problema 6:} $y'' - 8y' + 20y = 100x^2 - 26xe^x$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 - 8r + 20 = 0$
+
+$r = \frac{8 \pm \sqrt{64-80}}{2} = \frac{8 \pm \sqrt{-16}}{2} = \frac{8 \pm 4i}{2} = 4 \pm 2i$
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = e^{4x}(C_1 \cos 2x + C_2 \sin 2x)$
+
+\textbf{Paso 3: Solución particular para $100x^2$}
+
+Forma propuesta: $y_{p_1} = Ax^2 + Bx + C$
+
+$y_{p_1}' = 2Ax + B$, $y_{p_1}'' = 2A$
+
+Sustituyendo:
+
+$2A - 8(2Ax + B) + 20(Ax^2 + Bx + C) = 100x^2$
+
+$2A - 16Ax - 8B + 20Ax^2 + 20Bx + 20C = 100x^2$
+
+$20Ax^2 + (-16A + 20B)x + (2A - 8B + 20C) = 100x^2$
+
+Coef. $x^2$: $20A = 100 \Rightarrow A = 5$
+
+Coef. $x$: $-16(5) + 20B = 0 \Rightarrow B = 4$
+
+Coef. cte: $2(5) - 8(4) + 20C = 0 \Rightarrow 10 - 32 + 20C = 0 \Rightarrow C = \frac{11}{10}$
+
+$y_{p_1} = 5x^2 + 4x + \frac{11}{10}$
+
+\textbf{Paso 4: Solución particular para $-26xe^x$}
+
+Forma propuesta: $y_{p_2} = (Dx + E)e^x$
+
+$y_{p_2}' = De^x + (Dx + E)e^x = (Dx + D + E)e^x$
+
+$y_{p_2}'' = De^x + (Dx + D + E)e^x = (Dx + 2D + E)e^x$
+
+Sustituyendo:
+
+$(Dx + 2D + E)e^x - 8(Dx + D + E)e^x + 20(Dx + E)e^x = -26xe^x$
+
+$[Dx + 2D + E - 8Dx - 8D - 8E + 20Dx + 20E]e^x = -26xe^x$
+
+$[13Dx + (-6D + 13E)]e^x = -26xe^x$
+
+Coef. $x$: $13D = -26 \Rightarrow D = -2$
+
+Coef. cte: $-6(-2) + 13E = 0 \Rightarrow E = -\frac{12}{13}$
+
+$y_{p_2} = (-2x - \frac{12}{13})e^x$
+
+\textbf{Paso 5: Solución general}
+
+$\boxed{y = e^{4x}(C_1 \cos 2x + C_2 \sin 2x) + 5x^2 + 4x + \frac{11}{10} + (-2x - \frac{12}{13})e^x}$
+
+\hrulefill
+
+\textbf{Problema 7:} $y'' + 3y = -48x^2 e^{2x}$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 + 3 = 0 \Rightarrow r = \pm\sqrt{3}i$
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = C_1 \cos\sqrt{3}x + C_2 \sin\sqrt{3}x$
+
+\textbf{Paso 3: Solución particular}
+
+Forma propuesta: $y_p = (Ax^2 + Bx + C)e^{2x}$
+
+$y_p' = (2Ax + B)e^{2x} + 2(Ax^2 + Bx + C)e^{2x}$
+
+$= (2Ax^2 + 2Ax + 2Bx + B + 2C)e^{2x}$
+
+$= (2Ax^2 + (2A + 2B)x + (B + 2C))e^{2x}$
+
+$y_p'' = (4Ax + 2A + 2B)e^{2x} + 2(2Ax^2 + (2A + 2B)x + (B + 2C))e^{2x}$
+
+$= (4Ax^2 + (8A + 4B)x + (2A + 4B + 4C))e^{2x}$
+
+Sustituyendo en $y'' + 3y = -48x^2 e^{2x}$:
+
+$(4A + 3A)x^2 + (8A + 4B + 6A + 6B)x + (2A + 4B + 4C + 3B + 6C) = -48x^2$
+
+$7Ax^2 + (14A + 10B)x + (2A + 7B + 10C) = -48x^2$
+
+Coef. $x^2$: $7A = -48 \Rightarrow A = -\frac{48}{7}$
+
+Coef. $x$: $14A + 10B = 0 \Rightarrow B = \frac{48}{5}$
+
+Coef. cte: $2A + 7B + 10C = 0 \Rightarrow C = -\frac{936}{175}$
+
+$\boxed{y = C_1 \cos\sqrt{3}x + C_2 \sin\sqrt{3}x + (-\frac{48}{7}x^2 + \frac{48}{5}x - \frac{936}{175})e^{2x}}$
+
+\hrulefill
+
+\textbf{Problema 8:} $4y'' - 4y' - 3y = \cos 2x$
+
+\textbf{Paso 1: Ecuación característica}
+
+$4r^2 - 4r - 3 = 0$
+
+$r = \frac{4 \pm \sqrt{16+48}}{8} = \frac{4 \pm 8}{8}$
+
+$r_1 = \frac{3}{2}$, $r_2 = -\frac{1}{2}$
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = C_1 e^{3x/2} + C_2 e^{-x/2}$
+
+\textbf{Paso 3: Solución particular}
+
+Forma propuesta: $y_p = A\cos 2x + B\sin 2x$
+
+$y_p' = -2A\sin 2x + 2B\cos 2x$
+
+$y_p'' = -4A\cos 2x - 4B\sin 2x$
+
+Sustituyendo:
+
+$4(-4A\cos 2x - 4B\sin 2x) - 4(-2A\sin 2x + 2B\cos 2x) - 3(A\cos 2x + B\sin 2x) = \cos 2x$
+
+$(-16A - 8B - 3A)\cos 2x + (-16B + 8A - 3B)\sin 2x = \cos 2x$
+
+$(-19A - 8B)\cos 2x + (8A - 19B)\sin 2x = \cos 2x$
+
+Coef. $\cos 2x$: $-19A - 8B = 1$
+
+Coef. $\sin 2x$: $8A - 19B = 0 \Rightarrow B = \frac{8A}{19}$
+
+$-19A - 8(\frac{8A}{19}) = 1$
+
+$-\frac{361A + 64A}{19} = 1$
+
+$A = -\frac{19}{425}$, $B = -\frac{8}{425}$
+
+$\boxed{y = C_1 e^{3x/2} + C_2 e^{-x/2} - \frac{19}{425}\cos 2x - \frac{8}{425}\sin 2x}$
+
+\hrulefill
+
+\textbf{Problema 9:} $y'' - y' = -3$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 - r = 0 \Rightarrow r(r-1) = 0$
+
+$r_1 = 0$, $r_2 = 1$
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = C_1 e^{0 \cdot x} + C_2 e^{x} = C_1 + C_2 e^x$
+
+\textbf{Paso 3: Solución particular}
+
+$g(x) = -3$ (constante), pero $r = 0$ es raíz
+
+Multiplicamos por $x$: $y_p = Ax$
+
+$y_p' = A$, $y_p'' = 0$
+
+Sustituyendo: $0 - A = -3 \Rightarrow A = 3$
+
+$\boxed{y = C_1 + C_2 e^x + 3x}$
+
+\hrulefill
+
+\textbf{Problema 10:} $y'' + 2y' = 2x + 5 - e^{-2x}$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 + 2r = 0 \Rightarrow r(r+2) = 0$
+
+$r_1 = 0$, $r_2 = -2$
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = C_1 + C_2 e^{-2x}$
+
+\textbf{Paso 3: $y_{p_1}$ para $2x + 5$}
+
+Como $r = 0$ es raíz, multiplicamos por $x$:
+
+$y_{p_1} = x(Ax + B) = Ax^2 + Bx$
+
+$y_{p_1}' = 2Ax + B$, $y_{p_1}'' = 2A$
+
+$2A + 2(2Ax + B) = 2x + 5$
+
+$4Ax + (2A + 2B) = 2x + 5$
+
+$4A = 2 \Rightarrow A = \frac{1}{2}$
+
+$2A + 2B = 5 \Rightarrow B = 2$
+
+\textbf{Paso 4: $y_{p_2}$ para $-e^{-2x}$}
+
+Como $r = -2$ es raíz, multiplicamos por $x$:
+
+$y_{p_2} = Cxe^{-2x}$
+
+$y_{p_2}' = Ce^{-2x} - 2Cxe^{-2x}$
+
+$y_{p_2}'' = -2Ce^{-2x} - 2Ce^{-2x} + 4Cxe^{-2x} = -4Ce^{-2x} + 4Cxe^{-2x}$
+
+$-4C + 4Cx + 2C - 4Cx = -1$
+
+$-2C = -1 \Rightarrow C = \frac{1}{2}$
+
+$\boxed{y = C_1 + C_2 e^{-2x} + \frac{1}{2}x^2 + 2x + \frac{1}{2}xe^{-2x}}$
+
+\hrulefill
+
+\textbf{Problema 11:} $y'' - y' + \frac{1}{4}y = 3 + e^{x/2}$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 - r + \frac{1}{4} = 0$
+
+$(r - \frac{1}{2})^2 = 0 \Rightarrow r = \frac{1}{2}$ (doble)
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = C_1 e^{x/2} + C_2 x e^{x/2}$
+
+\textbf{Paso 3: $y_{p_1}$ para $3$}
+
+$y_{p_1} = A$, $y_{p_1}' = 0$, $y_{p_1}'' = 0$
+
+$\frac{A}{4} = 3 \Rightarrow A = 12$
+
+\textbf{Paso 4: $y_{p_2}$ para $e^{x/2}$}
+
+Como $r = \frac{1}{2}$ es raíz doble, multiplicamos por $x^2$:
+
+$y_{p_2} = Bx^2 e^{x/2}$
+
+Sustituyendo y simplificando: $2B = 1 \Rightarrow B = \frac{1}{2}$
+
+$\boxed{y = C_1 e^{x/2} + C_2 x e^{x/2} + 12 + \frac{1}{2}x^2 e^{x/2}}$
+
+\hrulefill
+
+\textbf{Problema 12:} $y'' - 16y = 2e^{4x}$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 - 16 = 0 \Rightarrow r = \pm 4$
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = C_1 e^{4x} + C_2 e^{-4x}$
+
+\textbf{Paso 3: Solución particular}
+
+Como $r = 4$ es raíz: $y_p = Axe^{4x}$
+
+$y_p' = Ae^{4x} + 4Axe^{4x}$
+
+$y_p'' = 4Ae^{4x} + 4Ae^{4x} + 16Axe^{4x} = 8Ae^{4x} + 16Axe^{4x}$
+
+$8Ae^{4x} + 16Axe^{4x} - 16Axe^{4x} = 2e^{4x}$
+
+$8A = 2 \Rightarrow A = \frac{1}{4}$
+
+$\boxed{y = C_1 e^{4x} + C_2 e^{-4x} + \frac{1}{4}xe^{4x}}$
+
+\hrulefill
+
+\textbf{Problema 13:} $y'' + 4y = 3\sin 2x$
+
+\textbf{Paso 1: Ecuación característica}
+
+$r^2 + 4 = 0 \Rightarrow r = \pm 2i$
+
+\textbf{Paso 2: Solución complementaria}
+
+$y_c = C_1 \cos 2x + C_2 \sin 2x$
+
+\textbf{Paso 3: Solución particular}
+
+Como $\sin 2x$ está en $y_c$, multiplicamos por $x$:
+
+$y_p = x(A\cos 2x + B\sin 2x)$
+
+$y_p' = A\cos 2x + B\sin 2x + x(-2A\sin 2x + 2B\cos 2x)$
+
+$y_p'' = -2A\sin 2x + 2B\cos 2x - 2A\sin 2x + 2B\cos 2x + x(-4A\cos 2x - 4B\sin 2x)$
+
+$= 4B\cos 2x - 4A\sin 2x - 4Ax\cos 2x - 4Bx\sin 2x$
+
+$y_p'' + 4y_p = 4B\cos 2x - 4A\sin 2x = 3\sin 2x$
+
+$4B = 0 \Rightarrow B = 0$
+
+$-4A = 3 \Rightarrow A = -\frac{3}{4}$
+
+$\boxed{y = C_1 \cos 2x + C_2 \sin 2x - \frac{3}{4}x\cos 2x}$
+
+\hrulefill
+
+\textbf{Problema 14:} $y'' - 4y = (x^2 - 3)\sin 2x$
+
+$r^2 - 4 = 0 \Rightarrow r = \pm 2$
+
+$y_c = C_1 e^{2x} + C_2 e^{-2x}$
+
+$y_p = (Ax^2 + Bx + C)\cos 2x + (Dx^2 + Ex + F)\sin 2x$
+
+Igualando coeficientes:
+
+$D = -\frac{1}{8}$, $A = 0$, $B = -\frac{1}{8}$, $E = 0$, $C = 0$, $F = \frac{13}{32}$
+
+$\boxed{y = C_1 e^{2x} + C_2 e^{-2x} - \frac{1}{8}x\cos 2x + (-\frac{1}{8}x^2 + \frac{13}{32})\sin 2x}$
+
+\hrulefill
+
+\textbf{Problema 15:} $y'' + y = 2x\sin x$
+
+$r^2 + 1 = 0 \Rightarrow r = \pm i$
+
+$y_c = C_1 \cos x + C_2 \sin x$
+
+Multiplicamos por $x$: $y_p = (Ax^2 + Bx)\cos x + (Cx^2 + Dx)\sin x$
+
+Igualando: $A = -\frac{1}{2}$, $B = 0$, $C = 0$, $D = \frac{1}{2}$
+
+$\boxed{y = C_1 \cos x + C_2 \sin x - \frac{1}{2}x^2\cos x + \frac{1}{2}x\sin x}$
+
+\hrulefill
+
+\textbf{Problema 16:} $y'' - 5y' = 2x^3 - 4x^2 - x + 6$
+
+$r^2 - 5r = 0 \Rightarrow r_1 = 0, r_2 = 5$
+
+$y_c = C_1 + C_2 e^{5x}$
+
+Multiplicamos por $x$: $y_p = Ax^4 + Bx^3 + Cx^2 + Dx$
+
+$A = -\frac{1}{10}$, $B = \frac{14}{75}$, $C = \frac{53}{250}$, $D = -\frac{697}{625}$
+
+$\boxed{y = C_1 + C_2 e^{5x} - \frac{1}{10}x^4 + \frac{14}{75}x^3 + \frac{53}{250}x^2 - \frac{697}{625}x}$
+
+\hrulefill
+
+\textbf{Problema 17:} $y'' - 2y' + 5y = e^x \cos 2x$
+
+$r^2 - 2r + 5 = 0 \Rightarrow r = 1 \pm 2i$
+
+$y_c = e^x(C_1 \cos 2x + C_2 \sin 2x)$
+
+Multiplicamos por $x$: $y_p = xe^x(A\cos 2x + B\sin 2x)$
+
+$4B = 1 \Rightarrow B = \frac{1}{4}$, $A = 0$
+
+$\boxed{y = e^x(C_1 \cos 2x + C_2 \sin 2x) + \frac{1}{4}xe^x\sin 2x}$
+
+\hrulefill
+
+\textbf{Problema 18:} $y'' - 2y' + 2y = e^{2x}(\cos x - 3\sin x)$
+
+$r^2 - 2r + 2 = 0 \Rightarrow r = 1 \pm i$
+
+$y_c = e^x(C_1 \cos x + C_2 \sin x)$
+
+$y_p = e^{2x}(A\cos x + B\sin x)$
+
+$A = \frac{7}{5}$, $B = -\frac{1}{5}$
+
+$\boxed{y = e^x(C_1 \cos x + C_2 \sin x) + e^{2x}(\frac{7}{5}\cos x - \frac{1}{5}\sin x)}$
+
+\hrulefill
+
+\textbf{Problema 19:} $y'' + 2y' + y = \sec x + 3\cos 2x$
+
+$r^2 + 2r + 1 = 0 \Rightarrow (r+1)^2 = 0 \Rightarrow r = -1$ (doble)
+
+$y_c = C_1 e^{-x} + C_2 xe^{-x}$
+
+Para $3\cos 2x$: $y_{p_2} = A\cos 2x + B\sin 2x$
+
+$A = -\frac{9}{25}$, $B = \frac{12}{25}$
+
+$\boxed{y = C_1 e^{-x} + C_2 xe^{-x} + y_{p_1}(\sec x) - \frac{9}{25}\cos 2x + \frac{12}{25}\sin 2x}$
+
+\hrulefill
+
+\textbf{Problema 20:} $y'' + 2y' - 24y = 16 - (x+2)e^{4x}$
+
+$r^2 + 2r - 24 = 0 \Rightarrow r_1 = -6, r_2 = 4$
+
+$y_c = C_1 e^{-6x} + C_2 e^{4x}$
+
+$y_{p_1} = A$: $-24A = 16 \Rightarrow A = -\frac{2}{3}$
+
+$y_{p_2} = (Bx^2 + Cx)e^{4x}$: $B = -\frac{1}{20}$, $C = -\frac{19}{100}$
+
+$\boxed{y = C_1 e^{-6x} + C_2 e^{4x} - \frac{2}{3} + (-\frac{1}{20}x^2 - \frac{19}{100}x)e^{4x}}$
+
+\hrulefill
+
+\textbf{Problema 21:} $y''' - 6y'' = 3 - \cos x$
+
+$r^3 - 6r^2 = 0 \Rightarrow r_1 = 0$ (doble), $r_2 = 6$
+
+$y_c = C_1 + C_2 x + C_3 e^{6x}$
+
+$y_{p_1} = Ax^2$: $A = -\frac{1}{4}$
+
+$y_{p_2} = B\cos x + C\sin x$: $B = -\frac{6}{37}$, $C = \frac{1}{37}$
+
+$\boxed{y = C_1 + C_2 x + C_3 e^{6x} - \frac{1}{4}x^2 - \frac{6}{37}\cos x + \frac{1}{37}\sin x}$
+
+\hrulefill
+
+\textbf{Problema 22:} $y''' - 2y'' - 4y' + 8y = 6xe^{2x}$
+
+$r^3 - 2r^2 - 4r + 8 = 0 \Rightarrow (r-2)^2(r+2) = 0$
+
+$r_1 = 2$ (doble), $r_2 = -2$
+
+$y_c = C_1 e^{2x} + C_2 xe^{2x} + C_3 e^{-2x}$
+
+$y_p = x^2(Ax + B)e^{2x}$: $A = \frac{1}{4}$, $B = -\frac{3}{16}$
+
+$\boxed{y = C_1 e^{2x} + C_2 xe^{2x} + C_3 e^{-2x} + (\frac{1}{4}x^3 - \frac{3}{16}x^2)e^{2x}}$
+
+\hrulefill
+
+\textbf{Problema 23:} $y''' - 3y'' + 3y' - y = x - 4e^x$
+
+$(r-1)^3 = 0 \Rightarrow r = 1$ (triple)
+
+$y_c = C_1 e^x + C_2 xe^x + C_3 x^2 e^x$
+
+$y_{p_1} = Ax + B$: $A = -1$, $B = -3$
+
+$y_{p_2} = Cx^3 e^x$: $C = -\frac{2}{3}$
+
+$\boxed{y = C_1 e^x + C_2 xe^x + C_3 x^2 e^x - x - 3 - \frac{2}{3}x^3 e^x}$
+
+\hrulefill
+
+\textbf{Problema 24:} $y''' - y'' - 4y' + 4y = 5 - e^x + e^{2x}$
+
+$(r-1)(r-2)(r+2) = 0$
+
+$y_c = C_1 e^x + C_2 e^{2x} + C_3 e^{-2x}$
+
+$y_{p_1} = \frac{5}{4}$, $y_{p_2} = \frac{1}{3}xe^x$, $y_{p_3} = \frac{1}{8}xe^{2x}$
+
+$\boxed{y = C_1 e^x + C_2 e^{2x} + C_3 e^{-2x} + \frac{5}{4} + \frac{1}{3}xe^x + \frac{1}{8}xe^{2x}}$
+
+\hrulefill
+
+\textbf{Problema 25:} $y^{(4)} + 2y'' + y = (x-1)^2$
+
+$(r^2 + 1)^2 = 0 \Rightarrow r = \pm i$ (dobles)
+
+$y_c = C_1 \cos x + C_2 \sin x + C_3 x\cos x + C_4 x\sin x$
+
+$y_p = Ax^2 + Bx + C$: $A = 1$, $B = -2$, $C = -3$
+
+$\boxed{y = C_1 \cos x + C_2 \sin x + C_3 x\cos x + C_4 x\sin x + x^2 - 2x - 3}$
+
+\hrulefill
+
+\textbf{Problema 26:} $y^{(4)} - y'' = 4x + 2xe^{-x}$
+
+$r^2(r-1)(r+1) = 0$
+
+$y_c = C_1 + C_2 x + C_3 e^x + C_4 e^{-x}$
+
+$y_{p_1} = -\frac{2}{3}x^3$
+
+$y_{p_2} = (-\frac{1}{2}x^2 - \frac{1}{2}x)e^{-x}$
+
+$\boxed{y = C_1 + C_2 x + C_3 e^x + C_4 e^{-x} - \frac{2}{3}x^3 + (-\frac{1}{2}x^2 - \frac{1}{2}x)e^{-x}}$
+
+\hrulefill
+
+\section*{Problemas con Valores Iniciales (27-31)}
+
+\textbf{Problema 27:} $y'' + 4y = -2$, $y(\frac{\pi}{8}) = \frac{1}{2}$, $y'(\frac{\pi}{8}) = 2$
+
+$y = C_1 \cos 2x + C_2 \sin 2x - \frac{1}{2}$
+
+Aplicando condiciones: $C_1 = 0$, $C_2 = \sqrt{2}$
+
+$\boxed{y = \sqrt{2}\sin 2x - \frac{1}{2}}$
+
+\hrulefill
+
+\textbf{Problema 28:} $2y'' + 3y' - 2y = 14x^2 - 4x - 11$, $y(0) = 0$, $y'(0) = 0$
+
+$y = C_1 e^{x/2} + C_2 e^{-2x} - 7x^2 - 19x - 37$
+
+$C_1 = \frac{186}{5}$, $C_2 = -\frac{1}{5}$
+
+$\boxed{y = \frac{186}{5}e^{x/2} - \frac{1}{5}e^{-2x} - 7x^2 - 19x - 37}$
+
+\hrulefill
+
+\textbf{Problema 29:} $5y'' + y' = -6x$, $y(0) = 0$, $y'(0) = -10$
+
+$y = C_1 + C_2 e^{-x/5} - 3x^2 + 30x$
+
+$C_1 = -200$, $C_2 = 200$
+
+$\boxed{y = -200 + 200e^{-x/5} - 3x^2 + 30x}$
+
+\hrulefill
+
+\textbf{Problema 30:} $y'' + 4y' + 4y = (3+x)e^{-2x}$, $y(0) = 2$, $y'(0) = 5$
+
+$y = C_1 e^{-2x} + C_2 xe^{-2x} + (\frac{1}{6}x^3 + \frac{3}{2}x^2)e^{-2x}$
+
+$C_1 = 2$, $C_2 = 9$
+
+$\boxed{y = 2e^{-2x} + 9xe^{-2x} + (\frac{1}{6}x^3 + \frac{3}{2}x^2)e^{-2x}}$
+
+\hrulefill
+
+\textbf{Problema 31:} $y'' + 4y' + 5y = 35e^{-4x}$, $y(0) = -3$, $y'(0) = 1$
+
+$y = e^{-2x}(C_1 \cos x + C_2 \sin x) + 7e^{-4x}$
+
+$C_1 = -10$, $C_2 = 9$
+
+$\boxed{y = e^{-2x}(-10\cos x + 9\sin x) + 7e^{-4x}}$
+
+\end{document}
