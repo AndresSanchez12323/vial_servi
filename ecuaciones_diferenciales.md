@@ -458,17 +458,27 @@ $y_p = x^2(Ax + B)e^{2x}$ (multiplicar por $x^2$)
 
 $y_p = (Ax^3 + Bx^2)e^{2x}$
 
-$y_p' = (3Ax^2 + 2Bx)e^{2x} + 2(Ax^3 + Bx^2)e^{2x}$
+$y_p' = (3Ax^2 + 2Bx)e^{2x} + 2(Ax^3 + Bx^2)e^{2x} = (2Ax^3 + (3A + 2B)x^2 + 2Bx)e^{2x}$
 
-$y_p'' = (6Ax + 2B)e^{2x} + 4(3Ax^2 + 2Bx)e^{2x} + 4(Ax^3 + Bx^2)e^{2x}$
+$y_p'' = (6Ax^2 + (6A + 4B)x + 2B)e^{2x} + 2(2Ax^3 + (3A + 2B)x^2 + 2Bx)e^{2x}$
 
-$y_p''' = 6Ae^{2x} + 12(6Ax + 2B)e^{2x}/6 + ... = e^{2x}[24Ax + 6A + 12B + ...]$
+$= (4Ax^3 + (12A + 4B)x^2 + (6A + 8B)x + 2B)e^{2x}$
 
-Sustituyendo: $e^{2x}[24Ax + 6A + 12B] = 6xe^{2x}$
+$y_p''' = (12Ax^2 + (24A + 8B)x + (6A + 8B))e^{2x} + 2(4Ax^3 + (12A + 4B)x^2 + (6A + 8B)x + 2B)e^{2x}$
 
-$24A = 6 \Rightarrow A = \frac{1}{4}$, $6A + 12B = 0 \Rightarrow B = -\frac{1}{8}$
+$= (8Ax^3 + (36A + 8B)x^2 + (36A + 24B)x + (6A + 12B))e^{2x}$
 
-$\boxed{y = C_1 e^{2x} + C_2 xe^{2x} + C_3 e^{-2x} + \left(\frac{1}{4}x^3 - \frac{1}{8}x^2\right)e^{2x}}$
+$y_p''' - 2y_p'' - 4y_p' + 8y_p = e^{2x}[(6A + 12B) - 2(2B) - 4(0) + 0] = e^{2x}[6A + 12B - 4B]x^0$ coeficiente $x^0$
+
+Calculando coeficientes de $x$ y constantes:
+
+Coef. de $x$: $(36A + 24B) - 2(6A + 8B) - 4(2B) = 36A + 24B - 12A - 16B - 8B = 24A = 6$
+
+$A = \frac{1}{4}$
+
+Coef. constante: $(6A + 12B) - 2(2B) = 6A + 8B = 0 \Rightarrow B = -\frac{3A}{4} = -\frac{3}{16}$
+
+$\boxed{y = C_1 e^{2x} + C_2 xe^{2x} + C_3 e^{-2x} + \left(\frac{1}{4}x^3 - \frac{3}{16}x^2\right)e^{2x}}$
 
 ---
 
@@ -520,9 +530,11 @@ $y_{p_3} = Cxe^{2x}$ para $e^{2x}$ (multiplicar por $x$)
 
 $y_{p_3}' = Ce^{2x} + 2Cxe^{2x}$, $y_{p_3}'' = 4Ce^{2x} + 4Cxe^{2x}$, $y_{p_3}''' = 12Ce^{2x} + 8Cxe^{2x}$
 
-$12C - 4C - 4C + 4C = 1 \Rightarrow 8C - 4C = 1 \Rightarrow C = \frac{1}{4}$
+$y_{p_3}''' - y_{p_3}'' - 4y_{p_3}' + 4y_{p_3} = (12C - 4C - 4C + 4C)e^{2x} = 8Ce^{2x} = e^{2x}$
 
-$\boxed{y = C_1 e^x + C_2 e^{2x} + C_3 e^{-2x} + \frac{5}{4} + \frac{1}{3}xe^x + \frac{1}{4}xe^{2x}}$
+$8C = 1 \Rightarrow C = \frac{1}{8}$
+
+$\boxed{y = C_1 e^x + C_2 e^{2x} + C_3 e^{-2x} + \frac{5}{4} + \frac{1}{3}xe^x + \frac{1}{8}xe^{2x}}$
 
 ---
 
