@@ -1,0 +1,618 @@
+\documentclass[9pt,a4paper,twocolumn]{article}
+\usepackage[margin=0.3in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5pt}
+\setlength{\columnsep}{12pt}
+
+\begin{document}
+\footnotesize
+\title{\vspace{-1.5cm}Ecuaciones Diferenciales - Variación de Parámetros}
+\date{}
+\maketitle
+\vspace{-0.8cm}
+
+\textbf{1. $y'' + y = \sec x$}
+
+Ec. característica: $r^2 + 1 = 0 \Rightarrow r = \pm i$
+
+$y_c = c_1\cos x + c_2\sin x$
+
+$y_1 = \cos x$, $y_2 = \sin x$
+
+$y_1' = -\sin x$, $y_2' = \cos x$
+
+$W = \begin{vmatrix} \cos x & \sin x \\ -\sin x & \cos x \end{vmatrix} = \cos^2 x + \sin^2 x = 1$
+
+$W_1 = \begin{vmatrix} 0 & \sin x \\ \sec x & \cos x \end{vmatrix} = 0 \cdot \cos x - \sec x \cdot \sin x = -\tan x$
+
+$W_2 = \begin{vmatrix} \cos x & 0 \\ -\sin x & \sec x \end{vmatrix} = \cos x \cdot \sec x - 0 \cdot (-\sin x) = 1$
+
+$u_1 = \int\frac{W_1}{W}dx = \int\frac{-\tan x}{1}dx = \int(-\tan x)dx = \ln|\cos x|$
+
+$u_2 = \int\frac{W_2}{W}dx = \int\frac{1}{1}dx = \int 1\,dx = x$
+
+$y_p = u_1 y_1 + u_2 y_2 = \ln|\cos x| \cdot \cos x + x \cdot \sin x$
+
+$y = c_1\cos x + c_2\sin x + \cos x\ln|\cos x| + x\sin x$
+
+\textbf{2. $y'' + y = \tan x$}
+
+Ec. característica: $r^2 + 1 = 0 \Rightarrow r = \pm i$
+
+$y_c = c_1\cos x + c_2\sin x$
+
+$y_1 = \cos x$, $y_2 = \sin x$
+
+$y_1' = -\sin x$, $y_2' = \cos x$
+
+$W = \begin{vmatrix} \cos x & \sin x \\ -\sin x & \cos x \end{vmatrix} = 1$
+
+$W_1 = \begin{vmatrix} 0 & \sin x \\ \tan x & \cos x \end{vmatrix} = 0 - \tan x \cdot \sin x = -\sin x \tan x = -\frac{\sin^2 x}{\cos x}$
+
+$W_2 = \begin{vmatrix} \cos x & 0 \\ -\sin x & \tan x \end{vmatrix} = \cos x \tan x - 0 = \sin x$
+
+$u_1 = \int\frac{-\sin^2 x}{\cos x}dx = \int\frac{-(1-\cos^2 x)}{\cos x}dx = \int\left(-\frac{1}{\cos x} + \cos x\right)dx$
+
+$u_1 = \int(-\sec x + \cos x)dx = -\ln|\sec x + \tan x| + \sin x$
+
+$u_2 = \int\sin x\,dx = -\cos x$
+
+$y_p = u_1 y_1 + u_2 y_2 = (-\ln|\sec x + \tan x| + \sin x)\cos x + (-\cos x)\sin x$
+
+$y_p = -\cos x\ln|\sec x + \tan x| + \sin x\cos x - \cos x\sin x = -\cos x\ln|\sec x + \tan x|$
+
+$y = c_1\cos x + c_2\sin x - \cos x\ln|\sec x + \tan x|$
+
+\textbf{3. $y'' + y = \sin x$}
+
+Ec. característica: $r^2 + 1 = 0 \Rightarrow r = \pm i$
+
+$y_c = c_1\cos x + c_2\sin x$
+
+$y_1 = \cos x$, $y_2 = \sin x$
+
+$y_1' = -\sin x$, $y_2' = \cos x$
+
+$W = \begin{vmatrix} \cos x & \sin x \\ -\sin x & \cos x \end{vmatrix} = \cos^2 x + \sin^2 x = 1$
+
+$W_1 = \begin{vmatrix} 0 & \sin x \\ \sin x & \cos x \end{vmatrix} = 0 \cdot \cos x - \sin x \cdot \sin x = -\sin^2 x$
+
+$W_2 = \begin{vmatrix} \cos x & 0 \\ -\sin x & \sin x \end{vmatrix} = \cos x \cdot \sin x - 0 \cdot (-\sin x) = \sin x\cos x$
+
+$u_1 = \int\frac{-\sin^2 x}{1}dx = -\int\sin^2 x\,dx = -\int\frac{1-\cos 2x}{2}dx = -\frac{x}{2} + \frac{\sin 2x}{4}$
+
+$u_2 = \int\frac{\sin x\cos x}{1}dx = \int\sin x\cos x\,dx = \int\frac{\sin 2x}{2}dx = -\frac{\cos 2x}{4}$
+
+$y_p = u_1 y_1 + u_2 y_2 = \left(-\frac{x}{2} + \frac{\sin 2x}{4}\right)\cos x + \left(-\frac{\cos 2x}{4}\right)\sin x$
+
+$= -\frac{x\cos x}{2} + \frac{\sin 2x\cos x}{4} - \frac{\cos 2x\sin x}{4}$
+
+Usando $\sin 2x = 2\sin x\cos x$ y $\cos 2x = \cos^2 x - \sin^2 x$:
+
+$= -\frac{x\cos x}{2} + \frac{2\sin x\cos^2 x}{4} - \frac{(\cos^2 x - \sin^2 x)\sin x}{4}$
+
+$= -\frac{x\cos x}{2} + \frac{\sin x\cos^2 x}{2} - \frac{\sin x\cos^2 x}{4} + \frac{\sin^3 x}{4}$
+
+$= -\frac{x\cos x}{2} + \frac{\sin x\cos^2 x}{4} + \frac{\sin^3 x}{4} = -\frac{x\cos x}{2} + \frac{\sin x(\cos^2 x + \sin^2 x)}{4} = -\frac{x\cos x}{2} + \frac{\sin x}{4}$
+
+Pero como $\frac{\sin x}{4}$ es parte de la solución complementaria, la solución particular es:
+
+$y_p = -\frac{x\cos x}{2}$
+
+$y = c_1\cos x + c_2\sin x - \frac{x\cos x}{2}$
+
+\textbf{4. $y'' + y = \sec\theta\tan\theta$}
+
+Ec. característica: $r^2 + 1 = 0 \Rightarrow r = \pm i$
+
+$y_c = c_1\cos\theta + c_2\sin\theta$
+
+$y_1 = \cos\theta$, $y_2 = \sin\theta$
+
+$y_1' = -\sin\theta$, $y_2' = \cos\theta$
+
+$W = \begin{vmatrix} \cos\theta & \sin\theta \\ -\sin\theta & \cos\theta \end{vmatrix} = 1$
+
+$W_1 = \begin{vmatrix} 0 & \sin\theta \\ \sec\theta\tan\theta & \cos\theta \end{vmatrix} = -\sec\theta\tan\theta \cdot \sin\theta = -\tan^2\theta$
+
+$W_2 = \begin{vmatrix} \cos\theta & 0 \\ -\sin\theta & \sec\theta\tan\theta \end{vmatrix} = \cos\theta\sec\theta\tan\theta = \tan\theta$
+
+$u_1 = \int(-\tan^2\theta)d\theta = \int(-\sec^2\theta + 1)d\theta = -\tan\theta + \theta$
+
+$u_2 = \int\tan\theta\,d\theta = -\ln|\cos\theta|$
+
+$y_p = u_1 y_1 + u_2 y_2 = (-\tan\theta + \theta)\cos\theta + (-\ln|\cos\theta|)\sin\theta$
+
+$y_p = -\sin\theta + \theta\cos\theta - \sin\theta\ln|\cos\theta|$
+
+$y = c_1\cos\theta + c_2\sin\theta - \sin\theta + \theta\cos\theta - \sin\theta\ln|\cos\theta|$
+
+\textbf{5. $y'' + y = \cos^2 x$}
+
+Ec. característica: $r^2 + 1 = 0 \Rightarrow r = \pm i$
+
+$y_c = c_1\cos x + c_2\sin x$
+
+$y_1 = \cos x$, $y_2 = \sin x$
+
+$y_1' = -\sin x$, $y_2' = \cos x$
+
+$W = 1$
+
+Identidad: $\cos^2 x = \frac{1 + \cos 2x}{2}$
+
+$W_1 = \begin{vmatrix} 0 & \sin x \\ \frac{1+\cos 2x}{2} & \cos x \end{vmatrix} = -\frac{(1+\cos 2x)\sin x}{2}$
+
+$W_2 = \begin{vmatrix} \cos x & 0 \\ -\sin x & \frac{1+\cos 2x}{2} \end{vmatrix} = \frac{(1+\cos 2x)\cos x}{2}$
+
+$u_1 = \int\frac{-(1+\cos 2x)\sin x}{2}dx = \int\left(-\frac{\sin x}{2} - \frac{\sin x\cos 2x}{2}\right)dx$
+
+Para $\int\sin x\cos 2x\,dx$: usar $\cos 2x = 1 - 2\sin^2 x$
+
+$\int\sin x\cos 2x\,dx = \int\sin x(1-2\sin^2 x)dx = \int(\sin x - 2\sin^3 x)dx$
+
+$= -\cos x + 2\left(\frac{\cos^3 x}{3} - \cos x\right) = -\cos x + \frac{2\cos^3 x}{3} - 2\cos x = \frac{2\cos^3 x}{3} - 3\cos x$
+
+$u_1 = \frac{\cos x}{2} - \frac{1}{2}\left(\frac{2\cos^3 x}{3} - 3\cos x\right) = \frac{\cos x}{2} - \frac{\cos^3 x}{3} + \frac{3\cos x}{2} = 2\cos x - \frac{\cos^3 x}{3}$
+
+$u_2 = \int\frac{(1+\cos 2x)\cos x}{2}dx = \int\left(\frac{\cos x}{2} + \frac{\cos x\cos 2x}{2}\right)dx$
+
+$= \frac{\sin x}{2} + \frac{1}{2}\int\cos x\cos 2x\,dx$
+
+$\int\cos x\cos 2x\,dx = \int\cos x(2\cos^2 x - 1)dx = \int(2\cos^3 x - \cos x)dx$
+
+$= 2\left(\frac{\sin^3 x}{3} + \sin x\right) - \sin x = \frac{2\sin^3 x}{3} + 2\sin x - \sin x = \frac{2\sin^3 x}{3} + \sin x$
+
+$u_2 = \frac{\sin x}{2} + \frac{1}{2}\left(\frac{2\sin^3 x}{3} + \sin x\right) = \frac{\sin x}{2} + \frac{\sin^3 x}{3} + \frac{\sin x}{2} = \sin x + \frac{\sin^3 x}{3}$
+
+$y_p = \left(2\cos x - \frac{\cos^3 x}{3}\right)\cos x + \left(\sin x + \frac{\sin^3 x}{3}\right)\sin x$
+
+$= 2\cos^2 x - \frac{\cos^4 x}{3} + \sin^2 x + \frac{\sin^4 x}{3}$
+
+$= 2\cos^2 x + \sin^2 x - \frac{\cos^4 x - \sin^4 x}{3} = 2\cos^2 x + \sin^2 x - \frac{(\cos^2 x - \sin^2 x)(\cos^2 x + \sin^2 x)}{3}$
+
+$= 2\cos^2 x + \sin^2 x - \frac{\cos 2x}{3} = \cos^2 x + 1 - \frac{\cos 2x}{3}$
+
+Simplificando: $y_p = \frac{1}{2} + \frac{\cos 2x}{2}$
+
+$y = c_1\cos x + c_2\sin x + \frac{1}{2} + \frac{\cos 2x}{2}$
+
+\textbf{6. $y'' + y = \sec^2 x$}
+
+Ec. característica: $r^2 + 1 = 0 \Rightarrow r = \pm i$
+
+$y_c = c_1\cos x + c_2\sin x$
+
+$y_1 = \cos x$, $y_2 = \sin x$
+
+$y_1' = -\sin x$, $y_2' = \cos x$
+
+$W = 1$
+
+$W_1 = \begin{vmatrix} 0 & \sin x \\ \sec^2 x & \cos x \end{vmatrix} = -\sec^2 x\sin x = -\tan x\sec x$
+
+$W_2 = \begin{vmatrix} \cos x & 0 \\ -\sin x & \sec^2 x \end{vmatrix} = \cos x\sec^2 x = \sec x$
+
+$u_1 = \int(-\tan x\sec x)dx = -\sec x$
+
+$u_2 = \int\sec x\,dx = \ln|\sec x + \tan x|$
+
+$y_p = u_1 y_1 + u_2 y_2 = (-\sec x)\cos x + \ln|\sec x + \tan x| \cdot \sin x$
+
+$y_p = -1 + \sin x\ln|\sec x + \tan x|$
+
+$y = c_1\cos x + c_2\sin x - 1 + \sin x\ln|\sec x + \tan x|$
+
+\textbf{7. $y'' - y = \cosh x$}
+
+Ec. característica: $r^2 - 1 = 0 \Rightarrow (r-1)(r+1) = 0 \Rightarrow r = 1, -1$
+
+$y_c = c_1e^x + c_2e^{-x}$
+
+$y_1 = e^x$, $y_2 = e^{-x}$
+
+$y_1' = e^x$, $y_2' = -e^{-x}$
+
+$W = \begin{vmatrix} e^x & e^{-x} \\ e^x & -e^{-x} \end{vmatrix} = -e^x \cdot e^{-x} - e^x \cdot e^{-x} = -2$
+
+$\cosh x = \frac{e^x + e^{-x}}{2}$
+
+$W_1 = \begin{vmatrix} 0 & e^{-x} \\ \cosh x & -e^{-x} \end{vmatrix} = -e^{-x}\cosh x = -e^{-x} \cdot \frac{e^x + e^{-x}}{2} = -\frac{1 + e^{-2x}}{2}$
+
+$W_2 = \begin{vmatrix} e^x & 0 \\ e^x & \cosh x \end{vmatrix} = e^x\cosh x = e^x \cdot \frac{e^x + e^{-x}}{2} = \frac{e^{2x} + 1}{2}$
+
+$u_1 = \int\frac{-\frac{1+e^{-2x}}{2}}{-2}dx = \int\frac{1+e^{-2x}}{4}dx = \frac{x}{4} + \int\frac{e^{-2x}}{4}dx = \frac{x}{4} - \frac{e^{-2x}}{8}$
+
+$u_2 = \int\frac{\frac{e^{2x}+1}{2}}{-2}dx = -\int\frac{e^{2x}+1}{4}dx = -\frac{e^{2x}}{8} - \frac{x}{4}$
+
+$y_p = u_1 y_1 + u_2 y_2 = \left(\frac{x}{4} - \frac{e^{-2x}}{8}\right)e^x + \left(-\frac{e^{2x}}{8} - \frac{x}{4}\right)e^{-x}$
+
+$= \frac{xe^x}{4} - \frac{e^{-x}}{8} - \frac{e^x}{8} - \frac{xe^{-x}}{4}$
+
+$= \frac{x(e^x - e^{-x})}{4} - \frac{e^x + e^{-x}}{8} = \frac{x \cdot 2\sinh x}{4} - \frac{2\cosh x}{8}$
+
+$= \frac{x\sinh x}{2} - \frac{\cosh x}{4}$
+
+$y = c_1e^x + c_2e^{-x} + \frac{x\sinh x}{2} - \frac{\cosh x}{4}$
+
+\textbf{8. $y'' - y = \sinh 2x$}
+
+Ec. característica: $r^2 - 1 = 0 \Rightarrow r = 1, -1$
+
+$y_c = c_1e^x + c_2e^{-x}$
+
+$y_1 = e^x$, $y_2 = e^{-x}$
+
+$y_1' = e^x$, $y_2' = -e^{-x}$
+
+$W = -2$
+
+$\sinh 2x = \frac{e^{2x} - e^{-2x}}{2}$
+
+$W_1 = \begin{vmatrix} 0 & e^{-x} \\ \sinh 2x & -e^{-x} \end{vmatrix} = -e^{-x}\sinh 2x = -e^{-x} \cdot \frac{e^{2x} - e^{-2x}}{2} = -\frac{e^x - e^{-3x}}{2}$
+
+$W_2 = \begin{vmatrix} e^x & 0 \\ e^x & \sinh 2x \end{vmatrix} = e^x\sinh 2x = e^x \cdot \frac{e^{2x} - e^{-2x}}{2} = \frac{e^{3x} - e^{-x}}{2}$
+
+$u_1 = \int\frac{-\frac{e^x-e^{-3x}}{2}}{-2}dx = \int\frac{e^x-e^{-3x}}{4}dx = \frac{e^x}{4} - \int\frac{e^{-3x}}{4}dx = \frac{e^x}{4} + \frac{e^{-3x}}{12}$
+
+$u_2 = \int\frac{\frac{e^{3x}-e^{-x}}{2}}{-2}dx = -\int\frac{e^{3x}-e^{-x}}{4}dx = -\frac{e^{3x}}{12} + \int\frac{e^{-x}}{4}dx = -\frac{e^{3x}}{12} - \frac{e^{-x}}{4}$
+
+$y_p = \left(\frac{e^x}{4} + \frac{e^{-3x}}{12}\right)e^x + \left(-\frac{e^{3x}}{12} - \frac{e^{-x}}{4}\right)e^{-x}$
+
+$= \frac{e^{2x}}{4} + \frac{e^{-2x}}{12} - \frac{e^{2x}}{12} - \frac{e^{-2x}}{4}$
+
+$= \frac{3e^{2x} - e^{2x}}{12} + \frac{e^{-2x} - 3e^{-2x}}{12} = \frac{2e^{2x} - 2e^{-2x}}{12} = \frac{e^{2x} - e^{-2x}}{6}$
+
+$= \frac{2\sinh 2x}{6} = \frac{\sinh 2x}{3}$
+
+$y = c_1e^x + c_2e^{-x} + \frac{\sinh 2x}{3}$
+
+\textbf{9. $y'' - 4y = \frac{e^{2x}}{x}$}
+
+Ec. característica: $r^2 - 4 = 0 \Rightarrow (r-2)(r+2) = 0 \Rightarrow r = 2, -2$
+
+$y_c = c_1e^{2x} + c_2e^{-2x}$
+
+$y_1 = e^{2x}$, $y_2 = e^{-2x}$
+
+$y_1' = 2e^{2x}$, $y_2' = -2e^{-2x}$
+
+$W = \begin{vmatrix} e^{2x} & e^{-2x} \\ 2e^{2x} & -2e^{-2x} \end{vmatrix} = -2e^{2x}e^{-2x} - 2e^{2x}e^{-2x} = -4$
+
+$W_1 = \begin{vmatrix} 0 & e^{-2x} \\ \frac{e^{2x}}{x} & -2e^{-2x} \end{vmatrix} = -\frac{e^{2x}e^{-2x}}{x} = -\frac{1}{x}$
+
+$W_2 = \begin{vmatrix} e^{2x} & 0 \\ 2e^{2x} & \frac{e^{2x}}{x} \end{vmatrix} = \frac{e^{2x} \cdot e^{2x}}{x} = \frac{e^{4x}}{x}$
+
+$u_1 = \int\frac{-\frac{1}{x}}{-4}dx = \int\frac{1}{4x}dx = \frac{\ln|x|}{4}$
+
+$u_2 = \int\frac{\frac{e^{4x}}{x}}{-4}dx = -\frac{1}{4}\int\frac{e^{4x}}{x}dx$ (integral no elemental)
+
+$y_p = \frac{\ln|x|}{4} \cdot e^{2x} - \frac{e^{-2x}}{4}\int\frac{e^{4x}}{x}dx$
+
+$y = c_1e^{2x} + c_2e^{-2x} + \frac{e^{2x}\ln|x|}{4} - \frac{e^{-2x}}{4}\int\frac{e^{4x}}{x}dx$
+
+\textbf{10. $y'' - 9y = \frac{9x}{e^{3x}} = 9xe^{-3x}$}
+
+Ec. característica: $r^2 - 9 = 0 \Rightarrow (r-3)(r+3) = 0 \Rightarrow r = 3, -3$
+
+$y_c = c_1e^{3x} + c_2e^{-3x}$
+
+$y_1 = e^{3x}$, $y_2 = e^{-3x}$
+
+$y_1' = 3e^{3x}$, $y_2' = -3e^{-3x}$
+
+$W = \begin{vmatrix} e^{3x} & e^{-3x} \\ 3e^{3x} & -3e^{-3x} \end{vmatrix} = -3e^{3x}e^{-3x} - 3e^{3x}e^{-3x} = -6$
+
+$W_1 = \begin{vmatrix} 0 & e^{-3x} \\ 9xe^{-3x} & -3e^{-3x} \end{vmatrix} = 0 - 9xe^{-3x} \cdot e^{-3x} = -9xe^{-6x}$
+
+$W_2 = \begin{vmatrix} e^{3x} & 0 \\ 3e^{3x} & 9xe^{-3x} \end{vmatrix} = e^{3x} \cdot 9xe^{-3x} - 0 = 9x$
+
+$u_1 = \int\frac{-9xe^{-6x}}{-6}dx = \frac{3}{2}\int xe^{-6x}dx$
+
+Por partes: $\int xe^{-6x}dx = -\frac{xe^{-6x}}{6} - \int-\frac{e^{-6x}}{6}dx = -\frac{xe^{-6x}}{6} - \frac{e^{-6x}}{36}$
+
+$u_1 = \frac{3}{2}\left(-\frac{xe^{-6x}}{6} - \frac{e^{-6x}}{36}\right) = -\frac{3xe^{-6x}}{12} - \frac{3e^{-6x}}{72} = -\frac{xe^{-6x}}{4} - \frac{e^{-6x}}{24}$
+
+$u_2 = \int\frac{9x}{-6}dx = -\frac{3}{2}\int x\,dx = -\frac{3x^2}{4}$
+
+$y_p = \left(-\frac{xe^{-6x}}{4} - \frac{e^{-6x}}{24}\right)e^{3x} + \left(-\frac{3x^2}{4}\right)e^{-3x}$
+
+$= -\frac{xe^{-3x}}{4} - \frac{e^{-3x}}{24} - \frac{3x^2e^{-3x}}{4}$
+
+$= -e^{-3x}\left(\frac{x}{4} + \frac{1}{24} + \frac{3x^2}{4}\right) = -e^{-3x}\left(\frac{3x^2 + x}{4} + \frac{1}{24}\right)$
+
+$= -e^{-3x}\left(\frac{18x^2 + 6x + 1}{24}\right)$
+
+$y = c_1e^{3x} + c_2e^{-3x} - \frac{e^{-3x}(18x^2 + 6x + 1)}{24}$
+
+\textbf{11. $y'' + 3y' + 2y = \frac{1}{1+e^x}$}
+
+Ec. característica: $r^2 + 3r + 2 = 0 \Rightarrow (r+1)(r+2) = 0 \Rightarrow r = -1, -2$
+
+$y_c = c_1e^{-x} + c_2e^{-2x}$
+
+$y_1 = e^{-x}$, $y_2 = e^{-2x}$
+
+$y_1' = -e^{-x}$, $y_2' = -2e^{-2x}$
+
+$W = \begin{vmatrix} e^{-x} & e^{-2x} \\ -e^{-x} & -2e^{-2x} \end{vmatrix} = -2e^{-3x} + e^{-3x} = -e^{-3x}$
+
+$W_1 = \begin{vmatrix} 0 & e^{-2x} \\ \frac{1}{1+e^x} & -2e^{-2x} \end{vmatrix} = -\frac{e^{-2x}}{1+e^x}$
+
+$W_2 = \begin{vmatrix} e^{-x} & 0 \\ -e^{-x} & \frac{1}{1+e^x} \end{vmatrix} = \frac{e^{-x}}{1+e^x}$
+
+$u_1 = \int\frac{-\frac{e^{-2x}}{1+e^x}}{-e^{-3x}}dx = \int\frac{e^{-2x}}{e^{-3x}(1+e^x)}dx = \int\frac{e^x}{1+e^x}dx$
+
+Sea $u = 1 + e^x$, $du = e^x dx$
+
+$u_1 = \int\frac{du}{u} = \ln|u| = \ln(1+e^x)$
+
+$u_2 = \int\frac{\frac{e^{-x}}{1+e^x}}{-e^{-3x}}dx = -\int\frac{e^{-x}}{e^{-3x}(1+e^x)}dx = -\int\frac{e^{2x}}{1+e^x}dx$
+
+$= -\int\frac{e^x(1+e^x) - e^x}{1+e^x}dx = -\int\left(e^x - \frac{e^x}{1+e^x}\right)dx$
+
+$= -e^x + \ln(1+e^x)$
+
+$y_p = \ln(1+e^x) \cdot e^{-x} + (-e^x + \ln(1+e^x))e^{-2x}$
+
+$= e^{-x}\ln(1+e^x) - e^{-x} + e^{-2x}\ln(1+e^x)$
+
+$y = c_1e^{-x} + c_2e^{-2x} + e^{-x}\ln(1+e^x) - e^{-x} + e^{-2x}\ln(1+e^x)$
+
+\textbf{12. $y'' - 2y' + y = \frac{e^x}{1+x^2}$}
+
+Ec. característica: $r^2 - 2r + 1 = 0 \Rightarrow (r-1)^2 = 0 \Rightarrow r = 1$ (doble)
+
+$y_c = c_1e^x + c_2xe^x$
+
+$y_1 = e^x$, $y_2 = xe^x$
+
+$y_1' = e^x$, $y_2' = e^x + xe^x$
+
+$W = \begin{vmatrix} e^x & xe^x \\ e^x & e^x + xe^x \end{vmatrix} = e^x(e^x + xe^x) - xe^x \cdot e^x = e^{2x} + xe^{2x} - xe^{2x} = e^{2x}$
+
+$W_1 = \begin{vmatrix} 0 & xe^x \\ \frac{e^x}{1+x^2} & e^x + xe^x \end{vmatrix} = -\frac{xe^x \cdot e^x}{1+x^2} = -\frac{xe^{2x}}{1+x^2}$
+
+$W_2 = \begin{vmatrix} e^x & 0 \\ e^x & \frac{e^x}{1+x^2} \end{vmatrix} = \frac{e^x \cdot e^x}{1+x^2} = \frac{e^{2x}}{1+x^2}$
+
+$u_1 = \int\frac{-\frac{xe^{2x}}{1+x^2}}{e^{2x}}dx = -\int\frac{x}{1+x^2}dx = -\frac{1}{2}\ln(1+x^2)$
+
+$u_2 = \int\frac{\frac{e^{2x}}{1+x^2}}{e^{2x}}dx = \int\frac{1}{1+x^2}dx = \arctan x$
+
+$y_p = -\frac{\ln(1+x^2)}{2} \cdot e^x + \arctan x \cdot xe^x$
+
+$y = c_1e^x + c_2xe^x - \frac{e^x\ln(1+x^2)}{2} + xe^x\arctan x$
+
+\textbf{13. $y'' + 3y' + 2y = \sin e^x$}
+
+Ec. característica: $r^2 + 3r + 2 = 0 \Rightarrow (r+1)(r+2) = 0 \Rightarrow r = -1, -2$
+
+$y_c = c_1e^{-x} + c_2e^{-2x}$
+
+$y_1 = e^{-x}$, $y_2 = e^{-2x}$
+
+$y_1' = -e^{-x}$, $y_2' = -2e^{-2x}$
+
+$W = \begin{vmatrix} e^{-x} & e^{-2x} \\ -e^{-x} & -2e^{-2x} \end{vmatrix} = -2e^{-3x} + e^{-3x} = -e^{-3x}$
+
+$W_1 = \begin{vmatrix} 0 & e^{-2x} \\ \sin e^x & -2e^{-2x} \end{vmatrix} = 0 - \sin e^x \cdot e^{-2x} = -e^{-2x}\sin e^x$
+
+$W_2 = \begin{vmatrix} e^{-x} & 0 \\ -e^{-x} & \sin e^x \end{vmatrix} = e^{-x}\sin e^x - 0 = e^{-x}\sin e^x$
+
+$u_1 = \int\frac{-e^{-2x}\sin e^x}{-e^{-3x}}dx = \int e^x\sin e^x\,dx$
+
+Sea $u = e^x$, $du = e^x dx$
+
+$u_1 = \int\sin u\,du = -\cos u = -\cos e^x$
+
+$u_2 = \int\frac{e^{-x}\sin e^x}{-e^{-3x}}dx = -\int e^{2x}\sin e^x\,dx$
+
+Sea $u = e^x$, $du = e^x dx$, entonces $e^{2x} = u^2$ y $dx = \frac{du}{u}$
+
+$u_2 = -\int u^2\sin u \cdot \frac{du}{u} = -\int u\sin u\,du$
+
+Por partes: $\int u\sin u\,du = -u\cos u + \int\cos u\,du = -u\cos u + \sin u$
+
+$u_2 = -(-e^x\cos e^x + \sin e^x) = e^x\cos e^x - \sin e^x$
+
+$y_p = u_1 y_1 + u_2 y_2 = (-\cos e^x)e^{-x} + (e^x\cos e^x - \sin e^x)e^{-2x}$
+
+$= -e^{-x}\cos e^x + e^{-x}\cos e^x - e^{-2x}\sin e^x$
+
+$= -e^{-2x}\sin e^x$
+
+$y = c_1e^{-x} + c_2e^{-2x} - e^{-2x}\sin e^x$
+
+\textbf{14. $y'' - 2y' + y = e^t\arctan t$}
+
+Ec. característica: $r^2 - 2r + 1 = 0 \Rightarrow (r-1)^2 = 0 \Rightarrow r = 1$ (doble)
+
+$y_c = c_1e^t + c_2te^t$
+
+$y_1 = e^t$, $y_2 = te^t$
+
+$y_1' = e^t$, $y_2' = e^t + te^t$
+
+$W = e^{2t}$
+
+$W_1 = \begin{vmatrix} 0 & te^t \\ e^t\arctan t & e^t + te^t \end{vmatrix} = -te^t \cdot e^t\arctan t = -te^{2t}\arctan t$
+
+$W_2 = \begin{vmatrix} e^t & 0 \\ e^t & e^t\arctan t \end{vmatrix} = e^t \cdot e^t\arctan t = e^{2t}\arctan t$
+
+$u_1 = \int\frac{-te^{2t}\arctan t}{e^{2t}}dt = -\int t\arctan t\,dt$
+
+Por partes: sea $u = \arctan t$, $dv = t\,dt$, $du = \frac{dt}{1+t^2}$, $v = \frac{t^2}{2}$
+
+$\int t\arctan t\,dt = \frac{t^2\arctan t}{2} - \int\frac{t^2}{2(1+t^2)}dt = \frac{t^2\arctan t}{2} - \frac{1}{2}\int\frac{t^2}{1+t^2}dt$
+
+$= \frac{t^2\arctan t}{2} - \frac{1}{2}\int\left(1 - \frac{1}{1+t^2}\right)dt = \frac{t^2\arctan t}{2} - \frac{1}{2}(t - \arctan t)$
+
+$= \frac{t^2\arctan t}{2} - \frac{t}{2} + \frac{\arctan t}{2}$
+
+$u_1 = -\frac{t^2\arctan t}{2} + \frac{t}{2} - \frac{\arctan t}{2}$
+
+$u_2 = \int\frac{e^{2t}\arctan t}{e^{2t}}dt = \int\arctan t\,dt$
+
+Por partes: $u = \arctan t$, $dv = dt$, $du = \frac{dt}{1+t^2}$, $v = t$
+
+$\int\arctan t\,dt = t\arctan t - \int\frac{t}{1+t^2}dt = t\arctan t - \frac{1}{2}\ln(1+t^2)$
+
+$u_2 = t\arctan t - \frac{\ln(1+t^2)}{2}$
+
+$y_p = \left(-\frac{t^2\arctan t}{2} + \frac{t}{2} - \frac{\arctan t}{2}\right)e^t + \left(t\arctan t - \frac{\ln(1+t^2)}{2}\right)te^t$
+
+$y = c_1e^t + c_2te^t + e^t\left(-\frac{t^2\arctan t}{2} + \frac{t}{2} - \frac{\arctan t}{2}\right) + te^t\left(t\arctan t - \frac{\ln(1+t^2)}{2}\right)$
+
+\textbf{15. $y'' + 2y' + y = e^{-t}\ln t$}
+
+Ec. característica: $r^2 + 2r + 1 = 0 \Rightarrow (r+1)^2 = 0 \Rightarrow r = -1$ (doble)
+
+$y_c = c_1e^{-t} + c_2te^{-t}$
+
+$y_1 = e^{-t}$, $y_2 = te^{-t}$
+
+$y_1' = -e^{-t}$, $y_2' = e^{-t} - te^{-t}$
+
+$W = \begin{vmatrix} e^{-t} & te^{-t} \\ -e^{-t} & e^{-t} - te^{-t} \end{vmatrix} = e^{-t}(e^{-t} - te^{-t}) + te^{-t}e^{-t}$
+
+$= e^{-2t} - te^{-2t} + te^{-2t} = e^{-2t}$
+
+$W_1 = \begin{vmatrix} 0 & te^{-t} \\ e^{-t}\ln t & e^{-t} - te^{-t} \end{vmatrix} = -te^{-t} \cdot e^{-t}\ln t = -te^{-2t}\ln t$
+
+$W_2 = \begin{vmatrix} e^{-t} & 0 \\ -e^{-t} & e^{-t}\ln t \end{vmatrix} = e^{-t} \cdot e^{-t}\ln t = e^{-2t}\ln t$
+
+$u_1 = \int\frac{-te^{-2t}\ln t}{e^{-2t}}dt = -\int t\ln t\,dt$
+
+Por partes: $u = \ln t$, $dv = t\,dt$, $du = \frac{dt}{t}$, $v = \frac{t^2}{2}$
+
+$\int t\ln t\,dt = \frac{t^2\ln t}{2} - \int\frac{t^2}{2t}dt = \frac{t^2\ln t}{2} - \int\frac{t}{2}dt = \frac{t^2\ln t}{2} - \frac{t^2}{4}$
+
+$u_1 = -\frac{t^2\ln t}{2} + \frac{t^2}{4}$
+
+$u_2 = \int\frac{e^{-2t}\ln t}{e^{-2t}}dt = \int\ln t\,dt$
+
+Por partes: $u = \ln t$, $dv = dt$, $du = \frac{dt}{t}$, $v = t$
+
+$\int\ln t\,dt = t\ln t - \int dt = t\ln t - t$
+
+$u_2 = t\ln t - t$
+
+$y_p = \left(-\frac{t^2\ln t}{2} + \frac{t^2}{4}\right)e^{-t} + (t\ln t - t)te^{-t}$
+
+$= e^{-t}\left(-\frac{t^2\ln t}{2} + \frac{t^2}{4} + t^2\ln t - t^2\right)$
+
+$= e^{-t}\left(\frac{t^2\ln t}{2} + \frac{t^2}{4} - t^2\right) = e^{-t}\left(\frac{t^2\ln t}{2} - \frac{3t^2}{4}\right)$
+
+$y = c_1e^{-t} + c_2te^{-t} + e^{-t}\left(\frac{t^2\ln t}{2} - \frac{3t^2}{4}\right)$
+
+\textbf{16. $2y'' + 2y' + y = \frac{4}{\sqrt{x}}$}
+
+Ec. característica: $2r^2 + 2r + 1 = 0$
+
+$r = \frac{-2 \pm \sqrt{4-8}}{4} = \frac{-2 \pm 2i}{4} = \frac{-1 \pm i}{2}$
+
+$\alpha = -\frac{1}{2}$, $\beta = \frac{1}{2}$
+
+$y_c = e^{-x/2}\left(c_1\cos\frac{x}{2} + c_2\sin\frac{x}{2}\right)$
+
+$y_1 = e^{-x/2}\cos\frac{x}{2}$, $y_2 = e^{-x/2}\sin\frac{x}{2}$
+
+$y_1' = e^{-x/2}\left(-\frac{1}{2}\cos\frac{x}{2} - \frac{1}{2}\sin\frac{x}{2}\right)$
+
+$y_2' = e^{-x/2}\left(-\frac{1}{2}\sin\frac{x}{2} + \frac{1}{2}\cos\frac{x}{2}\right)$
+
+$W = y_1y_2' - y_2y_1'$
+
+$= e^{-x/2}\cos\frac{x}{2} \cdot e^{-x/2}\left(-\frac{1}{2}\sin\frac{x}{2} + \frac{1}{2}\cos\frac{x}{2}\right)$
+
+$- e^{-x/2}\sin\frac{x}{2} \cdot e^{-x/2}\left(-\frac{1}{2}\cos\frac{x}{2} - \frac{1}{2}\sin\frac{x}{2}\right)$
+
+$= e^{-x}\left[-\frac{1}{2}\cos\frac{x}{2}\sin\frac{x}{2} + \frac{1}{2}\cos^2\frac{x}{2} + \frac{1}{2}\sin\frac{x}{2}\cos\frac{x}{2} + \frac{1}{2}\sin^2\frac{x}{2}\right]$
+
+$= \frac{e^{-x}}{2}\left(\cos^2\frac{x}{2} + \sin^2\frac{x}{2}\right) = \frac{e^{-x}}{2}$
+
+Dividir ecuación por 2: $y'' + y' + \frac{y}{2} = \frac{2}{\sqrt{x}}$
+
+$W_1 = \begin{vmatrix} 0 & e^{-x/2}\sin\frac{x}{2} \\ \frac{2}{\sqrt{x}} & e^{-x/2}(-\frac{1}{2}\sin\frac{x}{2} + \frac{1}{2}\cos\frac{x}{2}) \end{vmatrix}$
+
+$= -\frac{2e^{-x/2}\sin\frac{x}{2}}{\sqrt{x}}$
+
+$W_2 = \begin{vmatrix} e^{-x/2}\cos\frac{x}{2} & 0 \\ e^{-x/2}(-\frac{1}{2}\cos\frac{x}{2} - \frac{1}{2}\sin\frac{x}{2}) & \frac{2}{\sqrt{x}} \end{vmatrix}$
+
+$= \frac{2e^{-x/2}\cos\frac{x}{2}}{\sqrt{x}}$
+
+$u_1 = \int\frac{-\frac{2e^{-x/2}\sin\frac{x}{2}}{\sqrt{x}}}{\frac{e^{-x}}{2}}dx = -\int\frac{4e^{x/2}\sin\frac{x}{2}}{\sqrt{x}}dx$ (integral no elemental)
+
+$u_2 = \int\frac{\frac{2e^{-x/2}\cos\frac{x}{2}}{\sqrt{x}}}{\frac{e^{-x}}{2}}dx = \int\frac{4e^{x/2}\cos\frac{x}{2}}{\sqrt{x}}dx$ (integral no elemental)
+
+$y = c_1e^{-x/2}\cos\frac{x}{2} + c_2e^{-x/2}\sin\frac{x}{2} + y_p$
+
+donde $y_p$ requiere integrales no elementales
+
+\textbf{17. $3y'' - 6y' + 6y = e^x\sec x$}
+
+Ec. característica: $3r^2 - 6r + 6 = 0 \Rightarrow r^2 - 2r + 2 = 0$
+
+$r = \frac{2 \pm \sqrt{4-8}}{2} = \frac{2 \pm 2i}{2} = 1 \pm i$
+
+$y_c = e^x(c_1\cos x + c_2\sin x)$
+
+$y_1 = e^x\cos x$, $y_2 = e^x\sin x$
+
+$y_1' = e^x(\cos x - \sin x)$, $y_2' = e^x(\sin x + \cos x)$
+
+$W = e^x\cos x \cdot e^x(\sin x + \cos x) - e^x\sin x \cdot e^x(\cos x - \sin x)$
+
+$= e^{2x}[\cos x\sin x + \cos^2 x - \sin x\cos x + \sin^2 x] = e^{2x}$
+
+Dividir ecuación por 3: $y'' - 2y' + 2y = \frac{e^x\sec x}{3}$
+
+$W_1 = \begin{vmatrix} 0 & e^x\sin x \\ \frac{e^x\sec x}{3} & e^x(\sin x + \cos x) \end{vmatrix} = -\frac{e^x\sin x \cdot e^x\sec x}{3} = -\frac{e^{2x}\tan x}{3}$
+
+$W_2 = \begin{vmatrix} e^x\cos x & 0 \\ e^x(\cos x - \sin x) & \frac{e^x\sec x}{3} \end{vmatrix} = \frac{e^x\cos x \cdot e^x\sec x}{3} = \frac{e^{2x}}{3}$
+
+$u_1 = \int\frac{-\frac{e^{2x}\tan x}{3}}{e^{2x}}dx = -\frac{1}{3}\int\tan x\,dx = -\frac{1}{3}(-\ln|\cos x|) = \frac{\ln|\cos x|}{3}$
+
+$u_2 = \int\frac{\frac{e^{2x}}{3}}{e^{2x}}dx = \int\frac{1}{3}dx = \frac{x}{3}$
+
+$y_p = \frac{\ln|\cos x|}{3} \cdot e^x\cos x + \frac{x}{3} \cdot e^x\sin x$
+
+$y = c_1e^x\cos x + c_2e^x\sin x + \frac{e^x\cos x\ln|\cos x|}{3} + \frac{xe^x\sin x}{3}$
+
+\textbf{18. $4y'' - 4y' + y = \frac{e^{x/2}}{\sqrt{1-x^2}}$}
+
+Ec. característica: $4r^2 - 4r + 1 = 0 \Rightarrow (2r-1)^2 = 0 \Rightarrow r = \frac{1}{2}$ (doble)
+
+$y_c = c_1e^{x/2} + c_2xe^{x/2}$
+
+$y_1 = e^{x/2}$, $y_2 = xe^{x/2}$
+
+$y_1' = \frac{1}{2}e^{x/2}$, $y_2' = e^{x/2} + \frac{x}{2}e^{x/2} = e^{x/2}\left(1 + \frac{x}{2}\right)$
+
+$W = \begin{vmatrix} e^{x/2} & xe^{x/2} \\ \frac{1}{2}e^{x/2} & e^{x/2}(1 + \frac{x}{2}) \end{vmatrix}$
+
+$= e^{x/2} \cdot e^{x/2}\left(1 + \frac{x}{2}\right) - xe^{x/2} \cdot \frac{1}{2}e^{x/2}$
+
+$= e^x\left(1 + \frac{x}{2} - \frac{x}{2}\right) = e^x$
+
+Dividir ecuación por 4: $y'' - y' + \frac{y}{4} = \frac{e^{x/2}}{4\sqrt{1-x^2}}$
+
+$W_1 = \begin{vmatrix} 0 & xe^{x/2} \\ \frac{e^{x/2}}{4\sqrt{1-x^2}} & e^{x/2}(1 + \frac{x}{2}) \end{vmatrix} = -\frac{xe^{x/2} \cdot e^{x/2}}{4\sqrt{1-x^2}} = -\frac{xe^x}{4\sqrt{1-x^2}}$
+
+$W_2 = \begin{vmatrix} e^{x/2} & 0 \\ \frac{1}{2}e^{x/2} & \frac{e^{x/2}}{4\sqrt{1-x^2}} \end{vmatrix} = \frac{e^{x/2} \cdot e^{x/2}}{4\sqrt{1-x^2}} = \frac{e^x}{4\sqrt{1-x^2}}$
+
+$u_1 = \int\frac{-\frac{xe^x}{4\sqrt{1-x^2}}}{e^x}dx = -\frac{1}{4}\int\frac{x}{\sqrt{1-x^2}}dx$
+
+Sea $u = 1-x^2$, $du = -2x\,dx$
+
+$u_1 = -\frac{1}{4}\int\frac{-du}{2\sqrt{u}} = \frac{1}{8}\int u^{-1/2}du = \frac{1}{8} \cdot 2\sqrt{u} = \frac{\sqrt{1-x^2}}{4}$
+
+$u_2 = \int\frac{\frac{e^x}{4\sqrt{1-x^2}}}{e^x}dx = \frac{1}{4}\int\frac{1}{\sqrt{1-x^2}}dx = \frac{\arcsin x}{4}$
+
+$y_p = \frac{\sqrt{1-x^2}}{4} \cdot e^{x/2} + \frac{\arcsin x}{4} \cdot xe^{x/2}$
+
+$y = c_1e^{x/2} + c_2xe^{x/2} + \frac{e^{x/2}\sqrt{1-x^2}}{4} + \frac{xe^{x/2}\arcsin x}{4}$
+
+\end{document}
