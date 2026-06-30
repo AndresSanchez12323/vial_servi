@@ -1,30 +1,36 @@
 <?php
 
-// Verificar si ya hay una sesión activa antes de configurar las cookies
 if (session_status() === PHP_SESSION_NONE) {
-    // Configurar las cookies de sesión antes de iniciar la sesión
     session_set_cookie_params([
-        'lifetime' => 0,                  // La sesión se destruye al cerrar el navegador
-        'path' => '/',                    // Disponible en todo el sitio
-        'httponly' => true,               // No accesible por JavaScript (más seguro)
-        'secure' => isset($_SERVER['HTTPS']), // Solo se envía en HTTPS si está activo
-        'samesite' => 'Lax'               // Protección contra ataques CSRF
+        'lifetime' => 0,
+        'path' => '/',
+        'httponly' => true,
+        'secure' => isset($_SERVER['HTTPS']),
+        'samesite' => 'Lax'
     ]);
 
-    // Iniciar la sesión solo si no está iniciada
     session_start();
 }
 
-// Datos de conexión
-$servername = "localhost";
-$username = "root";
-$password = ""; // Tu contraseña
-$dbname = "vial_servi";
+// Railway MySQL connection via DATABASE_URL or individual env vars
+$mysqlUrl = getenv('DATABASE_URL') ?: getenv('MYSQL_URL');
+if ($mysqlUrl) {
+    $parts = parse_url($mysqlUrl);
+    $servername = $parts['host'] ?? 'localhost';
+    $username = $parts['user'] ?? 'root';
+    $password = $parts['pass'] ?? '';
+    $dbname = ltrim($parts['path'] ?? '/vial_servi', '/');
+    $port = $parts['port'] ?? 3306;
+} else {
+    $servername = getenv('MYSQLHOST') ?: getenv('MYSQL_HOST') ?: 'localhost';
+    $username = getenv('MYSQLUSER') ?: getenv('MYSQL_USER') ?: 'root';
+    $password = getenv('MYSQLPASSWORD') ?: getenv('MYSQL_PASSWORD') ?: '';
+    $dbname = getenv('MYSQLDATABASE') ?: getenv('MYSQL_DATABASE') ?: 'vial_servi';
+    $port = getenv('MYSQLPORT') ?: getenv('MYSQL_PORT') ?: 3306;
+}
 
-// Crear conexión
-$conn = new mysqli($servername, $username, $password, $dbname);
+$conn = new mysqli($servername, $username, $password, $dbname, $port);
 
-// Verificar conexión
 if ($conn->connect_error) {
     die("Conexión fallida: " . $conn->connect_error);
 }
